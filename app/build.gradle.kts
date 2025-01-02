@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.wcsm.wcsmfinanceiro"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.wcsm.wcsmfinanceiro"
@@ -50,6 +50,9 @@ android {
 }
 
 dependencies {
+
+    // Splashscreen
+    implementation("androidx.core:core-splashscreen:1.0.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
