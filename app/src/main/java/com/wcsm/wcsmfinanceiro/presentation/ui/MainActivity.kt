@@ -20,7 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.wcsm.wcsmfinanceiro.ui.theme.WCSMFinanceiroTheme
+import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
