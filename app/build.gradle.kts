@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -52,7 +53,16 @@ android {
 dependencies {
 
     // Splashscreen
-    implementation("androidx.core:core-splashscreen:1.0.0")
+    implementation(libs.androidx.core.splashscreen)
+
+    // Navigation Component
+    implementation(libs.androidx.navigation.compose)
+
+    // JSON Serialization Library
+    implementation(libs.kotlinx.serialization.json)
+
+    // Extended Icons
+    implementation(libs.androidx.material.icons.extended)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

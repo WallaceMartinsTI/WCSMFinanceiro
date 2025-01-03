@@ -1,4 +1,4 @@
-package com.wcsm.wcsmfinanceiro.ui.theme
+package com.wcsm.wcsmfinanceiro.presentation.ui.theme
 
 import android.app.Activity
 import android.os.Build

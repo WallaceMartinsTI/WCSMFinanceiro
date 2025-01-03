@@ -1,4 +1,4 @@
-package com.wcsm.wcsmfinanceiro.ui.theme
+package com.wcsm.wcsmfinanceiro.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
