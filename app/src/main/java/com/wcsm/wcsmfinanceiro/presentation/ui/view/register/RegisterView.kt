@@ -1,24 +1,25 @@
-package com.wcsm.wcsmfinanceiro.presentation.ui.view.login
+package com.wcsm.wcsmfinanceiro.presentation.ui.view.register
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Login
+import androidx.compose.material.icons.filled.CheckCircleOutline
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Password
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -54,11 +55,15 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
 
 @Composable
-fun LoginView(
-    onCreateAccount: () -> Unit,
-    onLogin: () -> Unit
+fun RegisterView(
+    onAlreadyHasAccount: () -> Unit,
+    onRegister: () -> Unit
 ) {
-    val focusRequester = remember { FocusRequester() }
+    val nameFocusRequester = remember { FocusRequester() }
+    val emailFocusRequester = remember { FocusRequester() }
+
+    var name by remember { mutableStateOf("") }
+    var nameErrorMessage by remember { mutableStateOf("") }
 
     var email by remember { mutableStateOf("") }
     var emailErrorMessage by remember { mutableStateOf("") }
@@ -81,9 +86,9 @@ fun LoginView(
             contentDescription = "WCSM Financeiro logo",
             modifier = Modifier.size(250.dp)
         )
-        
+
         Text(
-            text = "Acesse sua conta para desbloquear todas as funcionalidades do WCSM Financeiro e gerenciar suas finanças com facilidade.",
+            text = "Crie sua conta agora e comece a organizar suas finanças de maneira simples e eficiente. Aproveite todas as funcionalidades do WCSM Financeiro!",
             color = OnBackgroundColor,
             fontFamily = PoppinsFontFamily,
             fontWeight = FontWeight.SemiBold,
@@ -92,11 +97,68 @@ fun LoginView(
         )
 
         OutlinedTextField(
+            value = name,
+            onValueChange = {
+                if(name.length < 50) name = it
+            },
+            modifier = Modifier
+                .width(280.dp)
+                .focusRequester(nameFocusRequester),
+            label = {
+                Text(
+                    text = "Nome",
+                    color = TertiaryColor,
+                    style = labelTextStyle
+                )
+            },
+            placeholder = {
+                Text(
+                    text = "Digite seu nome"
+                )
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Ícone de pessoa",
+                    tint = White06Color
+                )
+            },
+            trailingIcon = {
+                if(name.isNotEmpty()) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = "Ícone de x",
+                        modifier = Modifier
+                            .clickable {
+                                name = ""
+                                nameFocusRequester.requestFocus()
+                            },
+                        tint = White06Color
+                    )
+                }
+            },
+            singleLine = true,
+            isError = nameErrorMessage.isNotEmpty(),
+            supportingText = {
+                if(nameErrorMessage.isNotEmpty()) {
+                    Text(
+                        text = nameErrorMessage
+                    )
+                }
+            },
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Next
+            ),
+        )
+
+        OutlinedTextField(
             value = email,
             onValueChange = {
                 if(email.length < 255) email = it
             },
-            modifier = Modifier.width(280.dp),
+            modifier = Modifier
+                .width(280.dp)
+                .focusRequester(emailFocusRequester),
             label = {
                 Text(
                     text = "E-mail",
@@ -122,10 +184,9 @@ fun LoginView(
                         imageVector = Icons.Default.Clear,
                         contentDescription = "Ícone de x",
                         modifier = Modifier
-                            .focusRequester(focusRequester)
                             .clickable {
                                 email = ""
-                                focusRequester.requestFocus()
+                                emailFocusRequester.requestFocus()
                             },
                         tint = White06Color
                     )
@@ -144,8 +205,6 @@ fun LoginView(
                 imeAction = ImeAction.Next
             ),
         )
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
             value = password,
@@ -212,26 +271,26 @@ fun LoginView(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Não tem uma conta?",
+                text = "Já tem uma conta?",
                 color = OnBackgroundColor,
                 style = MaterialTheme.typography.bodySmall
             )
 
             Text(
-                text = "Criar conta",
+                text = "Entrar",
                 color = PrimaryColor,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier
                     .padding(start = 8.dp)
-                    .clickable { onCreateAccount() }
+                    .clickable { onAlreadyHasAccount() }
             )
         }
 
         Spacer(modifier = Modifier.weight(1f))
 
         Button(
-            onClick = { onLogin() },
+            onClick = { onRegister() },
             modifier = Modifier
                 .background(BackgroundColor)
                 .padding(top = 8.dp, bottom = 16.dp)
@@ -243,12 +302,12 @@ fun LoginView(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "ENTRAR",
+                    text = "REGISTRAR",
                     style = MaterialTheme.typography.bodyMedium
                 )
 
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Login,
+                    imageVector = Icons.Default.CheckCircleOutline,
                     contentDescription = null,
                     modifier = Modifier.padding(start = 16.dp)
                 )
@@ -260,11 +319,11 @@ fun LoginView(
 
 @Preview
 @Composable
-private fun LoginViewPreview() {
+private fun RegisterViewPreview() {
     WCSMFinanceiroTheme(dynamicColor = false) {
-        LoginView(
-            onCreateAccount = {},
-            onLogin = {}
+        RegisterView(
+            onAlreadyHasAccount = {},
+            onRegister = {}
         )
     }
 }

@@ -5,7 +5,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed class Screen(val route: String) {
     @Serializable
-    data object WelcomeScreen : Screen("welcome")
+    data object WelcomeView : Screen("welcome")
     @Serializable
-    data object LoginScreen : Screen("login")
+    data object LoginView : Screen("login")
+    @Serializable
+    data object RegisterView : Screen("register")
 }
