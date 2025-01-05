@@ -2,6 +2,7 @@ package com.wcsm.wcsmfinanceiro.presentation.ui.view.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -35,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -44,6 +47,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.wcsm.wcsmfinanceiro.R
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnBackgroundColor
@@ -66,6 +70,8 @@ fun LoginView(
     var password by remember { mutableStateOf("") }
     var passwordErrorMessage by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
+
+    var keepLogin by remember { mutableStateOf(false) }
 
     val labelTextStyle = TextStyle(
         fontFamily = PoppinsFontFamily,
@@ -145,8 +151,6 @@ fun LoginView(
             ),
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
         OutlinedTextField(
             value = password,
             onValueChange = {
@@ -203,6 +207,23 @@ fun LoginView(
             visualTransformation = if(showPassword) VisualTransformation.None
             else PasswordVisualTransformation()
         )
+
+        Row(
+            modifier = Modifier.width(280.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = keepLogin,
+                onCheckedChange = { keepLogin = !keepLogin },
+                modifier = Modifier.size(24.dp).padding(end = 8.dp)
+            )
+            Text(
+                text = "Continuar Logado?",
+                color = White06Color,
+                fontSize = 14.sp,
+                fontFamily = PoppinsFontFamily
+            )
+        }
 
         Row(
             modifier = Modifier

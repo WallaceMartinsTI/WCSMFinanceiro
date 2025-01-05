@@ -1,6 +1,9 @@
 package com.wcsm.wcsmfinanceiro.presentation.navigation
 
+import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -10,31 +13,35 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.view.WelcomeView
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.register.RegisterView
 
 @Composable
-fun AppNavigation() {
-    val navController = rememberNavController()
+fun AuthenticationNavigation() {
+    val authenticationNavController = rememberNavController()
 
     NavHost(
-        navController = navController,
-        startDestination = Screen.WelcomeView.route
+        navController = authenticationNavController,
+        startDestination = Screen.WelcomeScreen.route
     ) {
-        composable(route = Screen.WelcomeView.route) {
-            WelcomeView {
-                navController.navigate(Screen.LoginView.route)
-            }
+        composable(route = Screen.WelcomeScreen.route) {
+            WelcomeView(
+                onContinue = { authenticationNavController.navigate(Screen.LoginScreen.route) }
+            )
         }
 
-        composable(route = Screen.LoginView.route) {
+        composable(route = Screen.LoginScreen.route) {
             LoginView(
-                onCreateAccount = { navController.navigate(Screen.RegisterView.route) },
-                onLogin = { navController.navigate(Screen.WelcomeView.route) }
+                onCreateAccount = { authenticationNavController.navigate(Screen.RegisterScreen.route) },
+                onLogin = { authenticationNavController.navigate(Screen.MainNavigation.route) }
             )
         }
 
-        composable(route = Screen.RegisterView.route) {
+        composable(route = Screen.RegisterScreen.route) {
             RegisterView(
-                onAlreadyHasAccount = { navController.navigate(Screen.LoginView.route) },
-                onRegister = {}
+                onAlreadyHasAccount = { authenticationNavController.navigate(Screen.LoginScreen.route) },
+                onRegister = { authenticationNavController.navigate(Screen.LoginScreen.route) }
             )
+        }
+
+        composable(route = Screen.MainNavigation.route) {
+            MainNavigation()
         }
     }
 }
