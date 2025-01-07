@@ -13,5 +13,8 @@ val OnSurfaceColor = Color(0xFFCFCFCF)
 val ErrorColor = Color(0xFFCF6679)
 val TertiaryColor = Color(0xFFFFA726)
 val OnTertiaryColor = Color(0xFF1B1B37)
+
 val MoneyGreenColor = Color(0xFF159408)
 val White06Color = Color.White.copy(0.6f)
+val GrayColor = Color(0xFF4B4545)
+val RedColor = Color(0xFFBB271A)
