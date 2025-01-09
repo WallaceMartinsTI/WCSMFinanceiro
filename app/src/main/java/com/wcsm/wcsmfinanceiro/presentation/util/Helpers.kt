@@ -1,12 +1,7 @@
 package com.wcsm.wcsmfinanceiro.presentation.util
 
-import android.icu.util.Calendar
-import java.text.SimpleDateFormat
-import java.util.Locale
+import com.wcsm.wcsmfinanceiro.domain.model.PaymentType
 
-fun formatDateInMillisToBrazillianDate(dateInMillis: Long) : String {
-    val calendar = Calendar.getInstance()
-    calendar.timeInMillis = dateInMillis
-    val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    return dateFormat.format(calendar.timeInMillis)
+fun getPaymentTypeFromString(displayName: String) : PaymentType? {
+    return PaymentType.entries.find { it.displayName == displayName }
 }

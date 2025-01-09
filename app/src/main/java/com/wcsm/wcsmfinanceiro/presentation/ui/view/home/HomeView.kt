@@ -50,6 +50,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wcsm.wcsmfinanceiro.R
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.CurrentDateTimeContainer
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.CustomDateRangePicker
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.DateRangeFilter
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.StylizedText
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.ErrorColor
@@ -69,21 +70,9 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
 fun HomeView(
     homeViewModel: HomeViewModel = viewModel()
 ) {
-    val focusManager = LocalFocusManager.current
-
     val userName = "Wallace"
 
-    var showRangeDatePickerDialog by remember { mutableStateOf(false) }
-    var selectedFilterDate by remember { mutableStateOf("Selecione uma data") }
-    var selectedFilterDateErrorMessage by remember { mutableStateOf("") }
-
     val filterSelectedDateRange by homeViewModel.filterSelectedDateRange.collectAsState()
-
-    LaunchedEffect(filterSelectedDateRange) {
-        if(filterSelectedDateRange.isNotEmpty()) {
-            selectedFilterDate = filterSelectedDateRange
-        }
-    }
 
     Column(
         modifier = Modifier.fillMaxSize().background(BackgroundColor),
@@ -122,73 +111,17 @@ fun HomeView(
             color = OnBackgroundColor
         )
 
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceAround
-        ) {
-            OutlinedTextField(
-                value = selectedFilterDate,
-                onValueChange = {},
-                modifier = Modifier
-                    .width(300.dp)
-                    .onFocusEvent {
-                        if(it.isFocused) {
-                            showRangeDatePickerDialog = true
-                            focusManager.clearFocus()
-                        }
-                    }
-                ,
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.CalendarMonth,
-                        contentDescription = "Ícone de pessoa",
-                        tint = White06Color
-                    )
-                },
-                trailingIcon = {
-                    if(selectedFilterDate != "Selecione uma data") {
-                        Icon(
-                            imageVector = Icons.Default.Clear,
-                            contentDescription = "Ícone de x",
-                            modifier = Modifier
-                                .clickable {
-                                    selectedFilterDate = "Selecione uma data"
-                                },
-                            tint = White06Color
-                        )
-                    }
-                },
-                singleLine = true,
-                readOnly = true,
-                isError = selectedFilterDateErrorMessage.isNotEmpty(),
-                supportingText = {
-                    if(selectedFilterDateErrorMessage.isNotEmpty()) {
-                        Text(
-                            text = selectedFilterDateErrorMessage
-                        )
-                    }
-                }
-            )
-            IconButton(
-                onClick = {}
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Ícone de lupa",
-                    modifier = Modifier
-                        .clickable {
-                            if(selectedFilterDate == "Selecione uma data") {
-                                selectedFilterDateErrorMessage = "Selecione uma data para filtrar."
-                            }
-                        }
-                        .size(40.dp)
-                        .padding(top = 4.dp),
-                    tint = White06Color
+        DateRangeFilter(
+            filterSelectedDateRange = filterSelectedDateRange,
+            onDateSelected = { selectedDate ->
+                homeViewModel.updateFilterSelectedDateRange(
+                    dateRange = selectedDate
                 )
-            }
-        }
+            },
+            onFilter = { TODO("Ao realizar o filtro") }
+        )
 
-        if(showRangeDatePickerDialog) {
+        /*if(showRangeDatePickerDialog) {
             CustomDateRangePicker(
                 onDismiss = { showRangeDatePickerDialog = false },
                 onFillDate = { startDate, endDate ->
@@ -197,7 +130,7 @@ fun HomeView(
                     )
                 }
             )
-        }
+        }*/
 
         HorizontalDivider(
             modifier = Modifier.padding(16.dp),

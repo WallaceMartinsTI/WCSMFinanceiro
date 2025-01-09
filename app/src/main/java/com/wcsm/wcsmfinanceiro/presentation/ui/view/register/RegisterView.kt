@@ -72,11 +72,6 @@ fun RegisterView(
     var passwordErrorMessage by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
 
-    val labelTextStyle = TextStyle(
-        fontFamily = PoppinsFontFamily,
-        fontWeight = FontWeight.Bold
-    )
-
     Column(
         modifier = Modifier.fillMaxSize().background(BackgroundColor),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -107,8 +102,7 @@ fun RegisterView(
             label = {
                 Text(
                     text = "Nome",
-                    color = TertiaryColor,
-                    style = labelTextStyle
+                    style = MaterialTheme.typography.labelMedium
                 )
             },
             placeholder = {
@@ -138,9 +132,9 @@ fun RegisterView(
                 }
             },
             singleLine = true,
-            isError = nameErrorMessage.isNotEmpty(),
+            isError = nameErrorMessage.isNotBlank(),
             supportingText = {
-                if(nameErrorMessage.isNotEmpty()) {
+                if(nameErrorMessage.isNotBlank()) {
                     Text(
                         text = nameErrorMessage
                     )
@@ -162,8 +156,7 @@ fun RegisterView(
             label = {
                 Text(
                     text = "E-mail",
-                    color = TertiaryColor,
-                    style = labelTextStyle
+                    style = MaterialTheme.typography.labelMedium
                 )
             },
             placeholder = {
@@ -193,9 +186,9 @@ fun RegisterView(
                 }
             },
             singleLine = true,
-            isError = emailErrorMessage.isNotEmpty(),
+            isError = emailErrorMessage.isNotBlank(),
             supportingText = {
-                if(emailErrorMessage.isNotEmpty()) {
+                if(emailErrorMessage.isNotBlank()) {
                     Text(
                         text = emailErrorMessage
                     )
@@ -214,8 +207,7 @@ fun RegisterView(
             label = {
                 Text(
                     text = "Senha",
-                    color = TertiaryColor,
-                    style = labelTextStyle
+                    style = MaterialTheme.typography.labelMedium
                 )
             },
             placeholder = {
@@ -248,9 +240,9 @@ fun RegisterView(
                 }
             },
             singleLine = true,
-            isError = passwordErrorMessage.isNotEmpty(),
+            isError = passwordErrorMessage.isNotBlank(),
             supportingText = {
-                if(passwordErrorMessage.isNotEmpty()) {
+                if(passwordErrorMessage.isNotBlank()) {
                     Text(
                         text = passwordErrorMessage
                     )

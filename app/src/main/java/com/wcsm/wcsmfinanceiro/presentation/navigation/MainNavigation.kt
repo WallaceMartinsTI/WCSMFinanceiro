@@ -11,6 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.wcsm.wcsmfinanceiro.presentation.model.Screen
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.BottomBar
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.bills.BillsView
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.home.HomeView

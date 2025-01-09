@@ -73,11 +73,6 @@ fun LoginView(
 
     var keepLogin by remember { mutableStateOf(false) }
 
-    val labelTextStyle = TextStyle(
-        fontFamily = PoppinsFontFamily,
-        fontWeight = FontWeight.Bold
-    )
-
     Column(
         modifier = Modifier.fillMaxSize().background(BackgroundColor),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -106,8 +101,7 @@ fun LoginView(
             label = {
                 Text(
                     text = "E-mail",
-                    color = TertiaryColor,
-                    style = labelTextStyle
+                    style = MaterialTheme.typography.labelMedium
                 )
             },
             placeholder = {
@@ -138,9 +132,9 @@ fun LoginView(
                 }
             },
             singleLine = true,
-            isError = emailErrorMessage.isNotEmpty(),
+            isError = emailErrorMessage.isNotBlank(),
             supportingText = {
-                if(emailErrorMessage.isNotEmpty()) {
+                if(emailErrorMessage.isNotBlank()) {
                     Text(
                         text = emailErrorMessage
                     )
@@ -159,8 +153,7 @@ fun LoginView(
             label = {
                 Text(
                     text = "Senha",
-                    color = TertiaryColor,
-                    style = labelTextStyle
+                    style = MaterialTheme.typography.labelMedium
                 )
             },
             placeholder = {
@@ -193,9 +186,9 @@ fun LoginView(
                 }
             },
             singleLine = true,
-            isError = passwordErrorMessage.isNotEmpty(),
+            isError = passwordErrorMessage.isNotBlank(),
             supportingText = {
-                if(passwordErrorMessage.isNotEmpty()) {
+                if(passwordErrorMessage.isNotBlank()) {
                     Text(
                         text = passwordErrorMessage
                     )

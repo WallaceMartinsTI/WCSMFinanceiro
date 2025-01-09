@@ -1,4 +1,4 @@
-package com.wcsm.wcsmfinanceiro.presentation.navigation
+package com.wcsm.wcsmfinanceiro.presentation.ui.component
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.clickable
