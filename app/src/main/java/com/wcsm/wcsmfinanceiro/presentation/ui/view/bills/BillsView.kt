@@ -1,8 +1,10 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills
 
+import android.widget.DatePicker
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Expand
@@ -29,7 +32,9 @@ import androidx.compose.material.icons.filled.Money
 import androidx.compose.material.icons.filled.NoteAlt
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -51,7 +56,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -68,6 +75,7 @@ import com.wcsm.wcsmfinanceiro.domain.model.BillType
 import com.wcsm.wcsmfinanceiro.domain.model.Category
 import com.wcsm.wcsmfinanceiro.domain.model.PaymentType
 import com.wcsm.wcsmfinanceiro.presentation.model.BillModalState
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppDatePicker
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.DateRangeFilter
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.MoneyGreenColor
@@ -356,6 +364,9 @@ fun RegisterOrEditBillDialog(
 
     var billModalState by remember { mutableStateOf(validatedBillModalState) }
 
+    var selectedDate by remember { mutableStateOf("") }
+    var showDatePickerDialog by remember { mutableStateOf(false) }
+
     Dialog(
         onDismissRequest = { onDismiss() },
     ) {
@@ -363,7 +374,6 @@ fun RegisterOrEditBillDialog(
             modifier = Modifier
                 .clip(RoundedCornerShape(15.dp))
                 .fillMaxWidth()
-                //.border(1.dp, Color.Red, RoundedCornerShape(15.dp))
                 .background(SurfaceColor)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -482,7 +492,57 @@ fun RegisterOrEditBillDialog(
             )
 
             // Data DatePicker
-
+            OutlinedTextField(
+                value = selectedDate,
+                onValueChange = {},
+                modifier = Modifier
+                    .focusRequester(focusRequester[2])
+                    .onFocusEvent {
+                        if(it.isFocused) {
+                            showDatePickerDialog = true
+                            focusRequester[2].freeFocus()
+                        }
+                    }
+                    .padding(bottom = 8.dp),
+                label = {
+                    Text(
+                        text = "Data*",
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                },
+                isError = billModalState.dateErrorMessage.isNotEmpty(),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.CalendarMonth,
+                        contentDescription = "Ícone de Calendário",
+                        tint = White06Color
+                    )
+                },
+                trailingIcon = {
+                    if(selectedDate != "") {
+                        Icon(
+                            imageVector = Icons.Default.Clear,
+                            contentDescription = "Ícone de x",
+                            modifier = Modifier
+                                .clickable {
+                                    selectedDate = "Selecione uma data"
+                                    focusRequester[2].requestFocus()
+                                },
+                            tint = White06Color
+                        )
+                    }
+                },
+                readOnly = true
+            )
+            if(showDatePickerDialog) {
+                AppDatePicker(
+                    onDismiss = {
+                        showDatePickerDialog = false
+                    }
+                ) { selectedDateResult ->
+                    selectedDate = selectedDateResult
+                }
+            }
 
             OutlinedTextField(
                 value = billModalState.description,
@@ -495,7 +555,7 @@ fun RegisterOrEditBillDialog(
                 },
                 modifier = Modifier
                     .width(280.dp)
-                    .focusRequester(focusRequester[2]),
+                    .focusRequester(focusRequester[3]),
                 label = {
                     Text(
                         text = "Descrição",
@@ -524,7 +584,7 @@ fun RegisterOrEditBillDialog(
                                     billModalState = billModalState.copy(
                                         description = ""
                                     )
-                                    focusRequester[2].requestFocus()
+                                    focusRequester[3].requestFocus()
                                 },
                             tint = White06Color
                         )
@@ -548,7 +608,7 @@ fun RegisterOrEditBillDialog(
                 },
                 modifier = Modifier
                     .width(280.dp)
-                    .focusRequester(focusRequester[3]),
+                    .focusRequester(focusRequester[4]),
                 label = {
                     Text(
                         text = "Valor*",
@@ -577,7 +637,7 @@ fun RegisterOrEditBillDialog(
                                     billModalState = billModalState.copy(
                                         value = 0.0
                                     )
-                                    focusRequester[3].requestFocus()
+                                    focusRequester[4].requestFocus()
                                 },
                             tint = White06Color
                         )
@@ -677,7 +737,7 @@ fun RadioButtonChooser(
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(15.dp))
-            .border(1.dp, PrimaryColor, RoundedCornerShape(15.dp))
+            .border(1.dp, White06Color, RoundedCornerShape(15.dp))
             .selectableGroup()
             .background(SurfaceColor)
     ) {

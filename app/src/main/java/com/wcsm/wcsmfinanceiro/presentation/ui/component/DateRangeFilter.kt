@@ -31,8 +31,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
@@ -55,7 +56,8 @@ fun DateRangeFilter(
     onDateSelected: (selectedDate: String) -> Unit,
     onFilter: () -> Unit
 ) {
-    val focusManager = LocalFocusManager.current
+    //val focusManager = LocalFocusManager.current
+    val focusRequester = remember { FocusRequester() }
 
     var showRangeDatePickerDialog by remember { mutableStateOf(false) }
     var selectedFilterDate by remember { mutableStateOf("Selecione uma data") }
@@ -78,12 +80,13 @@ fun DateRangeFilter(
             onValueChange = {},
             modifier = Modifier
                 .width(300.dp)
+                .focusRequester(focusRequester)
                 .onFocusEvent {
                     if(it.isFocused) {
                         showRangeDatePickerDialog = true
+                        focusRequester.freeFocus()
                     }
-                }
-            ,
+                },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.CalendarMonth,
@@ -136,137 +139,13 @@ fun DateRangeFilter(
     }
 
     if(showRangeDatePickerDialog) {
-        CustomDateRangePicker(
+        AppDateRangePicker(
             onDismiss = {
                 showRangeDatePickerDialog = false
-                focusManager.clearFocus()
+                //focusManager.clearFocus()
             },
             onFillDate = { startDate, endDate ->
                 onDateSelected("$startDate - $endDate")
-            }
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CustomDateRangePicker(
-    onDismiss: () -> Unit,
-    onFillDate: (startDate: String, endDate: String) -> Unit
-) {
-    val context = LocalContext.current
-
-    val datePickerState = rememberDateRangePickerState(
-        initialSelectedStartDateMillis = null,
-        initialSelectedEndDateMillis = null,
-        yearRange = IntRange(2000, 2100)
-    )
-
-    val dateFormatter = remember {
-        SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply {
-            timeZone = TimeZone.getTimeZone("UTC")
-        }
-    }
-
-    var startDateText = datePickerState.selectedStartDateMillis?.let {
-        dateFormatter.format(Date(it))
-    } ?: "Data Inicial"
-
-    var endDateText = datePickerState.selectedEndDateMillis?.let {
-        dateFormatter.format(Date(it))
-    } ?: "Data Final"
-
-    var toastShowedCounter = 0
-
-    val dateRangePickerColors = DatePickerDefaults.colors(
-        headlineContentColor = PrimaryColor,
-        subheadContentColor = SecondaryColor
-    )
-
-    LaunchedEffect(Unit) {
-        startDateText = "Data Inicial"
-        endDateText = "Data Final"
-    }
-
-    LaunchedEffect(startDateText, endDateText) {
-        if(
-            isDateValid(
-                displayModeValidation = DisplayMode.Picker,
-                startDateText = startDateText,
-                endDateText = endDateText,
-                datePickerDisplayMode = datePickerState.displayMode
-            )
-        ) {
-            onFillDate(startDateText, endDateText)
-            onDismiss()
-        }
-    }
-
-    DatePickerDialog(
-        onDismissRequest = { onDismiss() },
-        confirmButton = {
-            Button(
-                onClick = {
-                    if(
-                        isDateValid(
-                            displayModeValidation = DisplayMode.Input,
-                            startDateText = startDateText,
-                            endDateText = endDateText,
-                            datePickerDisplayMode = datePickerState.displayMode
-                        )
-                    ) {
-                        onFillDate(startDateText, endDateText)
-                        onDismiss()
-                    } else {
-                        if(toastShowedCounter < 2) {
-                            Toast.makeText(
-                                context,
-                                "Data Inválida, tente novamente.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                        toastShowedCounter++
-                    }
-                }
-            ) {
-                Text(
-                    text = "CONFIRMAR"
-                )
-            }
-        }
-    ) {
-        DateRangePicker(
-            state = datePickerState,
-            colors = dateRangePickerColors,
-            title = {
-                Text(
-                    text = "Selecione um intervalo de data para filtrar",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    color = OnSurfaceColor,
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.SemiBold,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            },
-            headline = {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = startDateText,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-
-                    Text(
-                        text = endDateText,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
             }
         )
     }
@@ -276,22 +155,9 @@ fun CustomDateRangePicker(
 @Composable
 private fun DateTimeContainerPreview() {
     WCSMFinanceiroTheme(dynamicColor = false) {
-        CustomDateRangePicker(
-            onDismiss = {},
-            onFillDate = { _, _ -> }
-        )
+        DateRangeFilter(
+            filterSelectedDateRange = "",
+            onDateSelected = {}
+        ) { }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-private fun isDateValid(
-    displayModeValidation: DisplayMode,
-    startDateText: String,
-    endDateText: String,
-    datePickerDisplayMode: DisplayMode
-) : Boolean {
-    val validateDisplayMode = datePickerDisplayMode == displayModeValidation
-    val validateDateTexts = startDateText != "Data Inicial" && endDateText != "Data Final"
-
-    return validateDisplayMode && validateDateTexts
 }
