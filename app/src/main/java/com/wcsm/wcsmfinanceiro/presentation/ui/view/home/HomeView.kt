@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wcsm.wcsmfinanceiro.R
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.CurrentDateTimeContainer
@@ -53,7 +54,7 @@ fun HomeView(
 ) {
     val userName = "Wallace"
 
-    val filterSelectedDateRange by homeViewModel.filterSelectedDateRange.collectAsState()
+    val filterSelectedDateRange by homeViewModel.filterSelectedDateRange.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier.fillMaxSize().background(BackgroundColor),

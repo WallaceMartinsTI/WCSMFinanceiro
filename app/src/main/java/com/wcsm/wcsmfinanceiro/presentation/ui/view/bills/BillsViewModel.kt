@@ -5,12 +5,13 @@ import com.wcsm.wcsmfinanceiro.domain.model.Bill
 import com.wcsm.wcsmfinanceiro.domain.model.BillType
 import com.wcsm.wcsmfinanceiro.domain.model.Category
 import com.wcsm.wcsmfinanceiro.domain.model.PaymentType
+import com.wcsm.wcsmfinanceiro.presentation.model.BillModalState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class BillsViewModel : ViewModel() {
     // Temp for tests
-    val billsList = listOf(
+    private val billsList = listOf(
         Bill(
             id = 1,
             billType = BillType.INCOME,
@@ -259,11 +260,88 @@ class BillsViewModel : ViewModel() {
     private val _bills = MutableStateFlow<List<Bill>?>(null)
     val bills: StateFlow<List<Bill>?> = _bills
 
+    private val _isBillModalStateValid = MutableStateFlow(false)
+    val isBillModalStateValid: StateFlow<Boolean> = _isBillModalStateValid
+
+    private val _billModalState = MutableStateFlow(
+        BillModalState(
+            id = -1,
+            billType = BillType.INCOME,
+            origin = "",
+            title = "",
+            titleErrorMessage = "",
+            date = 0L,
+            dateErrorMessage = "",
+            description = "",
+            value = 0.0,
+            valueErrorMessage = "",
+            paymentType = PaymentType.MONEY,
+            category = Category(0L, ""),
+            paid = false,
+            dueDate = 0L,
+            expired = false,
+            tags = emptyList()
+        )
+    )
+    val billModalState: StateFlow<BillModalState> = _billModalState
+
     fun updateFilterSelectedDateRange(dateRange: String) {
         _filterSelectedDateRange.value = dateRange
     }
 
     init {
         _bills.value = billsList
+    }
+
+    fun saveBill(bill: Bill) {}
+
+    fun updateBill(bill: Bill) {}
+
+    fun validateBillModalState(billModalState: BillModalState) {
+        _isBillModalStateValid.value = false
+
+        val isTitleValid = validateTitle(billModalState.title)
+        val isDateValid = validateDate(billModalState.date)
+        val isValueValid = validateValue(billModalState.value)
+
+        val isValid = isTitleValid.first && isDateValid.first && isValueValid.first
+
+        _billModalState.value = billModalState.copy(
+            titleErrorMessage = "",
+            dateErrorMessage = "",
+            valueErrorMessage = ""
+        )
+
+        if(isValid) _isBillModalStateValid.value = true
+    }
+
+    private fun validateTitle(title: String) : Pair<Boolean, String> {
+        return if(title.isBlank()) {
+            Pair(false, "O título não pode ser vazio")
+        } else if(title.length < 3) {
+            Pair(false, "O título é muito curto (min. 3 caracteres)")
+        } else {
+            Pair(true, "")
+        }
+    }
+
+    private fun validateDate(date: Long) : Pair<Boolean, String> {
+        return if(date == 0L) {
+            Pair(false, "Você deve escolher uma data")
+        } else if(date < 0) {
+            Pair(false, "Data inválida")
+        } else {
+            Pair(true, "")
+        }
+    }
+
+    private fun validateValue(value: Double) : Pair<Boolean, String> {
+        return if(value == 0.0) {
+            Pair(false, "Você deve informar o valor")
+        } else if(value < 0) {
+            Pair(false, "Valor inválido")
+        } else {
+            Pair(true, "")
+        }
     }
 }
