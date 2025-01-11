@@ -24,18 +24,25 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Expand
+import androidx.compose.material.icons.filled.Healing
+import androidx.compose.material.icons.filled.LocalPharmacy
 import androidx.compose.material.icons.filled.Money
 import androidx.compose.material.icons.filled.NoteAlt
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -367,6 +374,8 @@ fun RegisterOrEditBillDialog(
     var selectedDate by remember { mutableStateOf("") }
     var showDatePickerDialog by remember { mutableStateOf(false) }
 
+
+
     Dialog(
         onDismissRequest = { onDismiss() },
     ) {
@@ -378,6 +387,10 @@ fun RegisterOrEditBillDialog(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Text(
+                text = if(bill != null) "EDITAR CONTA" else "ADICIONAR CONTA"
+            )
+
             OutlinedTextField(
                 value = billModalState.origin,
                 onValueChange = {
@@ -525,7 +538,7 @@ fun RegisterOrEditBillDialog(
                             contentDescription = "Ícone de x",
                             modifier = Modifier
                                 .clickable {
-                                    selectedDate = "Selecione uma data"
+                                    selectedDate = ""
                                     focusRequester[2].requestFocus()
                                 },
                             tint = White06Color
@@ -597,6 +610,9 @@ fun RegisterOrEditBillDialog(
                 ),
             )
 
+            // Dropdown Selection CATEGORY
+
+
             OutlinedTextField(
                 value = billModalState.value.toBrazilianReal(),
                 onValueChange = { newValue ->
@@ -667,6 +683,7 @@ fun RegisterOrEditBillDialog(
             }
 
             // Category DROPDOWN
+            CategoriesDropdown()
 
             Row(
                 modifier = Modifier.width(280.dp),
@@ -778,5 +795,78 @@ private fun RadioButtonChooserPreview() {
     WCSMFinanceiroTheme(dynamicColor = false) {
         val options = listOf(PaymentType.MONEY.displayName, PaymentType.CARD.displayName)
         RadioButtonChooser(optionsList = options) {}
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CategoriesDropdown() {
+    var category by remember { mutableStateOf("") }
+    val categoriesDrowpdownOptions = listOf(
+        Category(0, "Saúde", Icons.Default.Healing),
+        Category(1, "Mercado", Icons.Default.ShoppingCart),
+        Category(2, "Farmácia", Icons.Default.LocalPharmacy),
+        Category(3, "Lazer", Icons.Default.ShoppingBag),
+        Category(4, "Manutenção", Icons.Default.Build),
+    )
+    var showCategoriesDropdown by remember { mutableStateOf(false) }
+
+    if(showCategoriesDropdown) {
+        Box {
+            ExposedDropdownMenuBox(
+                expanded = showCategoriesDropdown,
+                onExpandedChange = { showCategoriesDropdown = !showCategoriesDropdown }
+            ) {
+                OutlinedTextField(
+                    modifier = Modifier.menuAnchor(),
+                    value = category,
+                    onValueChange = {
+                        showCategoriesDropdown = !showCategoriesDropdown
+                    },
+                    singleLine = true,
+                    /*isError = installmentFieldErrorMessage.isNotEmpty(),
+                    trailingIcon = {
+                        Icon(
+                            imageVector =
+                            if (installmentExpanded) Icons.Filled.KeyboardArrowUp
+                            else Icons.Filled.KeyboardArrowDown,
+                            contentDescription = "Add icon",
+                            tint = Color.Gray
+                        )
+                    },*/
+                    readOnly = true,
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.None)
+                )
+
+                ExposedDropdownMenu(
+                    expanded = showCategoriesDropdown,
+                    onDismissRequest = { showCategoriesDropdown = false }
+                ) {
+                    categoriesDrowpdownOptions.forEach { categorySelected ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(text = categorySelected.title)
+                            },
+                            onClick = {
+                                category = categorySelected.title
+                                showCategoriesDropdown = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun CategoriesDropdownPreview() {
+    WCSMFinanceiroTheme(dynamicColor = false) {
+        Column(
+            modifier = Modifier.size(500.dp).background(BackgroundColor)
+        ) {
+            CategoriesDropdown()
+        }
     }
 }

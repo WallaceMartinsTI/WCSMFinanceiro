@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnSurfaceColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PrimaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.SecondaryColor
+import com.wcsm.wcsmfinanceiro.presentation.ui.theme.TertiaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -47,7 +48,7 @@ fun AppDatePicker(
 
     val dateFormatter = remember {
         SimpleDateFormat(
-            "dd 'de' MMM 'de' yyyy",
+            "dd/MM/yyyy",
             Locale("pt", "BR")
         ).apply {
             timeZone = TimeZone.getTimeZone("UTC")
@@ -59,9 +60,9 @@ fun AppDatePicker(
     } ?: "Selecione uma data"
 
     val datePickerColors = DatePickerDefaults.colors(
-        titleContentColor = Color.Red,
         headlineContentColor = PrimaryColor,
-        subheadContentColor = SecondaryColor
+        navigationContentColor = SecondaryColor,
+        weekdayContentColor = TertiaryColor
     )
 
     LaunchedEffect(Unit) {
@@ -75,7 +76,9 @@ fun AppDatePicker(
         confirmButton = {
             Button(
                 onClick = {
-                    onFillDate(selectedDate)
+                    if(selectedDate != "Selecione uma data") {
+                        onFillDate(selectedDate)
+                    }
                     onDismiss()
                 }
             ) {
@@ -105,7 +108,7 @@ fun AppDatePicker(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
                         text = selectedDate,
