@@ -1,5 +1,6 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.wcsm.wcsmfinanceiro.domain.model.Bill
 import com.wcsm.wcsmfinanceiro.domain.model.BillType
@@ -298,6 +299,7 @@ class BillsViewModel : ViewModel() {
     fun updateBill(bill: Bill) {}
 
     fun validateBillModalState(billModalState: BillModalState) {
+        Log.i("#-# TESTE #-#", "CHAMOU VALIDACAO")
         _isBillModalStateValid.value = false
 
         val isTitleValid = validateTitle(billModalState.title)
@@ -307,12 +309,13 @@ class BillsViewModel : ViewModel() {
         val isValid = isTitleValid.first && isDateValid.first && isValueValid.first
 
         _billModalState.value = billModalState.copy(
-            titleErrorMessage = "",
-            dateErrorMessage = "",
-            valueErrorMessage = ""
+            titleErrorMessage = isTitleValid.second,
+            dateErrorMessage = isDateValid.second,
+            valueErrorMessage = isValueValid.second
         )
 
         if(isValid) _isBillModalStateValid.value = true
+        Log.i("#-# TESTE #-#", "FIM VALIDACAO - isValid: $isValid")
     }
 
     private fun validateTitle(title: String) : Pair<Boolean, String> {

@@ -1,5 +1,6 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -71,6 +72,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontStyle
@@ -79,6 +81,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -91,6 +94,7 @@ import com.wcsm.wcsmfinanceiro.domain.model.Category
 import com.wcsm.wcsmfinanceiro.domain.model.PaymentType
 import com.wcsm.wcsmfinanceiro.presentation.model.BillModalState
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppDatePicker
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.DateRangeFilter
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.ErrorColor
@@ -111,11 +115,14 @@ import com.wcsm.wcsmfinanceiro.presentation.util.getBillTypeFromString
 import com.wcsm.wcsmfinanceiro.presentation.util.getPaymentTypeFromString
 import com.wcsm.wcsmfinanceiro.presentation.util.toBill
 import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianReal
+import kotlinx.coroutines.delay
 
 @Composable
 fun BillsView(
     billsViewModel: BillsViewModel = viewModel()
 ) {
+    val configuration = LocalConfiguration.current
+
     val filterSelectedDateRange by billsViewModel.filterSelectedDateRange.collectAsStateWithLifecycle()
     val bills by billsViewModel.bills.collectAsStateWithLifecycle()
     val billModalState by billsViewModel.billModalState.collectAsStateWithLifecycle()
@@ -127,11 +134,17 @@ fun BillsView(
 
     var selectedBillToModal: Bill? by remember { mutableStateOf(null) }
 
+    val deviceScreenHeight = configuration.screenHeightDp.dp
 
     LaunchedEffect(filterSelectedDateRange) {
         if (filterSelectedDateRange.isNotEmpty()) {
             selectedFilterDate = filterSelectedDateRange
         }
+    }
+
+    LaunchedEffect(billModalState) {
+        Log.i("#-# TESTE #-#", "LAUNCHED EFFECT observa billModalState")
+        Log.i("#-# TESTE #-#", "billModalState: $billModalState")
     }
 
     Column(
@@ -215,6 +228,7 @@ fun BillsView(
                     billsViewModel.validateBillModalState(billModalStateToValidate)
                 },
                 isBillModalStateValidationValid = isBillModalStateValid,
+                deviceScreenHeight = deviceScreenHeight,
                 onConfirm = { bill ->
                     if(selectedBillToModal != null) {
                         billsViewModel.updateBill(bill)
@@ -223,6 +237,8 @@ fun BillsView(
                     }
                 }
             ) {
+                billModalState.resetErrorMessages()
+                selectedBillToModal = null
                 showRegisterOrEditBillDialog = false
             }
         }
@@ -364,6 +380,7 @@ fun RegisterOrEditBillDialog(
     billModalStateInput: BillModalState,
     billModalStateValidation: (billModalState: BillModalState) -> Unit,
     isBillModalStateValidationValid: Boolean,
+    deviceScreenHeight: Dp,
     onConfirm: (bill: Bill) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -382,6 +399,12 @@ fun RegisterOrEditBillDialog(
     var tagsToAdd by remember { mutableStateOf("") }
 
     var billModalState by remember { mutableStateOf(billModalStateInput) }
+
+    var isModalLoading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(billModalStateInput) {
+        billModalState = billModalStateInput
+    }
 
     LaunchedEffect(Unit) {
         if(bill != null) {
@@ -404,15 +427,21 @@ fun RegisterOrEditBillDialog(
                 tags = bill.tags ?: emptyList()
             )
         }
+
+        //delay(3000)
+
+        isModalLoading = false
     }
 
     Dialog(
         onDismissRequest = { onDismiss() },
     ) {
+        Log.i("#-# TESTE #-#", "Abriu DIALOG - bill: $bill")
+        val dialogHeight = deviceScreenHeight * 0.8f // 80% of device height
         Column(
             modifier = Modifier
                 .clip(RoundedCornerShape(15.dp))
-                .fillMaxWidth()
+                .height(dialogHeight)
                 .background(SurfaceColor)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -427,497 +456,513 @@ fun RegisterOrEditBillDialog(
 
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                RadioButtonChooser(
-                    optionsList = billTypeRadioChooserOptions,
-                    modifier = Modifier.width(280.dp).padding(bottom = 16.dp)
-                ) { selectedValue ->
-                    billModalState = billModalState.copy(
-                        billType = getBillTypeFromString(selectedValue) ?: BillType.INCOME
-                    )
-                }
-
-                OutlinedTextField(
-                    value = billModalState.origin,
-                    onValueChange = {
-                        if(billModalState.origin.length < 50) {
-                            billModalState = billModalState.copy(
-                                origin = it
-                            )
-                        }
-                    },
-                    modifier = Modifier
-                        .width(280.dp)
-                        .focusRequester(focusRequester[0]),
-                    label = {
-                        Text(
-                            text = "Origem",
-                            style = MaterialTheme.typography.labelMedium
-                        )
-                    },
-                    placeholder = {
-                        Text(
-                            text = "Digite a origem da compra"
-                        )
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.ShoppingCart,
-                            contentDescription = "Ícone de carrinho de compra",
-                            tint = White06Color
-                        )
-                    },
-                    trailingIcon = {
-                        if(billModalState.origin.isNotEmpty()) {
-                            Icon(
-                                imageVector = Icons.Default.Clear,
-                                contentDescription = "Ícone de x",
-                                modifier = Modifier
-                                    .clickable {
-                                        billModalState = billModalState.copy(
-                                            origin = ""
-                                        )
-                                        focusRequester[0].requestFocus()
-                                    },
-                                tint = White06Color
-                            )
-                        }
-                    },
-                    singleLine = true,
-                    supportingText = {},
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next
-                    ),
-                )
-
-                OutlinedTextField(
-                    value = billModalState.title,
-                    onValueChange = {
-                        if(billModalState.title.length < 50) {
-                            billModalState = billModalState.copy(
-                                title = it
-                            )
-                        }
-                    },
-                    modifier = Modifier
-                        .width(280.dp)
-                        .focusRequester(focusRequester[1]),
-                    label = {
-                        Text(
-                            text = "Título*",
-                            style = MaterialTheme.typography.labelMedium
-                        )
-                    },
-                    placeholder = {
-                        Text(
-                            text = "Digite o título da conta"
-                        )
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.NoteAlt,
-                            contentDescription = "Ícone de anotação",
-                            tint = White06Color
-                        )
-                    },
-                    trailingIcon = {
-                        if(billModalState.title.isNotEmpty()) {
-                            Icon(
-                                imageVector = Icons.Default.Clear,
-                                contentDescription = "Ícone de x",
-                                modifier = Modifier
-                                    .clickable {
-                                        billModalState = billModalState.copy(
-                                            title = ""
-                                        )
-                                        focusRequester[1].requestFocus()
-                                    },
-                                tint = White06Color
-                            )
-                        }
-                    },
-                    singleLine = true,
-                    isError = billModalState.titleErrorMessage.isNotEmpty(),
-                    supportingText = {
-                        if(billModalState.titleErrorMessage.isNotEmpty()) {
-                            Text(
-                                text = billModalState.titleErrorMessage
-                            )
-                        }
-                    },
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next
-                    ),
-                )
-
-                OutlinedTextField(
-                    value = selectedDate,
-                    onValueChange = {},
-                    modifier = Modifier
-                        .focusRequester(focusRequester[2])
-                        .onFocusEvent {
-                            if(it.isFocused) {
-                                showDatePickerDialog = true
-                                focusRequester[2].freeFocus()
-                            }
-                        },
-                    label = {
-                        Text(
-                            text = "Data*",
-                            style = MaterialTheme.typography.labelMedium
-                        )
-                    },
-                    supportingText = {},
-                    isError = billModalState.dateErrorMessage.isNotEmpty(),
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.CalendarMonth,
-                            contentDescription = "Ícone de Calendário",
-                            tint = White06Color
-                        )
-                    },
-                    trailingIcon = {
-                        if(selectedDate != "") {
-                            Icon(
-                                imageVector = Icons.Default.Clear,
-                                contentDescription = "Ícone de x",
-                                modifier = Modifier
-                                    .clickable {
-                                        selectedDate = ""
-                                        focusRequester[2].requestFocus()
-                                    },
-                                tint = White06Color
-                            )
-                        }
-                    },
-                    readOnly = true
-                )
-                if(showDatePickerDialog) {
-                    AppDatePicker(
-                        onDismiss = {
-                            showDatePickerDialog = false
-                        }
-                    ) { selectedDateResult ->
-                        selectedDate = selectedDateResult
-                    }
-                }
-
-                OutlinedTextField(
-                    value = billModalState.description,
-                    onValueChange = {
-                        if(billModalState.description.length < 100) {
-                            billModalState = billModalState.copy(
-                                description = it
-                            )
-                        }
-                    },
-                    modifier = Modifier
-                        .width(280.dp)
-                        .focusRequester(focusRequester[3]),
-                    label = {
-                        Text(
-                            text = "Descrição",
-                            style = MaterialTheme.typography.labelMedium
-                        )
-                    },
-                    placeholder = {
-                        Text(
-                            text = "Descreva a conta"
-                        )
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Description,
-                            contentDescription = "Ícone de descrição",
-                            tint = White06Color
-                        )
-                    },
-                    trailingIcon = {
-                        if(billModalState.description.isNotEmpty()) {
-                            Icon(
-                                imageVector = Icons.Default.Clear,
-                                contentDescription = "Ícone de x",
-                                modifier = Modifier
-                                    .clickable {
-                                        billModalState = billModalState.copy(
-                                            description = ""
-                                        )
-                                        focusRequester[3].requestFocus()
-                                    },
-                                tint = White06Color
-                            )
-                        }
-                    },
-                    singleLine = true,
-                    supportingText = {},
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next
-                    ),
-                )
-
-                OutlinedTextField(
-                    //value = billModalState.value.toBrazilianReal(),
-                    value = if(billModalState.value == 0.0) "" else billModalState.value.toString(),
-                    onValueChange = { newValue ->
-                        /*if(newValue.all { it.isDigit() }) {
-                            billModalState = billModalState.copy(
-                                value = newValue.toDoubleOrNull() ?: 0.0
-                            )
-                        }*/
-                    },
-                    modifier = Modifier
-                        .width(280.dp)
-                        .focusRequester(focusRequester[4]),
-                    label = {
-                        Text(
-                            text = "Valor*",
-                            style = MaterialTheme.typography.labelMedium
-                        )
-                    },
-                    placeholder = {
-                        Text(
-                            text = "Digite o valor"
-                        )
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.AttachMoney,
-                            contentDescription = "Ícone de dinheiro",
-                            tint = White06Color
-                        )
-                    },
-                    trailingIcon = {
-                        if(billModalState.value != 0.0) {
-                            Icon(
-                                imageVector = Icons.Default.Clear,
-                                contentDescription = "Ícone de x",
-                                modifier = Modifier
-                                    .clickable {
-                                        billModalState = billModalState.copy(
-                                            value = 0.0
-                                        )
-                                        focusRequester[4].requestFocus()
-                                    },
-                                tint = White06Color
-                            )
-                        }
-                    },
-                    singleLine = true,
-                    isError = billModalState.valueErrorMessage.isNotEmpty(),
-                    supportingText = {
-                        if(billModalState.valueErrorMessage.isNotEmpty()) {
-                            Text(
-                                text = billModalState.valueErrorMessage
-                            )
-                        }
-                    },
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next
-                    ),
-                )
-
-                // Data Vencimento DatePicker
-                OutlinedTextField(
-                    value = selectedDueDate,
-                    onValueChange = {},
-                    modifier = Modifier
-                        .focusRequester(focusRequester[5])
-                        .onFocusEvent {
-                            if(it.isFocused) {
-                                showDatePickerDialog = true
-                                focusRequester[5].freeFocus()
-                            }
-                        },
-                    label = {
-                        Text(
-                            text = "Data de Vencimento",
-                            style = MaterialTheme.typography.labelMedium
-                        )
-                    },
-                    supportingText = {},
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.CalendarToday,
-                            contentDescription = "Ícone de Calendário",
-                            tint = White06Color
-                        )
-                    },
-                    trailingIcon = {
-                        if(selectedDueDate != "") {
-                            Icon(
-                                imageVector = Icons.Default.Clear,
-                                contentDescription = "Ícone de x",
-                                modifier = Modifier
-                                    .clickable {
-                                        selectedDueDate = ""
-                                        focusRequester[5].requestFocus()
-                                    },
-                                tint = White06Color
-                            )
-                        }
-                    },
-                    readOnly = true
-                )
-                if(showDueDatePickerDialog) {
-                    AppDatePicker(
-                        onDismiss = {
-                            showDueDatePickerDialog = false
-                        }
-                    ) { selectedDateResult ->
-                        selectedDueDate = selectedDateResult
-                    }
-                }
-
-                CategoriesDropdown(modifier = Modifier.padding(bottom = 8.dp))
-
-                RadioButtonChooser(
-                    optionsList = paymentTypeRadioChooserOptions,
-                    modifier = Modifier.width(280.dp)
-                ) { selectedValue ->
-                    billModalState = billModalState.copy(
-                        paymentType = getPaymentTypeFromString(selectedValue) ?: PaymentType.MONEY
-                    )
-                }
-
-                Row(
-                    modifier = Modifier.width(280.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Checkbox(
-                        checked = billModalState.paid,
-                        onCheckedChange = {
-                            billModalState = billModalState.copy(
-                                paid = !billModalState.paid
-                            )
-                        }
-                    )
-
-                    Text(
-                        text = "Paga?",
-                        fontFamily = PoppinsFontFamily,
-                        color = if(billModalState.paid) PrimaryColor else White06Color
-                    )
-                }
-
-                // DEVE PREENCHER AUTOMATICAMENTE
-                Row(
-                    modifier = Modifier.width(280.dp).padding(bottom = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Checkbox(
-                        checked = billModalState.expired,
-                        onCheckedChange = {
-                            billModalState = billModalState.copy(
-                                expired = !billModalState.expired
-                            )
-                        }
-                    )
-
-                    Text(
-                        text = "Vencida?",
-                        fontFamily = PoppinsFontFamily,
-                        color = if(billModalState.expired) PrimaryColor else White06Color
-                    )
-                }
-
-                // TAGS
-                if(bill != null) {
-                    TagsContainer(tags = billModalState.tags)
+                if(isModalLoading) {
+                    AppLoader(modifier = Modifier.size(80.dp))
                 } else {
+                    RadioButtonChooser(
+                        optionsList = billTypeRadioChooserOptions,
+                        modifier = Modifier.width(280.dp).padding(bottom = 16.dp)
+                    ) { selectedValue ->
+                        billModalState = billModalState.copy(
+                            billType = getBillTypeFromString(selectedValue) ?: BillType.INCOME
+                        )
+                    }
+
                     OutlinedTextField(
-                        value = tagsToAdd,
+                        value = billModalState.origin,
                         onValueChange = {
-                            tagsToAdd = it
+                            if(billModalState.origin.length < 50) {
+                                billModalState = billModalState.copy(
+                                    origin = it
+                                )
+                            }
                         },
                         modifier = Modifier
                             .width(280.dp)
-                            .focusRequester(focusRequester[6]),
+                            .focusRequester(focusRequester[0]),
                         label = {
                             Text(
-                                text = "Tags",
+                                text = "Origem",
                                 style = MaterialTheme.typography.labelMedium
                             )
                         },
                         placeholder = {
                             Text(
-                                text = "Digite as tags separadas por ,"
-                            )
-                        },
-                        supportingText = {
-                            Text(
-                                text = "Exemplo: entrada, trabalho, bonificação, 2025"
+                                text = "Digite a origem da compra"
                             )
                         },
                         leadingIcon = {
                             Icon(
-                                imageVector = Icons.Default.Tag,
-                                contentDescription = "Ícone de tag",
+                                imageVector = Icons.Default.ShoppingCart,
+                                contentDescription = "Ícone de carrinho de compra",
                                 tint = White06Color
                             )
                         },
                         trailingIcon = {
-                            if(tagsToAdd.isNotEmpty()) {
+                            if(billModalState.origin.isNotEmpty()) {
                                 Icon(
                                     imageVector = Icons.Default.Clear,
                                     contentDescription = "Ícone de x",
                                     modifier = Modifier
                                         .clickable {
-                                            tagsToAdd = ""
-                                            focusRequester[6].requestFocus()
+                                            billModalState = billModalState.copy(
+                                                origin = ""
+                                            )
+                                            focusRequester[0].requestFocus()
                                         },
                                     tint = White06Color
                                 )
                             }
                         },
-                        maxLines = 3,
+                        singleLine = true,
+                        supportingText = {},
                         keyboardOptions = KeyboardOptions(
-                            imeAction = ImeAction.Done
+                            imeAction = ImeAction.Next
                         ),
                     )
-                }
 
-                Spacer(Modifier.heightIn(16.dp))
-
-                Button(
-                    onClick = {
-                        // RESET ERROR MESSAGES
-                        billModalState.resetErrorMessages()
-
-                        // VALIDATION
-                        billModalStateValidation(billModalState)
-
-                        if(isBillModalStateValidationValid) {
-                            if(billModalState.id == -1L) {
-                                // NEW BILL
-                                onConfirm(billModalState.toBill())
-                            } else {
-                                // UPDATE BILL
-                                onConfirm(billModalState.toBill())
+                    OutlinedTextField(
+                        value = billModalState.title,
+                        onValueChange = {
+                            if(billModalState.title.length < 50) {
+                                billModalState = billModalState.copy(
+                                    title = it
+                                )
                             }
+                        },
+                        modifier = Modifier
+                            .width(280.dp)
+                            .focusRequester(focusRequester[1]),
+                        label = {
+                            Text(
+                                text = "Título*",
+                                style = MaterialTheme.typography.labelMedium
+                            )
+                        },
+                        placeholder = {
+                            Text(
+                                text = "Digite o título da conta"
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.NoteAlt,
+                                contentDescription = "Ícone de anotação",
+                                tint = White06Color
+                            )
+                        },
+                        trailingIcon = {
+                            if(billModalState.title.isNotEmpty()) {
+                                Icon(
+                                    imageVector = Icons.Default.Clear,
+                                    contentDescription = "Ícone de x",
+                                    modifier = Modifier
+                                        .clickable {
+                                            billModalState = billModalState.copy(
+                                                title = ""
+                                            )
+                                            focusRequester[1].requestFocus()
+                                        },
+                                    tint = White06Color
+                                )
+                            }
+                        },
+                        singleLine = true,
+                        isError = billModalState.titleErrorMessage.isNotEmpty(),
+                        supportingText = {
+                            if(billModalState.titleErrorMessage.isNotEmpty()) {
+                                Text(
+                                    text = billModalState.titleErrorMessage,
+                                    fontFamily = PoppinsFontFamily
+                                )
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Next
+                        ),
+                    )
+
+                    OutlinedTextField(
+                        value = selectedDate,
+                        onValueChange = {},
+                        modifier = Modifier
+                            .focusRequester(focusRequester[2])
+                            .onFocusEvent {
+                                if(it.isFocused) {
+                                    showDatePickerDialog = true
+                                    focusRequester[2].freeFocus()
+                                }
+                            },
+                        label = {
+                            Text(
+                                text = "Data*",
+                                style = MaterialTheme.typography.labelMedium
+                            )
+                        },
+                        supportingText = {
+                            if(billModalState.dateErrorMessage.isNotEmpty()) {
+                                Text(
+                                    text = billModalState.titleErrorMessage,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        },
+                        isError = billModalState.dateErrorMessage.isNotEmpty(),
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.CalendarMonth,
+                                contentDescription = "Ícone de Calendário",
+                                tint = White06Color
+                            )
+                        },
+                        trailingIcon = {
+                            if(selectedDate != "") {
+                                Icon(
+                                    imageVector = Icons.Default.Clear,
+                                    contentDescription = "Ícone de x",
+                                    modifier = Modifier
+                                        .clickable {
+                                            selectedDate = ""
+                                            focusRequester[2].requestFocus()
+                                        },
+                                    tint = White06Color
+                                )
+                            }
+                        },
+                        readOnly = true
+                    )
+                    if(showDatePickerDialog) {
+                        AppDatePicker(
+                            onDismiss = {
+                                showDatePickerDialog = false
+                            }
+                        ) { selectedDateResult ->
+                            selectedDate = selectedDateResult
                         }
-                    },
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
-                ) {
-                    Text(
-                        text = if(bill != null) "ATUALIZAR" else "SALVAR"
-                    )
-                }
+                    }
 
-                Button(
-                    onClick = { onDismiss() },
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = ErrorColor
+                    OutlinedTextField(
+                        value = billModalState.description,
+                        onValueChange = {
+                            if(billModalState.description.length < 100) {
+                                billModalState = billModalState.copy(
+                                    description = it
+                                )
+                            }
+                        },
+                        modifier = Modifier
+                            .width(280.dp)
+                            .focusRequester(focusRequester[3]),
+                        label = {
+                            Text(
+                                text = "Descrição",
+                                style = MaterialTheme.typography.labelMedium
+                            )
+                        },
+                        placeholder = {
+                            Text(
+                                text = "Descreva a conta"
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Description,
+                                contentDescription = "Ícone de descrição",
+                                tint = White06Color
+                            )
+                        },
+                        trailingIcon = {
+                            if(billModalState.description.isNotEmpty()) {
+                                Icon(
+                                    imageVector = Icons.Default.Clear,
+                                    contentDescription = "Ícone de x",
+                                    modifier = Modifier
+                                        .clickable {
+                                            billModalState = billModalState.copy(
+                                                description = ""
+                                            )
+                                            focusRequester[3].requestFocus()
+                                        },
+                                    tint = White06Color
+                                )
+                            }
+                        },
+                        singleLine = true,
+                        supportingText = {},
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Next
+                        ),
                     )
-                ) {
-                    Text(
-                        text = "CANCELAR"
-                    )
-                }
 
+                    OutlinedTextField(
+                        //value = billModalState.value.toBrazilianReal(),
+                        value = if(billModalState.value == 0.0) "" else billModalState.value.toString(),
+                        onValueChange = { newValue ->
+                            /*if(newValue.all { it.isDigit() }) {
+                                billModalState = billModalState.copy(
+                                    value = newValue.toDoubleOrNull() ?: 0.0
+                                )
+                            }*/
+                        },
+                        modifier = Modifier
+                            .width(280.dp)
+                            .focusRequester(focusRequester[4]),
+                        label = {
+                            Text(
+                                text = "Valor*",
+                                style = MaterialTheme.typography.labelMedium
+                            )
+                        },
+                        placeholder = {
+                            Text(
+                                text = "Digite o valor"
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.AttachMoney,
+                                contentDescription = "Ícone de dinheiro",
+                                tint = White06Color
+                            )
+                        },
+                        trailingIcon = {
+                            if(billModalState.value != 0.0) {
+                                Icon(
+                                    imageVector = Icons.Default.Clear,
+                                    contentDescription = "Ícone de x",
+                                    modifier = Modifier
+                                        .clickable {
+                                            billModalState = billModalState.copy(
+                                                value = 0.0
+                                            )
+                                            focusRequester[4].requestFocus()
+                                        },
+                                    tint = White06Color
+                                )
+                            }
+                        },
+                        singleLine = true,
+                        isError = billModalState.valueErrorMessage.isNotEmpty(),
+                        supportingText = {
+                            if(billModalState.valueErrorMessage.isNotEmpty()) {
+                                Text(
+                                    text = billModalState.valueErrorMessage
+                                )
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Next
+                        ),
+                    )
+
+                    // Data Vencimento DatePicker
+                    OutlinedTextField(
+                        value = selectedDueDate,
+                        onValueChange = {},
+                        modifier = Modifier
+                            .focusRequester(focusRequester[5])
+                            .onFocusEvent {
+                                if(it.isFocused) {
+                                    showDatePickerDialog = true
+                                    focusRequester[5].freeFocus()
+                                }
+                            },
+                        label = {
+                            Text(
+                                text = "Data de Vencimento",
+                                style = MaterialTheme.typography.labelMedium
+                            )
+                        },
+                        supportingText = {},
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.CalendarToday,
+                                contentDescription = "Ícone de Calendário",
+                                tint = White06Color
+                            )
+                        },
+                        trailingIcon = {
+                            if(selectedDueDate != "") {
+                                Icon(
+                                    imageVector = Icons.Default.Clear,
+                                    contentDescription = "Ícone de x",
+                                    modifier = Modifier
+                                        .clickable {
+                                            selectedDueDate = ""
+                                            focusRequester[5].requestFocus()
+                                        },
+                                    tint = White06Color
+                                )
+                            }
+                        },
+                        readOnly = true
+                    )
+                    if(showDueDatePickerDialog) {
+                        AppDatePicker(
+                            onDismiss = {
+                                showDueDatePickerDialog = false
+                            }
+                        ) { selectedDateResult ->
+                            selectedDueDate = selectedDateResult
+                        }
+                    }
+
+                    CategoriesDropdown(modifier = Modifier.padding(bottom = 8.dp))
+
+                    RadioButtonChooser(
+                        optionsList = paymentTypeRadioChooserOptions,
+                        modifier = Modifier.width(280.dp)
+                    ) { selectedValue ->
+                        billModalState = billModalState.copy(
+                            paymentType = getPaymentTypeFromString(selectedValue) ?: PaymentType.MONEY
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.width(280.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = billModalState.paid,
+                            onCheckedChange = {
+                                billModalState = billModalState.copy(
+                                    paid = !billModalState.paid
+                                )
+                            }
+                        )
+
+                        Text(
+                            text = "Paga?",
+                            fontFamily = PoppinsFontFamily,
+                            color = if(billModalState.paid) PrimaryColor else White06Color
+                        )
+                    }
+
+                    // DEVE PREENCHER AUTOMATICAMENTE
+                    Row(
+                        modifier = Modifier.width(280.dp).padding(bottom = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = billModalState.expired,
+                            onCheckedChange = {
+                                billModalState = billModalState.copy(
+                                    expired = !billModalState.expired
+                                )
+                            }
+                        )
+
+                        Text(
+                            text = "Vencida?",
+                            fontFamily = PoppinsFontFamily,
+                            color = if(billModalState.expired) PrimaryColor else White06Color
+                        )
+                    }
+
+                    // TAGS
+                    if(bill != null) {
+                        TagsContainer(tags = billModalState.tags)
+                    } else {
+                        OutlinedTextField(
+                            value = tagsToAdd,
+                            onValueChange = {
+                                tagsToAdd = it
+                            },
+                            modifier = Modifier
+                                .width(280.dp)
+                                .focusRequester(focusRequester[6]),
+                            label = {
+                                Text(
+                                    text = "Tags",
+                                    style = MaterialTheme.typography.labelMedium
+                                )
+                            },
+                            placeholder = {
+                                Text(
+                                    text = "Digite as tags separadas por ,"
+                                )
+                            },
+                            supportingText = {
+                                Text(
+                                    text = "Exemplo: entrada, trabalho, bonificação, 2025"
+                                )
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Tag,
+                                    contentDescription = "Ícone de tag",
+                                    tint = White06Color
+                                )
+                            },
+                            trailingIcon = {
+                                if(tagsToAdd.isNotEmpty()) {
+                                    Icon(
+                                        imageVector = Icons.Default.Clear,
+                                        contentDescription = "Ícone de x",
+                                        modifier = Modifier
+                                            .clickable {
+                                                tagsToAdd = ""
+                                                focusRequester[6].requestFocus()
+                                            },
+                                        tint = White06Color
+                                    )
+                                }
+                            },
+                            maxLines = 3,
+                            keyboardOptions = KeyboardOptions(
+                                imeAction = ImeAction.Done
+                            ),
+                        )
+                    }
+
+                    Spacer(Modifier.heightIn(16.dp))
+
+                    Button(
+                        onClick = {
+                            Log.i("#-# TESTE #-#", "CLICOU")
+                            // RESET ERROR MESSAGES
+                            billModalState.resetErrorMessages()
+
+                            // VALIDATION
+                            billModalStateValidation(billModalState)
+
+                            if(isBillModalStateValidationValid) {
+                                Log.i("#-# TESTE #-#", "IF se isBillModalStateValidationValid")
+                                if(billModalState.id == -1L) {
+                                    // NEW BILL
+                                    onConfirm(billModalState.toBill())
+                                } else {
+                                    // UPDATE BILL
+                                    onConfirm(billModalState.toBill())
+                                }
+                            }
+
+                            // SE TUDO OK -> Chamar DISMISS
+                        },
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                    ) {
+                        Text(
+                            text = if(bill != null) "ATUALIZAR" else "SALVAR"
+                        )
+                    }
+
+                    Button(
+                        onClick = { onDismiss() },
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = ErrorColor
+                        )
+                    ) {
+                        Text(
+                            text = "CANCELAR"
+                        )
+                    }
+                }
             }
         }
     }
@@ -949,6 +994,7 @@ private fun RegisterOrEditBillDialogPreview() {
             billModalStateInput = billModalState,
             billModalStateValidation = {},
             isBillModalStateValidationValid = true,
+            deviceScreenHeight = 500.dp,
             onConfirm = {}
         ) {}
     }

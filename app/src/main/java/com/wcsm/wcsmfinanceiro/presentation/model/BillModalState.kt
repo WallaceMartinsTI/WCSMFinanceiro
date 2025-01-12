@@ -1,5 +1,6 @@
 package com.wcsm.wcsmfinanceiro.presentation.model
 
+import android.util.Log
 import com.wcsm.wcsmfinanceiro.domain.model.BillType
 import com.wcsm.wcsmfinanceiro.domain.model.Category
 import com.wcsm.wcsmfinanceiro.domain.model.PaymentType
@@ -23,6 +24,7 @@ data class BillModalState(
     val tags: List<String>
 ) {
     fun resetErrorMessages() {
+        Log.i("#-# TESTE #-#", "RESETOU AS MENSAGENS DE ERRO")
         titleErrorMessage = ""
         dateErrorMessage = ""
         valueErrorMessage = ""
