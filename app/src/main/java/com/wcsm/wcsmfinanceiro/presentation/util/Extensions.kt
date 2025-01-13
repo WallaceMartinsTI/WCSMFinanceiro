@@ -2,17 +2,22 @@ package com.wcsm.wcsmfinanceiro.presentation.util
 
 import android.icu.util.Calendar
 import com.wcsm.wcsmfinanceiro.domain.model.Bill
-import com.wcsm.wcsmfinanceiro.domain.model.PaymentType
 import com.wcsm.wcsmfinanceiro.presentation.model.BillModalState
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Locale
+import java.util.TimeZone
 
-fun Long.formatDateInMillisToBrazillianDate(extendedYear: Boolean = true) : String {
+fun Long.toBrazilianDateString(extendedYear: Boolean = true) : String {
     val pattern = if(extendedYear) "dd/MM/yyyy" else "dd/MM/yy"
     val calendar = Calendar.getInstance()
     calendar.timeInMillis = this
-    val dateFormat = SimpleDateFormat(pattern, Locale.getDefault())
+    val dateFormat = SimpleDateFormat(
+        pattern,
+        Locale("pt", "BR")
+    ).apply {
+        timeZone = TimeZone.getTimeZone("UTC")
+    }
     return dateFormat.format(calendar.timeInMillis)
 }
 

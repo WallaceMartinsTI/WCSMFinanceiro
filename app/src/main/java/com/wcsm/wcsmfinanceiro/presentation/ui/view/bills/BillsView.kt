@@ -61,7 +61,6 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -110,7 +109,7 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.SurfaceColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.TertiaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
-import com.wcsm.wcsmfinanceiro.presentation.util.formatDateInMillisToBrazillianDate
+import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianDateString
 import com.wcsm.wcsmfinanceiro.presentation.util.getBillTypeFromString
 import com.wcsm.wcsmfinanceiro.presentation.util.getPaymentTypeFromString
 import com.wcsm.wcsmfinanceiro.presentation.util.toBill
@@ -124,28 +123,16 @@ fun BillsView(
     val configuration = LocalConfiguration.current
 
     val filterSelectedDateRange by billsViewModel.filterSelectedDateRange.collectAsStateWithLifecycle()
+
     val bills by billsViewModel.bills.collectAsStateWithLifecycle()
     val billModalState by billsViewModel.billModalState.collectAsStateWithLifecycle()
     val isBillModalStateValid by billsViewModel.isBillModalStateValid.collectAsStateWithLifecycle()
-
-    var selectedFilterDate by remember { mutableStateOf("Selecione uma data") }
 
     var showRegisterOrEditBillDialog by remember { mutableStateOf(false) }
 
     var selectedBillToModal: Bill? by remember { mutableStateOf(null) }
 
     val deviceScreenHeight = configuration.screenHeightDp.dp
-
-    LaunchedEffect(filterSelectedDateRange) {
-        if (filterSelectedDateRange.isNotEmpty()) {
-            selectedFilterDate = filterSelectedDateRange
-        }
-    }
-
-    LaunchedEffect(billModalState) {
-        Log.i("#-# TESTE #-#", "LAUNCHED EFFECT observa billModalState")
-        Log.i("#-# TESTE #-#", "billModalState: $billModalState")
-    }
 
     Column(
         modifier = Modifier
@@ -164,12 +151,19 @@ fun BillsView(
 
         DateRangeFilter(
             filterSelectedDateRange = filterSelectedDateRange,
-            onDateSelected = { selectedDate ->
+            onDateSelected = { startDate, endDate ->
                 billsViewModel.updateFilterSelectedDateRange(
-                    dateRange = selectedDate
+                    startDate = startDate,
+                    endDate = endDate
                 )
             },
-            onFilter = { TODO("Ao realizar o filtro") }
+            onClearFilter = { billsViewModel.clearFilter() },
+            onFilter = { startDate, endDate ->
+                billsViewModel.applyDateRangeFilter(
+                    startDate = startDate,
+                    endDate = endDate
+                )
+            }
         )
 
         HorizontalDivider(
@@ -288,7 +282,7 @@ fun BillCard(
                     )
 
                     Text(
-                        text = bill.date.formatDateInMillisToBrazillianDate(extendedYear = false),
+                        text = bill.date.toBrazilianDateString(extendedYear = false),
                         fontFamily = PoppinsFontFamily
                     )
                 }
@@ -400,7 +394,7 @@ fun RegisterOrEditBillDialog(
 
     var billModalState by remember { mutableStateOf(billModalStateInput) }
 
-    var isModalLoading by remember { mutableStateOf(true) }
+    var isModalLoading by remember { mutableStateOf(bill != null) }
 
     LaunchedEffect(billModalStateInput) {
         billModalState = billModalStateInput
@@ -426,11 +420,10 @@ fun RegisterOrEditBillDialog(
                 expired = bill.expired ?: false,
                 tags = bill.tags ?: emptyList()
             )
+
+            delay(1000)
+            isModalLoading = false
         }
-
-        //delay(3000)
-
-        isModalLoading = false
     }
 
     Dialog(
@@ -466,7 +459,9 @@ fun RegisterOrEditBillDialog(
                 } else {
                     RadioButtonChooser(
                         optionsList = billTypeRadioChooserOptions,
-                        modifier = Modifier.width(280.dp).padding(bottom = 16.dp)
+                        modifier = Modifier
+                            .width(280.dp)
+                            .padding(bottom = 16.dp)
                     ) { selectedValue ->
                         billModalState = billModalState.copy(
                             billType = getBillTypeFromString(selectedValue) ?: BillType.INCOME
@@ -593,7 +588,7 @@ fun RegisterOrEditBillDialog(
                         modifier = Modifier
                             .focusRequester(focusRequester[2])
                             .onFocusEvent {
-                                if(it.isFocused) {
+                                if (it.isFocused) {
                                     showDatePickerDialog = true
                                     focusRequester[2].freeFocus()
                                 }
@@ -642,7 +637,7 @@ fun RegisterOrEditBillDialog(
                                 showDatePickerDialog = false
                             }
                         ) { selectedDateResult ->
-                            selectedDate = selectedDateResult
+                            selectedDate = selectedDateResult.toBrazilianDateString()
                         }
                     }
 
@@ -767,7 +762,7 @@ fun RegisterOrEditBillDialog(
                         modifier = Modifier
                             .focusRequester(focusRequester[5])
                             .onFocusEvent {
-                                if(it.isFocused) {
+                                if (it.isFocused) {
                                     showDatePickerDialog = true
                                     focusRequester[5].freeFocus()
                                 }
@@ -808,7 +803,7 @@ fun RegisterOrEditBillDialog(
                                 showDueDatePickerDialog = false
                             }
                         ) { selectedDateResult ->
-                            selectedDueDate = selectedDateResult
+                            selectedDueDate = selectedDateResult.toBrazilianDateString()
                         }
                     }
 
@@ -845,7 +840,9 @@ fun RegisterOrEditBillDialog(
 
                     // DEVE PREENCHER AUTOMATICAMENTE
                     Row(
-                        modifier = Modifier.width(280.dp).padding(bottom = 16.dp),
+                        modifier = Modifier
+                            .width(280.dp)
+                            .padding(bottom = 16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Checkbox(
@@ -940,11 +937,13 @@ fun RegisterOrEditBillDialog(
                                     // UPDATE BILL
                                     onConfirm(billModalState.toBill())
                                 }
-                            }
 
-                            // SE TUDO OK -> Chamar DISMISS
+                                onDismiss()
+                            }
                         },
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
                     ) {
                         Text(
                             text = if(bill != null) "ATUALIZAR" else "SALVAR"
@@ -953,7 +952,9 @@ fun RegisterOrEditBillDialog(
 
                     Button(
                         onClick = { onDismiss() },
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = ErrorColor
                         )
@@ -1080,7 +1081,9 @@ fun CategoriesDropdown(
             onExpandedChange = { showCategoriesDropdown = !showCategoriesDropdown }
         ) {
             OutlinedTextField(
-                modifier = Modifier.menuAnchor().width(280.dp),
+                modifier = Modifier
+                    .menuAnchor()
+                    .width(280.dp),
                 value = category,
                 onValueChange = {
                     showCategoriesDropdown = !showCategoriesDropdown
@@ -1140,7 +1143,9 @@ fun CategoriesDropdown(
 private fun CategoriesDropdownPreview() {
     WCSMFinanceiroTheme(dynamicColor = false) {
         Column(
-            modifier = Modifier.size(350.dp, 100.dp).background(BackgroundColor),
+            modifier = Modifier
+                .size(350.dp, 100.dp)
+                .background(BackgroundColor),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -1169,7 +1174,9 @@ fun Tag(
             fontWeight = FontWeight.SemiBold,
             fontStyle = FontStyle.Italic,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(end = 8.dp).weight(1f)
+            modifier = Modifier
+                .padding(end = 8.dp)
+                .weight(1f)
         )
 
         Icon(
@@ -1218,7 +1225,9 @@ private fun TagsContainerPreview() {
         val tags = listOf("Entrada", "Trabalho", "Bonificação", "2025")
 
         Column(
-            modifier = Modifier.size(350.dp, 100.dp).background(BackgroundColor),
+            modifier = Modifier
+                .size(350.dp, 100.dp)
+                .background(BackgroundColor),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

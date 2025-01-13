@@ -1,6 +1,5 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.component
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,21 +8,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DateRangePicker
-import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusManager
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,7 +34,7 @@ import java.util.TimeZone
 @Composable
 fun AppDatePicker(
     onDismiss: () -> Unit,
-    onFillDate: (selectedDate: String) -> Unit
+    onFillDate: (selectedDate: Long) -> Unit
 ) {
     val datePickerState = rememberDatePickerState(yearRange = IntRange(2000, 2100))
 
@@ -55,7 +47,7 @@ fun AppDatePicker(
         }
     }
 
-    var selectedDate = datePickerState.selectedDateMillis?.let {
+    var selectedDateText = datePickerState.selectedDateMillis?.let {
         dateFormatter.format(Date(it))
     } ?: "Selecione uma data"
 
@@ -65,8 +57,10 @@ fun AppDatePicker(
         weekdayContentColor = TertiaryColor
     )
 
+    val selectedDate = datePickerState.selectedDateMillis
+
     LaunchedEffect(Unit) {
-        selectedDate = "Selecione uma data"
+        selectedDateText = "Selecione uma data"
     }
 
     DatePickerDialog(
@@ -76,8 +70,10 @@ fun AppDatePicker(
         confirmButton = {
             Button(
                 onClick = {
-                    if(selectedDate != "Selecione uma data") {
-                        onFillDate(selectedDate)
+                    if(selectedDateText != "Selecione uma data") {
+                        if(selectedDate != null) {
+                            onFillDate(selectedDate)
+                        }
                     }
                     onDismiss()
                 }
@@ -111,7 +107,7 @@ fun AppDatePicker(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = selectedDate,
+                        text = selectedDateText,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }

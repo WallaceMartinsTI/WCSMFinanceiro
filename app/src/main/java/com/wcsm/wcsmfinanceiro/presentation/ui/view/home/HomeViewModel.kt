@@ -6,11 +6,11 @@ import kotlinx.coroutines.flow.StateFlow
 
 class HomeViewModel : ViewModel() {
 
-    private val _filterSelectedDateRange = MutableStateFlow("")
-    val filterSelectedDateRange: StateFlow<String> = _filterSelectedDateRange
+    private val _filterSelectedDateRange = MutableStateFlow<Pair<Long, Long>?>(null)
+    val filterSelectedDateRange: StateFlow<Pair<Long, Long>?> = _filterSelectedDateRange
 
-    fun updateFilterSelectedDateRange(dateRange: String) {
-        _filterSelectedDateRange.value = dateRange
+    fun updateFilterSelectedDateRange(startDate: Long, endDate: Long) {
+        _filterSelectedDateRange.value = Pair(startDate, endDate)
     }
 
 }

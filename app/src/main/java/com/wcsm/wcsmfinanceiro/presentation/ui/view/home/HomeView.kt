@@ -19,8 +19,12 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +51,7 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PrimaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.RedColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.SecondaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
+import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianDateString
 
 @Composable
 fun HomeView(
@@ -55,6 +60,16 @@ fun HomeView(
     val userName = "Wallace"
 
     val filterSelectedDateRange by homeViewModel.filterSelectedDateRange.collectAsStateWithLifecycle()
+
+    var selectedFilterDate by remember { mutableStateOf("Selecione uma data") }
+
+    LaunchedEffect(filterSelectedDateRange) {
+        if (filterSelectedDateRange != null) {
+            val startDateString = filterSelectedDateRange!!.first.toBrazilianDateString()
+            val endDateString = filterSelectedDateRange!!.second.toBrazilianDateString()
+            selectedFilterDate = "$startDateString - $endDateString"
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxSize().background(BackgroundColor),
@@ -95,12 +110,14 @@ fun HomeView(
 
         DateRangeFilter(
             filterSelectedDateRange = filterSelectedDateRange,
-            onDateSelected = { selectedDate ->
+            onDateSelected = { startDate, endDate ->
                 homeViewModel.updateFilterSelectedDateRange(
-                    dateRange = selectedDate
+                    startDate = startDate,
+                    endDate = endDate
                 )
             },
-            onFilter = { TODO("Ao realizar o filtro") }
+            onClearFilter = {},
+            onFilter = { _, _ -> } // FAZER FILTRO
         )
 
         HorizontalDivider(

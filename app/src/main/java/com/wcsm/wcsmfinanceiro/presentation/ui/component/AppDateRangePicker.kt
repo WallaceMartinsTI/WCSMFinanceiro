@@ -37,7 +37,7 @@ import java.util.TimeZone
 @Composable
 fun AppDateRangePicker(
     onDismiss: () -> Unit,
-    onFillDate: (startDate: String, endDate: String) -> Unit
+    onFillDate: (startDate: Long, endDate: Long) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -65,6 +65,9 @@ fun AppDateRangePicker(
         weekdayContentColor = TertiaryColor
     )
 
+    val startDate = datePickerState.selectedStartDateMillis
+    val endDate = datePickerState.selectedEndDateMillis
+
     LaunchedEffect(Unit) {
         startDateText = "Data Inicial"
         endDateText = "Data Final"
@@ -79,7 +82,9 @@ fun AppDateRangePicker(
                 datePickerDisplayMode = datePickerState.displayMode
             )
         ) {
-            onFillDate(startDateText, endDateText)
+            if(startDate != null && endDate != null) {
+                onFillDate(startDate, endDate)
+            }
             onDismiss()
         }
     }
@@ -97,7 +102,9 @@ fun AppDateRangePicker(
                             datePickerDisplayMode = datePickerState.displayMode
                         )
                     ) {
-                        onFillDate(startDateText, endDateText)
+                        if(startDate != null && endDate != null) {
+                            onFillDate(startDate, endDate)
+                        }
                         onDismiss()
                     } else {
                         if(toastShowedCounter < 2) {

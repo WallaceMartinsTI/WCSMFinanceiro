@@ -9,6 +9,7 @@ import com.wcsm.wcsmfinanceiro.domain.model.PaymentType
 import com.wcsm.wcsmfinanceiro.presentation.model.BillModalState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filter
 
 class BillsViewModel : ViewModel() {
     // Temp for tests
@@ -32,12 +33,12 @@ class BillsViewModel : ViewModel() {
             id = 2,
             billType = BillType.EXPENSE,
             origin = "Mercado",
-            title = "Compra do Mês",
+            title = "Compra do Mês Data",
             value = 975.35,
             description = "Compra do mês de Janeiro",
-            date = 1736208000000, // Mon Jan 06 2025 21:00:00.000
+            date = 1736698430000, // Mon Jan 06 2025 21:00:00.000
             category = Category(1, "Mercado"),
-            dueDate = 1739588400000, // Sat Feb 15 2025 00:00:00.000
+            dueDate = 1736698430000, // Sat Feb 15 2025 00:00:00.000
             expired = false,
             paid = true,
             paymentType = PaymentType.CARD,
@@ -77,12 +78,12 @@ class BillsViewModel : ViewModel() {
             id = 5,
             billType = BillType.INCOME,
             origin = "Trabalho",
-            title = "Salário",
+            title = "Salário Data",
             value = 2624.72,
             description = "Salário do mês de Janeiro",
-            date = 1736208000000, // Mon Jan 06 2025 21:00:00.000
+            date = 1736698430000, // Mon Jan 06 2025 21:00:00.000
             category = Category(1, "Trabalho"),
-            dueDate = 1739588400000, // Sat Feb 15 2025 00:00:00.000
+            dueDate = 1736698430000, // Sat Feb 15 2025 00:00:00.000
             expired = false,
             paid = true,
             paymentType = PaymentType.MONEY,
@@ -255,8 +256,8 @@ class BillsViewModel : ViewModel() {
         ),
     )
 
-    private val _filterSelectedDateRange = MutableStateFlow("")
-    val filterSelectedDateRange: StateFlow<String> = _filterSelectedDateRange
+    private val _filterSelectedDateRange = MutableStateFlow<Pair<Long, Long>?>(null)
+    val filterSelectedDateRange: StateFlow<Pair<Long, Long>?> = _filterSelectedDateRange
 
     private val _bills = MutableStateFlow<List<Bill>?>(null)
     val bills: StateFlow<List<Bill>?> = _bills
@@ -286,8 +287,8 @@ class BillsViewModel : ViewModel() {
     )
     val billModalState: StateFlow<BillModalState> = _billModalState
 
-    fun updateFilterSelectedDateRange(dateRange: String) {
-        _filterSelectedDateRange.value = dateRange
+    fun updateFilterSelectedDateRange(startDate: Long, endDate: Long) {
+        _filterSelectedDateRange.value = Pair(startDate, endDate)
     }
 
     init {
@@ -299,7 +300,6 @@ class BillsViewModel : ViewModel() {
     fun updateBill(bill: Bill) {}
 
     fun validateBillModalState(billModalState: BillModalState) {
-        Log.i("#-# TESTE #-#", "CHAMOU VALIDACAO")
         _isBillModalStateValid.value = false
 
         val isTitleValid = validateTitle(billModalState.title)
@@ -315,7 +315,16 @@ class BillsViewModel : ViewModel() {
         )
 
         if(isValid) _isBillModalStateValid.value = true
-        Log.i("#-# TESTE #-#", "FIM VALIDACAO - isValid: $isValid")
+    }
+
+    fun applyDateRangeFilter(startDate: Long, endDate: Long) {
+        _bills.value = bills.value?.filter { bill ->
+            bill.date in startDate..endDate
+        }
+    }
+
+    fun clearFilter() {
+        _bills.value = billsList
     }
 
     private fun validateTitle(title: String) : Pair<Boolean, String> {
