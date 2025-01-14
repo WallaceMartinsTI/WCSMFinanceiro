@@ -62,6 +62,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -154,7 +155,6 @@ fun RegisterOrEditBillDialog(
     Dialog(
         onDismissRequest = { onDismiss() },
     ) {
-        Log.i("#-# TESTE #-#", "Abriu DIALOG - bill: $bill")
         val dialogHeight = deviceScreenHeight * 0.8f // 80% of device height
         Column(
             modifier = Modifier
@@ -716,13 +716,21 @@ private fun RegisterOrEditBillDialogPreview() {
             expired = false,
             tags = emptyList()
         )
-        RegisterOrEditBillDialog(
-            billModalStateInput = billModalState,
-            billModalStateValidation = {},
-            isBillModalStateValidationValid = true,
-            deviceScreenHeight = 500.dp,
-            onConfirm = {}
-        ) {}
+
+        val configuration = LocalConfiguration.current
+        val deviceScreenHeight = configuration.screenHeightDp.dp
+
+        Column(
+            modifier = Modifier.fillMaxSize().background(BackgroundColor)
+        ) {
+            RegisterOrEditBillDialog(
+                billModalStateInput = billModalState,
+                billModalStateValidation = {},
+                isBillModalStateValidationValid = true,
+                deviceScreenHeight = deviceScreenHeight,
+                onConfirm = {}
+            ) {}
+        }
     }
 }
 
