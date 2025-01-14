@@ -1,15 +1,14 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.wcsm.wcsmfinanceiro.domain.model.Bill
-import com.wcsm.wcsmfinanceiro.domain.model.BillType
-import com.wcsm.wcsmfinanceiro.domain.model.Category
-import com.wcsm.wcsmfinanceiro.domain.model.PaymentType
+import com.wcsm.wcsmfinanceiro.domain.entity.Bill
+import com.wcsm.wcsmfinanceiro.domain.entity.BillType
+import com.wcsm.wcsmfinanceiro.domain.entity.Category
+import com.wcsm.wcsmfinanceiro.domain.entity.PaymentType
 import com.wcsm.wcsmfinanceiro.presentation.model.BillModalState
+import com.wcsm.wcsmfinanceiro.presentation.util.normalize
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filter
 
 class BillsViewModel : ViewModel() {
     // Temp for tests
@@ -262,6 +261,8 @@ class BillsViewModel : ViewModel() {
     private val _bills = MutableStateFlow<List<Bill>?>(null)
     val bills: StateFlow<List<Bill>?> = _bills
 
+    private val originalBillsList = MutableStateFlow<List<Bill>>(emptyList())
+
     private val _isBillModalStateValid = MutableStateFlow(false)
     val isBillModalStateValid: StateFlow<Boolean> = _isBillModalStateValid
 
@@ -292,6 +293,7 @@ class BillsViewModel : ViewModel() {
     }
 
     init {
+        originalBillsList.value = billsList
         _bills.value = billsList
     }
 
@@ -323,7 +325,17 @@ class BillsViewModel : ViewModel() {
         }
     }
 
-    fun clearFilter() {
+    fun applyTextFilter(textToFilter: String) {
+        if (textToFilter.isBlank()) {
+            _bills.value = originalBillsList.value
+        } else {
+            _bills.value = originalBillsList.value.filter { bill ->
+                textToFilter.normalize().lowercase() in bill.title.normalize().lowercase()
+            }
+        }
+    }
+
+    fun clearFilters() {
         _bills.value = billsList
     }
 

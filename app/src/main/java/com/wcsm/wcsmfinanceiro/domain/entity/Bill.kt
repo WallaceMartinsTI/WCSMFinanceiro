@@ -1,4 +1,4 @@
-package com.wcsm.wcsmfinanceiro.domain.model
+package com.wcsm.wcsmfinanceiro.domain.entity
 
 data class Bill(
     val id: Long,

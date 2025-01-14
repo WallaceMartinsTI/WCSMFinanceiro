@@ -20,7 +20,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -164,14 +163,14 @@ fun HomeView(
 
 @Preview
 @Composable
-private fun LoginViewPreview() {
+private fun HomeViewPreview() {
     WCSMFinanceiroTheme(dynamicColor = false) {
         HomeView()
     }
 }
 
 @Composable
-fun UserValuesContainer(
+private fun UserValuesContainer(
     iconResourceId: Int,
     iconContentDescription: String,
     text: String,

@@ -1,9 +1,9 @@
 package com.wcsm.wcsmfinanceiro.presentation.model
 
 import android.util.Log
-import com.wcsm.wcsmfinanceiro.domain.model.BillType
-import com.wcsm.wcsmfinanceiro.domain.model.Category
-import com.wcsm.wcsmfinanceiro.domain.model.PaymentType
+import com.wcsm.wcsmfinanceiro.domain.entity.BillType
+import com.wcsm.wcsmfinanceiro.domain.entity.Category
+import com.wcsm.wcsmfinanceiro.domain.entity.PaymentType
 
 data class BillModalState(
     val id: Long,

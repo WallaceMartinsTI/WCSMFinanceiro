@@ -18,3 +18,13 @@ val MoneyGreenColor = Color(0xFF159408)
 val White06Color = Color.White.copy(0.6f)
 val GrayColor = Color(0xFF4B4545)
 val RedColor = Color(0xFFBB271A)
+
+/*
+val CardColor1 = Color(0xFF)
+val CardColor1 = Color(0xFF)
+val CardColor1 = Color(0xFF)
+val CardColor1 = Color(0xFF)
+val CardColor1 = Color(0xFF)
+val CardColor1 = Color(0xFF)
+val CardColor1 = Color(0xFF)
+val CardColor1 = Color(0xFF)*/

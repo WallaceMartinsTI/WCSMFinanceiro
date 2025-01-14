@@ -1,12 +1,18 @@
 package com.wcsm.wcsmfinanceiro.presentation.util
 
 import android.icu.util.Calendar
-import com.wcsm.wcsmfinanceiro.domain.model.Bill
+import com.wcsm.wcsmfinanceiro.domain.entity.Bill
 import com.wcsm.wcsmfinanceiro.presentation.model.BillModalState
+import java.text.Normalizer
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
+
+fun Double.toBrazilianReal() : String {
+    val portugueseBrazilianLocale = Locale("pt", "BR")
+    return NumberFormat.getCurrencyInstance(portugueseBrazilianLocale).format(this)
+}
 
 fun Long.toBrazilianDateString(extendedYear: Boolean = true) : String {
     val pattern = if(extendedYear) "dd/MM/yyyy" else "dd/MM/yy"
@@ -21,9 +27,9 @@ fun Long.toBrazilianDateString(extendedYear: Boolean = true) : String {
     return dateFormat.format(calendar.timeInMillis)
 }
 
-fun Double.toBrazilianReal() : String {
-    val portugueseBrazilianLocale = Locale("pt", "BR")
-    return NumberFormat.getCurrencyInstance(portugueseBrazilianLocale).format(this)
+fun String.normalize() : String {
+    return Normalizer.normalize(this, Normalizer.Form.NFD)
+        .replace("\\p{InCombiningDiacriticalMarks}+".toRegex(), "")
 }
 
 fun BillModalState.toBill() : Bill {
