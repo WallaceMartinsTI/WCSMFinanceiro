@@ -213,7 +213,7 @@ fun BillsView(
 
         // ABRIR DIALOG PASSANDO BILL PARA EDIÇÃO
         if (showRegisterOrEditBillDialog) {
-            RegisterOrEditBillDialog(
+            AddOrEditBillDialog(
                 bill = selectedBillToModal,
                 billModalStateInput = billModalState,
                 billModalStateValidation = { billModalStateToValidate ->

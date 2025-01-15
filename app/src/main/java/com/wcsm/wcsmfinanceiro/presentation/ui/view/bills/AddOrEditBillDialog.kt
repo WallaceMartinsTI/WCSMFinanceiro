@@ -95,7 +95,7 @@ import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianDateString
 import kotlinx.coroutines.delay
 
 @Composable
-fun RegisterOrEditBillDialog(
+fun AddOrEditBillDialog(
     bill: Bill? = null,
     billModalStateInput: BillModalState,
     billModalStateValidation: (billModalState: BillModalState) -> Unit,
@@ -696,7 +696,7 @@ fun RegisterOrEditBillDialog(
 
 @Preview
 @Composable
-private fun RegisterOrEditBillDialogPreview() {
+private fun AddOrEditBillDialogPreview() {
     WCSMFinanceiroTheme(dynamicColor = false) {
         val billModalState = BillModalState(
             id = 0,
@@ -723,7 +723,7 @@ private fun RegisterOrEditBillDialogPreview() {
         Column(
             modifier = Modifier.fillMaxSize().background(BackgroundColor)
         ) {
-            RegisterOrEditBillDialog(
+            AddOrEditBillDialog(
                 billModalStateInput = billModalState,
                 billModalStateValidation = {},
                 isBillModalStateValidationValid = true,
