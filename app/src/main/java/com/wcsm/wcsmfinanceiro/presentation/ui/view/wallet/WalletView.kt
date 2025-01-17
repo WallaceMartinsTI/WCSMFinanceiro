@@ -181,7 +181,7 @@ private fun AccountCardContainerPreview() {
 }
 
 @Composable
-private fun CardContainer(
+fun CardContainer(
     card: AccountCard
 ) {
     val customTextStyle = TextStyle(
