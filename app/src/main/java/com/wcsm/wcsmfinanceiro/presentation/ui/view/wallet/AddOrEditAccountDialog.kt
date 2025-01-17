@@ -46,8 +46,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.wcsm.wcsmfinanceiro.domain.entity.Account
-import com.wcsm.wcsmfinanceiro.domain.entity.AccountCard
+import com.wcsm.wcsmfinanceiro.data.entity.Account
+import com.wcsm.wcsmfinanceiro.data.entity.AccountCard
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.ErrorColor

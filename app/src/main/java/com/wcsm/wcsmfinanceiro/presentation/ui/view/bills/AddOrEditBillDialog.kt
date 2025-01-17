@@ -71,10 +71,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.wcsm.wcsmfinanceiro.domain.entity.Bill
-import com.wcsm.wcsmfinanceiro.domain.entity.BillType
-import com.wcsm.wcsmfinanceiro.domain.entity.Category
-import com.wcsm.wcsmfinanceiro.domain.entity.PaymentType
+import com.wcsm.wcsmfinanceiro.data.entity.Bill
+import com.wcsm.wcsmfinanceiro.data.entity.BillType
+import com.wcsm.wcsmfinanceiro.data.entity.Category
+import com.wcsm.wcsmfinanceiro.data.entity.PaymentType
 import com.wcsm.wcsmfinanceiro.presentation.model.BillModalState
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppDatePicker
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader

@@ -1,7 +1,7 @@
 package com.wcsm.wcsmfinanceiro.presentation.util
 
 import android.icu.util.Calendar
-import com.wcsm.wcsmfinanceiro.domain.entity.Bill
+import com.wcsm.wcsmfinanceiro.data.entity.Bill
 import com.wcsm.wcsmfinanceiro.presentation.model.BillModalState
 import java.text.Normalizer
 import java.text.NumberFormat

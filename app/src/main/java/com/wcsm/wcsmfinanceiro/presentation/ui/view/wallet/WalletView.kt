@@ -39,8 +39,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wcsm.wcsmfinanceiro.R
-import com.wcsm.wcsmfinanceiro.domain.entity.Account
-import com.wcsm.wcsmfinanceiro.domain.entity.AccountCard
+import com.wcsm.wcsmfinanceiro.data.entity.Account
+import com.wcsm.wcsmfinanceiro.data.entity.AccountCard
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.ErrorColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.GrayColor

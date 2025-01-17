@@ -1,14 +1,21 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills
 
+import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.wcsm.wcsmfinanceiro.domain.entity.Bill
-import com.wcsm.wcsmfinanceiro.domain.entity.BillType
-import com.wcsm.wcsmfinanceiro.domain.entity.Category
-import com.wcsm.wcsmfinanceiro.domain.entity.PaymentType
+import androidx.lifecycle.viewModelScope
+import com.wcsm.wcsmfinanceiro.data.database.WCSMFinanceiroDatabase
+import com.wcsm.wcsmfinanceiro.data.entity.Bill
+import com.wcsm.wcsmfinanceiro.data.entity.Bill2
+import com.wcsm.wcsmfinanceiro.data.entity.BillType
+import com.wcsm.wcsmfinanceiro.data.entity.Category
+import com.wcsm.wcsmfinanceiro.data.entity.PaymentType
 import com.wcsm.wcsmfinanceiro.presentation.model.BillModalState
 import com.wcsm.wcsmfinanceiro.presentation.util.normalize
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 class BillsViewModel : ViewModel() {
     // Temp for tests
@@ -366,6 +373,22 @@ class BillsViewModel : ViewModel() {
             Pair(false, "Valor inválido")
         } else {
             Pair(true, "")
+        }
+    }
+
+    // TEST
+    fun saveBill(context: Context, bill: Bill2) {
+        val db = WCSMFinanceiroDatabase.getInstance(context)
+        val billsDao = db.billsDao
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = billsDao.saveBill(bill)
+            Log.i("#-# TESTE #-#", "response: $response")
+            if(response == bill.id) {
+                // SUCESSO
+            } else {
+                // ERRO
+            }
         }
     }
 }

@@ -45,10 +45,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wcsm.wcsmfinanceiro.R
-import com.wcsm.wcsmfinanceiro.domain.entity.Bill
-import com.wcsm.wcsmfinanceiro.domain.entity.BillType
-import com.wcsm.wcsmfinanceiro.domain.entity.Category
-import com.wcsm.wcsmfinanceiro.domain.entity.PaymentType
+import com.wcsm.wcsmfinanceiro.data.entity.Bill
+import com.wcsm.wcsmfinanceiro.data.entity.BillType
+import com.wcsm.wcsmfinanceiro.data.entity.Category
+import com.wcsm.wcsmfinanceiro.data.entity.PaymentType
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.DateRangeFilter
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.MoneyGreenColor

@@ -1,8 +1,8 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet
 
 import androidx.lifecycle.ViewModel
-import com.wcsm.wcsmfinanceiro.domain.entity.Account
-import com.wcsm.wcsmfinanceiro.domain.entity.AccountCard
+import com.wcsm.wcsmfinanceiro.data.entity.Account
+import com.wcsm.wcsmfinanceiro.data.entity.AccountCard
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
