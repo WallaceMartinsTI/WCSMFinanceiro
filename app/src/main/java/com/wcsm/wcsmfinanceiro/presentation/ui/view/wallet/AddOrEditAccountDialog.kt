@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -36,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
@@ -76,7 +78,7 @@ fun AddOrEditAccountDialog(
         ) {
             Text(
                 //text = if (bill != null) "EDITAR CONTA" else "ADICIONAR CONTA",
-                text = "TESTE",
+                text = "ADICIONAR CARTEIRA",
                 modifier = Modifier.padding(bottom = 8.dp),
                 color = PrimaryColor,
                 fontWeight = FontWeight.Bold,
@@ -159,8 +161,8 @@ fun AddOrEditAccountDialog(
                         },
                         leadingIcon = {
                             Icon(
-                                imageVector = Icons.Default.ShoppingCart,
-                                contentDescription = "Ícone de carrinho de compra",
+                                imageVector = Icons.Default.AttachMoney,
+                                contentDescription = "Ícone de dinheiro",
                                 tint = White06Color
                             )
                         },
@@ -190,7 +192,7 @@ fun AddOrEditAccountDialog(
                     Column(
                        modifier = Modifier
                            .width(280.dp)
-                           .border(1.dp, White06Color)
+                           .border(1.dp, White06Color, RoundedCornerShape(10.dp))
                            .padding(8.dp),
                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -427,9 +429,17 @@ fun AddOrEditAccountDialog(
                         )
 
 
-                        LazyRow {
+                        LazyRow(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(10.dp))
+                                .border(1.dp, White06Color, RoundedCornerShape(10.dp))
+                                .padding(8.dp)
+                        ) {
                             items(4) {
-                                CardContainer(accountCard)
+                                CardContainer(
+                                    modifier = Modifier.scale(0.9f),
+                                    card = accountCard
+                                )
                             }
                         }
                     }

@@ -182,7 +182,8 @@ private fun AccountCardContainerPreview() {
 
 @Composable
 fun CardContainer(
-    card: AccountCard
+    card: AccountCard,
+    modifier: Modifier = Modifier
 ) {
     val customTextStyle = TextStyle(
         fontFamily = PoppinsFontFamily,
@@ -191,7 +192,7 @@ fun CardContainer(
     )
 
     Column(
-        Modifier
+        modifier
             .clip(RoundedCornerShape(topStart = 15.dp, bottomEnd = 15.dp))
             .border(1.dp, Color.White, RoundedCornerShape(topStart = 15.dp, bottomEnd = 15.dp))
             .width(250.dp)
