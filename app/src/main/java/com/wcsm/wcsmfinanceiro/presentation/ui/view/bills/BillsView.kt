@@ -42,13 +42,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wcsm.wcsmfinanceiro.R
 import com.wcsm.wcsmfinanceiro.data.entity.Bill
-import com.wcsm.wcsmfinanceiro.data.entity.BillType
-import com.wcsm.wcsmfinanceiro.data.entity.Category
-import com.wcsm.wcsmfinanceiro.data.entity.PaymentType
+import com.wcsm.wcsmfinanceiro.data.model.BillType
+import com.wcsm.wcsmfinanceiro.data.model.PaymentType
+import com.wcsm.wcsmfinanceiro.presentation.model.BillState
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.DateRangeFilter
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.MoneyGreenColor
@@ -60,23 +60,22 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.RedColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.TertiaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
+import com.wcsm.wcsmfinanceiro.presentation.util.toBillState
 import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianDateString
 import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianReal
 
 @Composable
 fun BillsView(
-    billsViewModel: BillsViewModel = viewModel()
+    billsViewModel: BillsViewModel = hiltViewModel()
 ) {
     val configuration = LocalConfiguration.current
-
-    val filterSelectedDateRange by billsViewModel.filterSelectedDateRange.collectAsStateWithLifecycle()
 
     var textFilter by remember { mutableStateOf("") }
     val textFilterFocusRequester = remember { FocusRequester() }
 
     val bills by billsViewModel.bills.collectAsStateWithLifecycle()
-    val billModalState by billsViewModel.billModalState.collectAsStateWithLifecycle()
-    val isBillModalStateValid by billsViewModel.isBillModalStateValid.collectAsStateWithLifecycle()
+
+    //val billState by billsViewModel.billState.collectAsStateWithLifecycle()
 
     var showRegisterOrEditBillDialog by remember { mutableStateOf(false) }
 
@@ -99,7 +98,7 @@ fun BillsView(
             fontFamily = PoppinsFontFamily
         )
 
-        DateRangeFilter(
+        /*DateRangeFilter(
             filterSelectedDateRange = filterSelectedDateRange,
             onDateSelected = { startDate, endDate ->
                 billsViewModel.updateFilterSelectedDateRange(
@@ -107,14 +106,14 @@ fun BillsView(
                     endDate = endDate
                 )
             },
-            onClearFilter = { billsViewModel.clearFilters() },
+            onClearFilter = {  },
             onFilter = { startDate, endDate ->
-                billsViewModel.applyDateRangeFilter(
+                *//*billsViewModel.applyDateRangeFilter(
                     startDate = startDate,
                     endDate = endDate
-                )
+                )*//*
             }
-        )
+        )*/
 
         HorizontalDivider(
             modifier = Modifier.padding(16.dp),
@@ -125,7 +124,7 @@ fun BillsView(
             value = textFilter,
             onValueChange = {
                 textFilter = it
-                billsViewModel.applyTextFilter(textFilter)
+                //billsViewModel.applyTextFilter(textFilter)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -152,7 +151,7 @@ fun BillsView(
                             .clickable {
                                 textFilter = ""
                                 textFilterFocusRequester.requestFocus()
-                                billsViewModel.clearFilters()
+                                //billsViewModel.clearFilters()
                             },
                         tint = White06Color
                     )
@@ -188,6 +187,11 @@ fun BillsView(
                         selectedBillToModal = bill
                         showRegisterOrEditBillDialog = true
                     }
+
+                    /*Column {
+                        Text(bill.title)
+                        Text(bill.billType.displayName)
+                    }*/
                 }
 
                 item {
@@ -214,25 +218,20 @@ fun BillsView(
         // ABRIR DIALOG PASSANDO BILL PARA EDIÇÃO
         if (showRegisterOrEditBillDialog) {
             AddOrEditBillDialog(
-                bill = selectedBillToModal,
-                billModalStateInput = billModalState,
-                billModalStateValidation = { billModalStateToValidate ->
-                    billsViewModel.validateBillModalState(billModalStateToValidate)
+                billState = billsViewModel.billDialogState,
+                onValueChange = { updatedValue ->
+                    billsViewModel.updateBillDialogState(updatedValue)
                 },
-                isBillModalStateValidationValid = isBillModalStateValid,
                 deviceScreenHeight = deviceScreenHeight,
-                onConfirm = { bill ->
-                    if(selectedBillToModal != null) {
-                        billsViewModel.updateBill(bill)
-                    } else {
-                        billsViewModel.saveBill(bill)
-                    }
+                onAddBill = { billState ->
+                    billsViewModel.saveBill(billState)
+                },
+                onUpdateBill = {},
+                onDismiss = {
+                    billsViewModel.resetErrorMessages()
+                    showRegisterOrEditBillDialog = false
                 }
-            ) {
-                billModalState.resetErrorMessages()
-                selectedBillToModal = null
-                showRegisterOrEditBillDialog = false
-            }
+            )
         }
     }
 }
@@ -299,7 +298,7 @@ private fun BillCard(
                     )
 
                     Text(
-                        text = bill.category?.title ?: "Sem categoria",
+                        text = bill.category,
                         color = TertiaryColor,
                         fontFamily = PoppinsFontFamily
                     )
@@ -327,7 +326,7 @@ private fun BillCardPreview() {
             value = 2624.72,
             description = "Salário do mês de Janeiro",
             date = 1736208000000, // Mon Jan 06 2025 21:00:00.000
-            category = Category(1, "Trabalho"),
+            category = "Trabalho",
             dueDate = 1739588400000, // Sat Feb 15 2025 00:00:00.000
             expired = false,
             paid = true,
@@ -343,7 +342,7 @@ private fun BillCardPreview() {
             value = 975.35,
             description = "Compra do mês de Janeiro",
             date = 1736208000000, // Mon Jan 06 2025 21:00:00.000
-            category = Category(1, "Mercado"),
+            category = "Mercado",
             dueDate = 1739588400000, // Sat Feb 15 2025 00:00:00.000
             expired = false,
             paid = true,

@@ -1,25 +1,27 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wcsm.wcsmfinanceiro.data.database.WCSMFinanceiroDatabase
 import com.wcsm.wcsmfinanceiro.data.entity.Bill
-import com.wcsm.wcsmfinanceiro.data.entity.Bill2
-import com.wcsm.wcsmfinanceiro.data.entity.BillType
-import com.wcsm.wcsmfinanceiro.data.entity.Category
-import com.wcsm.wcsmfinanceiro.data.entity.PaymentType
-import com.wcsm.wcsmfinanceiro.presentation.model.BillModalState
-import com.wcsm.wcsmfinanceiro.presentation.util.normalize
+import com.wcsm.wcsmfinanceiro.domain.usecase.GetBillsUseCase
+import com.wcsm.wcsmfinanceiro.domain.usecase.SaveBillUseCase
+import com.wcsm.wcsmfinanceiro.presentation.model.BillState
+import com.wcsm.wcsmfinanceiro.presentation.util.toBill
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class BillsViewModel : ViewModel() {
+@HiltViewModel
+class BillsViewModel @Inject constructor(
+    private val getBillsUseCase: GetBillsUseCase,
+    private val saveBillUseCase: SaveBillUseCase
+) : ViewModel() {
     // Temp for tests
-    private val billsList = listOf(
+    /*private val billsList = listOf(
         Bill(
             id = 1,
             billType = BillType.INCOME,
@@ -260,90 +262,91 @@ class BillsViewModel : ViewModel() {
             paymentType = PaymentType.CARD,
             tags = listOf("Mercado")
         ),
-    )
+    )*/
 
-    private val _filterSelectedDateRange = MutableStateFlow<Pair<Long, Long>?>(null)
-    val filterSelectedDateRange: StateFlow<Pair<Long, Long>?> = _filterSelectedDateRange
+    private val _billDialogState = MutableStateFlow(BillState())
+    val billDialogState: StateFlow<BillState> = _billDialogState
+
+    //private val _filterSelectedDateRange = MutableStateFlow<Pair<Long, Long>?>(null)
+    //val filterSelectedDateRange: StateFlow<Pair<Long, Long>?> = _filterSelectedDateRange
 
     private val _bills = MutableStateFlow<List<Bill>?>(null)
     val bills: StateFlow<List<Bill>?> = _bills
 
-    private val originalBillsList = MutableStateFlow<List<Bill>>(emptyList())
-
-    private val _isBillModalStateValid = MutableStateFlow(false)
-    val isBillModalStateValid: StateFlow<Boolean> = _isBillModalStateValid
-
-    private val _billModalState = MutableStateFlow(
-        BillModalState(
-            id = -1,
-            billType = BillType.INCOME,
-            origin = "",
-            title = "",
-            titleErrorMessage = "",
-            date = 0L,
-            dateErrorMessage = "",
-            description = "",
-            value = 0.0,
-            valueErrorMessage = "",
-            paymentType = PaymentType.MONEY,
-            category = Category(0L, ""),
-            paid = false,
-            dueDate = 0L,
-            expired = false,
-            tags = emptyList()
-        )
-    )
-    val billModalState: StateFlow<BillModalState> = _billModalState
-
-    fun updateFilterSelectedDateRange(startDate: Long, endDate: Long) {
+    /*fun updateFilterSelectedDateRange(startDate: Long, endDate: Long) {
         _filterSelectedDateRange.value = Pair(startDate, endDate)
-    }
+    }*/
 
     init {
-        originalBillsList.value = billsList
-        _bills.value = billsList
+        getBills()
     }
 
-    fun saveBill(bill: Bill) {}
+    fun updateBillDialogState(updatedState: BillState) {
+        _billDialogState.value = updatedState
+    }
 
-    fun updateBill(bill: Bill) {}
+    fun updateBillDialogStateLoading(isLoading: Boolean) {
+        val currentState = _billDialogState.value
+        updateBillDialogState(
+            currentState.copy(
+                isLoading = isLoading
+            )
+        )
+    }
 
-    fun validateBillModalState(billModalState: BillModalState) {
-        _isBillModalStateValid.value = false
+    fun getBills() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val bills = getBillsUseCase()
+            _bills.value = bills
+        }
+    }
 
-        val isTitleValid = validateTitle(billModalState.title)
-        val isDateValid = validateDate(billModalState.date)
-        val isValueValid = validateValue(billModalState.value)
+    fun saveBill(billState: BillState) {
+        resetErrorMessages()
 
-        val isValid = isTitleValid.first && isDateValid.first && isValueValid.first
+        updateBillDialogStateLoading(true)
 
-        _billModalState.value = billModalState.copy(
-            titleErrorMessage = isTitleValid.second,
-            dateErrorMessage = isDateValid.second,
-            valueErrorMessage = isValueValid.second
+        viewModelScope.launch(Dispatchers.IO) {
+            if(isBillStateValid()) {
+                val bill = billState.toBill()
+                saveBillUseCase(bill)
+
+                _billDialogState.value = BillState()
+            }
+
+            updateBillDialogStateLoading(false)
+        }
+    }
+
+    fun resetErrorMessages() {
+        Log.i("#-# TESTE #-#", "RESETOU AS MENSAGENS DE ERRO")
+        val currentState = _billDialogState.value
+        updateBillDialogState(
+            currentState.copy(
+                titleErrorMessage = "",
+                dateErrorMessage = "",
+                valueErrorMessage = ""
+            )
+        )
+    }
+
+    private fun isBillStateValid() : Boolean {
+        val currentState = _billDialogState.value
+
+        Log.i("#-# TESTE #-#", "VALIDOU")
+        val isTitleValid = validateTitle(billDialogState.value.title)
+        val isDateValid = validateDate(billDialogState.value.date)
+        val isValueValid = validateValue(billDialogState.value.value)
+
+        updateBillDialogState(
+            currentState.copy(
+                titleErrorMessage = isTitleValid.second,
+                dateErrorMessage = isDateValid.second,
+                valueErrorMessage = isValueValid.second
+            )
         )
 
-        if(isValid) _isBillModalStateValid.value = true
-    }
-
-    fun applyDateRangeFilter(startDate: Long, endDate: Long) {
-        _bills.value = bills.value?.filter { bill ->
-            bill.date in startDate..endDate
-        }
-    }
-
-    fun applyTextFilter(textToFilter: String) {
-        if (textToFilter.isBlank()) {
-            _bills.value = originalBillsList.value
-        } else {
-            _bills.value = originalBillsList.value.filter { bill ->
-                textToFilter.normalize().lowercase() in bill.title.normalize().lowercase()
-            }
-        }
-    }
-
-    fun clearFilters() {
-        _bills.value = billsList
+        return isTitleValid.first && isDateValid.first && isValueValid.first
     }
 
     private fun validateTitle(title: String) : Pair<Boolean, String> {
@@ -373,22 +376,6 @@ class BillsViewModel : ViewModel() {
             Pair(false, "Valor inválido")
         } else {
             Pair(true, "")
-        }
-    }
-
-    // TEST
-    fun saveBill(context: Context, bill: Bill2) {
-        val db = WCSMFinanceiroDatabase.getInstance(context)
-        val billsDao = db.billsDao
-
-        viewModelScope.launch(Dispatchers.IO) {
-            val response = billsDao.saveBill(bill)
-            Log.i("#-# TESTE #-#", "response: $response")
-            if(response == bill.id) {
-                // SUCESSO
-            } else {
-                // ERRO
-            }
         }
     }
 }

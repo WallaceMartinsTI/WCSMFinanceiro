@@ -1,4 +1,4 @@
-package com.wcsm.wcsmfinanceiro.data.entity
+package com.wcsm.wcsmfinanceiro.data.model
 
 enum class BillType(val displayName: String) {
     INCOME("Receita"), EXPENSE("Despesa")

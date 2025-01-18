@@ -1,4 +1,4 @@
-package com.wcsm.wcsmfinanceiro.data.entity
+package com.wcsm.wcsmfinanceiro.data.model
 
 import androidx.compose.ui.graphics.vector.ImageVector
 
