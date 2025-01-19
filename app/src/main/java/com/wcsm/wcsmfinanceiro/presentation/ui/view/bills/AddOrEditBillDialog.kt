@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Healing
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -40,12 +41,14 @@ import androidx.compose.material.icons.filled.NoteAlt
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Tag
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -74,7 +77,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.wcsm.wcsmfinanceiro.data.entity.Bill
 import com.wcsm.wcsmfinanceiro.data.model.BillType
 import com.wcsm.wcsmfinanceiro.data.model.Category
 import com.wcsm.wcsmfinanceiro.data.model.PaymentType
@@ -85,6 +87,7 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.component.RadioButtonChooser
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.ErrorColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.GrayColor
+import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnBackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnSurfaceColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PoppinsFontFamily
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PrimaryColor
@@ -94,25 +97,31 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
 import com.wcsm.wcsmfinanceiro.presentation.util.CurrencyVisualTransformation
 import com.wcsm.wcsmfinanceiro.presentation.util.brazilianDateToTimeInMillis
 import com.wcsm.wcsmfinanceiro.presentation.util.getBillTypeFromString
+import com.wcsm.wcsmfinanceiro.presentation.util.getDoubleForStringPrice
 import com.wcsm.wcsmfinanceiro.presentation.util.getFormattedTags
 import com.wcsm.wcsmfinanceiro.presentation.util.getPaymentTypeFromString
 import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianDateString
-import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianReal
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddOrEditBillDialog(
     billState: StateFlow<BillState>,
+    isAddOrEditSuccess: StateFlow<Boolean>,
+    isBillDeleted: StateFlow<Boolean>,
     onValueChange: (updatedValue: BillState) -> Unit,
     deviceScreenHeight: Dp,
     onAddBill: (billState: BillState) -> Unit,
-    onUpdateBill: () -> Unit,
+    onUpdateBill: (billState: BillState) -> Unit,
+    onDeleteBill: (billState: BillState) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val paymentTypeRadioChooserOptions = listOf(PaymentType.MONEY.displayName, PaymentType.CARD.displayName)
+    val paymentTypeRadioChooserOptions =
+        listOf(PaymentType.MONEY.displayName, PaymentType.CARD.displayName)
 
-    val billTypeRadioChooserOptions = listOf(BillType.INCOME.displayName, BillType.EXPENSE.displayName)
+    val billTypeRadioChooserOptions =
+        listOf(BillType.INCOME.displayName, BillType.EXPENSE.displayName)
 
     val focusRequester = remember { List(9) { FocusRequester() } }
 
@@ -123,26 +132,27 @@ fun AddOrEditBillDialog(
     var showDueDatePickerDialog by remember { mutableStateOf(false) }
 
     var tagsToAdd by remember { mutableStateOf("") }
-    var priceTest by remember { mutableStateOf("") }
+    var monetaryValue by remember { mutableStateOf("") }
 
     val billDialogState by billState.collectAsStateWithLifecycle()
+    val addOrEditWithSuccess by isAddOrEditSuccess.collectAsStateWithLifecycle()
+    val billDeleteWithSuccess by isBillDeleted.collectAsStateWithLifecycle()
 
-    //var billDialogState by remember { mutableStateOf(BillState()) }
+    val isBillToEdit by remember { mutableStateOf(billDialogState.id != 0L) }
+    var isModalLoading by remember { mutableStateOf(isBillToEdit) }
 
-    val isBillToEdit by remember { mutableStateOf(billDialogState.title.isNotBlank()) }
-    var isModalLoading by remember { mutableStateOf(true) }
-
-    LaunchedEffect(Unit) {
-        delay(1000)
-        isModalLoading = false
-    }
-
-   /* LaunchedEffect(billDialogStateVM) {
-        billDialogState = billDialogStateVM
-    }*/
+    var showConfirmBillDeletionDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(billDialogState) {
-        Log.i("#-# TESTE #-#", "billDialogState: $billDialogState")
+        if (isBillToEdit) {
+            selectedDate = billDialogState.date.toBrazilianDateString()
+            selectedDueDate = billDialogState.dueDate.toBrazilianDateString()
+
+            monetaryValue = billDialogState.value.toString().replace(".", "")
+
+            delay(1500)
+            isModalLoading = false
+        }
 
     }
 
@@ -154,12 +164,37 @@ fun AddOrEditBillDialog(
         )
     }
 
-    LaunchedEffect(tagsToAdd) {
-        onValueChange(
-            billDialogState.copy(
-                tags = getFormattedTags(tagsToAdd)
+    LaunchedEffect(monetaryValue) {
+        if (monetaryValue.isNotBlank()) {
+            onValueChange(
+                billDialogState.copy(
+                    value = getDoubleForStringPrice(monetaryValue)
+                )
             )
-        )
+        }
+    }
+
+    LaunchedEffect(addOrEditWithSuccess) {
+        if (addOrEditWithSuccess) {
+            onDismiss()
+        }
+    }
+
+    LaunchedEffect(billDeleteWithSuccess) {
+        if(billDeleteWithSuccess) {
+            showConfirmBillDeletionDialog = false
+            onDismiss()
+        }
+    }
+
+    LaunchedEffect(tagsToAdd) {
+        if(tagsToAdd.isNotBlank()) {
+            onValueChange(
+                billDialogState.copy(
+                    tags = getFormattedTags(tagsToAdd)
+                )
+            )
+        }
     }
 
     Dialog(
@@ -174,25 +209,45 @@ fun AddOrEditBillDialog(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = if(isBillToEdit) "EDITAR CONTA" else "ADICIONAR CONTA",
-                modifier = Modifier.padding(bottom = 8.dp),
-                color = PrimaryColor,
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.bodyMedium
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    text = if (isBillToEdit) "EDITAR CONTA" else "ADICIONAR CONTA",
+                    modifier = Modifier.align(Alignment.Center),
+                    color = PrimaryColor,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Ícone de fechar",
+                    tint = White06Color,
+                    modifier = Modifier
+                        .clickable { onDismiss() }
+                        .align(Alignment.TopEnd)
+                        .size(40.dp)
+                )
+            }
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 8.dp),
+                color = OnBackgroundColor
             )
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+            Box(
+                modifier = Modifier.fillMaxSize()
             ) {
-                if(isModalLoading) {
-                    AppLoader(modifier = Modifier.size(80.dp))
-                } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
                     RadioButtonChooser(
+                        inputedOption = if (isBillToEdit) billDialogState.billType.displayName else null,
                         optionsList = billTypeRadioChooserOptions,
                         modifier = Modifier
                             .width(280.dp)
@@ -208,7 +263,7 @@ fun AddOrEditBillDialog(
                     OutlinedTextField(
                         value = billDialogState.origin,
                         onValueChange = {
-                            if(billDialogState.origin.length < 50) {
+                            if (billDialogState.origin.length < 50) {
                                 onValueChange(
                                     billDialogState.copy(
                                         origin = it
@@ -238,7 +293,7 @@ fun AddOrEditBillDialog(
                             )
                         },
                         trailingIcon = {
-                            if(billDialogState.origin.isNotEmpty()) {
+                            if (billDialogState.origin.isNotEmpty()) {
                                 Icon(
                                     imageVector = Icons.Default.Clear,
                                     contentDescription = "Ícone de x",
@@ -265,7 +320,7 @@ fun AddOrEditBillDialog(
                     OutlinedTextField(
                         value = billDialogState.title,
                         onValueChange = {
-                            if(billDialogState.title.length < 50) {
+                            if (billDialogState.title.length < 50) {
                                 onValueChange(
                                     billDialogState.copy(
                                         title = it
@@ -295,7 +350,7 @@ fun AddOrEditBillDialog(
                             )
                         },
                         trailingIcon = {
-                            if(billDialogState.title.isNotEmpty()) {
+                            if (billDialogState.title.isNotEmpty()) {
                                 Icon(
                                     imageVector = Icons.Default.Clear,
                                     contentDescription = "Ícone de x",
@@ -315,7 +370,7 @@ fun AddOrEditBillDialog(
                         singleLine = true,
                         isError = billDialogState.titleErrorMessage.isNotEmpty(),
                         supportingText = {
-                            if(billDialogState.titleErrorMessage.isNotEmpty()) {
+                            if (billDialogState.titleErrorMessage.isNotEmpty()) {
                                 Text(
                                     text = billDialogState.titleErrorMessage,
                                     fontFamily = PoppinsFontFamily
@@ -345,7 +400,7 @@ fun AddOrEditBillDialog(
                             )
                         },
                         supportingText = {
-                            if(billDialogState.dateErrorMessage.isNotEmpty()) {
+                            if (billDialogState.dateErrorMessage.isNotEmpty()) {
                                 Text(
                                     text = billDialogState.titleErrorMessage,
                                     style = MaterialTheme.typography.bodySmall
@@ -361,7 +416,7 @@ fun AddOrEditBillDialog(
                             )
                         },
                         trailingIcon = {
-                            if(selectedDate != "") {
+                            if (selectedDate != "") {
                                 Icon(
                                     imageVector = Icons.Default.Clear,
                                     contentDescription = "Ícone de x",
@@ -376,7 +431,7 @@ fun AddOrEditBillDialog(
                         },
                         readOnly = true
                     )
-                    if(showDatePickerDialog) {
+                    if (showDatePickerDialog) {
                         AppDatePicker(
                             onDismiss = {
                                 showDatePickerDialog = false
@@ -394,7 +449,7 @@ fun AddOrEditBillDialog(
                     OutlinedTextField(
                         value = billDialogState.description,
                         onValueChange = {
-                            if(billDialogState.description.length < 100) {
+                            if (billDialogState.description.length < 100) {
                                 onValueChange(
                                     billDialogState.copy(
                                         description = it
@@ -424,7 +479,7 @@ fun AddOrEditBillDialog(
                             )
                         },
                         trailingIcon = {
-                            if(billDialogState.description.isNotEmpty()) {
+                            if (billDialogState.description.isNotEmpty()) {
                                 Icon(
                                     imageVector = Icons.Default.Clear,
                                     contentDescription = "Ícone de x",
@@ -449,19 +504,19 @@ fun AddOrEditBillDialog(
                     )
 
                     OutlinedTextField(
-                        value = priceTest, //billDialogState.value.toBrazilianReal(),
+                        value = monetaryValue, //billDialogState.value.toBrazilianReal(),
                         //value = if(billDialogState.value == 0.0) "" else billDialogState.value.toString(),
                         onValueChange = { newValue ->
                             //if(newValue.all { it.isDigit() }) {
-                                /*billModalState = billModalState.copy(
-                                    value = newValue.toDoubleOrNull() ?: 0.0
-                                )*/
-                                priceTest = newValue
-                                /*onValueChange(
-                                    billDialogState.copy(
-                                        value = newValue.toDoubleOrNull() ?: 5.25
-                                    )
-                                )*/
+                            /*billModalState = billModalState.copy(
+                                value = newValue.toDoubleOrNull() ?: 0.0
+                            )*/
+                            monetaryValue = newValue
+                            /*onValueChange(
+                                billDialogState.copy(
+                                    value = newValue.toDoubleOrNull() ?: 5.25
+                                )
+                            )*/
                             //}
                         },
                         modifier = Modifier
@@ -486,7 +541,7 @@ fun AddOrEditBillDialog(
                             )
                         },
                         trailingIcon = {
-                            if(billDialogState.value != 0.0) {
+                            if (billDialogState.value != 0.0) {
                                 Icon(
                                     imageVector = Icons.Default.Clear,
                                     contentDescription = "Ícone de x",
@@ -504,7 +559,7 @@ fun AddOrEditBillDialog(
                         singleLine = true,
                         isError = billDialogState.valueErrorMessage.isNotEmpty(),
                         supportingText = {
-                            if(billDialogState.valueErrorMessage.isNotEmpty()) {
+                            if (billDialogState.valueErrorMessage.isNotEmpty()) {
                                 Text(
                                     text = billDialogState.valueErrorMessage
                                 )
@@ -543,7 +598,7 @@ fun AddOrEditBillDialog(
                             )
                         },
                         trailingIcon = {
-                            if(selectedDueDate != "") {
+                            if (selectedDueDate != "") {
                                 Icon(
                                     imageVector = Icons.Default.Clear,
                                     contentDescription = "Ícone de x",
@@ -563,7 +618,7 @@ fun AddOrEditBillDialog(
                         },
                         readOnly = true
                     )
-                    if(showDueDatePickerDialog) {
+                    if (showDueDatePickerDialog) {
                         AppDatePicker(
                             onDismiss = {
                                 showDueDatePickerDialog = false
@@ -579,6 +634,7 @@ fun AddOrEditBillDialog(
                     }
 
                     CategoriesDropdown(
+                        inputedOption = if (isBillToEdit) billDialogState.category else null,
                         modifier = Modifier.padding(bottom = 8.dp),
                         onValueSelected = { selectedCategory ->
                             onValueChange(
@@ -590,6 +646,7 @@ fun AddOrEditBillDialog(
                     )
 
                     RadioButtonChooser(
+                        inputedOption = if (isBillToEdit) billDialogState.paymentType.displayName else null,
                         optionsList = paymentTypeRadioChooserOptions,
                         modifier = Modifier.width(280.dp)
                     ) { selectedValue ->
@@ -618,11 +675,10 @@ fun AddOrEditBillDialog(
                         Text(
                             text = "Paga?",
                             fontFamily = PoppinsFontFamily,
-                            color = if(billDialogState.paid) PrimaryColor else White06Color
+                            color = if (billDialogState.paid) PrimaryColor else White06Color
                         )
                     }
 
-                    // DEVE PREENCHER AUTOMATICAMENTE
                     Row(
                         modifier = Modifier
                             .width(280.dp)
@@ -644,12 +700,12 @@ fun AddOrEditBillDialog(
                         Text(
                             text = "Vencida?",
                             fontFamily = PoppinsFontFamily,
-                            color = if(billDialogState.expired) PrimaryColor else White06Color
+                            color = if (billDialogState.expired) PrimaryColor else White06Color
                         )
                     }
 
                     // TAGS
-                    if(isBillToEdit) {
+                    if (isBillToEdit && billDialogState.tags.isNotEmpty()) {
                         TagsContainer(tags = billDialogState.tags)
                     } else {
                         OutlinedTextField(
@@ -684,7 +740,7 @@ fun AddOrEditBillDialog(
                                 )
                             },
                             trailingIcon = {
-                                if(tagsToAdd.isNotEmpty()) {
+                                if (tagsToAdd.isNotEmpty()) {
                                     Icon(
                                         imageVector = Icons.Default.Clear,
                                         contentDescription = "Ícone de x",
@@ -708,41 +764,108 @@ fun AddOrEditBillDialog(
 
                     Button(
                         onClick = {
-                            if(isBillToEdit) {
+                            if (isBillToEdit) {
                                 // UPDATE BILL
+                                onUpdateBill(billDialogState)
                             } else {
                                 // NEW BILL
                                 onAddBill(billDialogState)
                             }
-                            onDismiss()
                         },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)
                     ) {
                         Text(
-                            text = if(isBillToEdit) "ATUALIZAR" else "SALVAR"
+                            text = if (isBillToEdit) "ATUALIZAR" else "SALVAR"
                         )
                     }
 
-                    Button(
-                        onClick = { onDismiss() },
+                    if (isBillToEdit) {
+                        Button(
+                            onClick = { showConfirmBillDeletionDialog = true },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = ErrorColor
+                            )
+                        ) {
+                            Text(
+                                text = "EXCLUIR CONTA"
+                            )
+                        }
+                    }
+                }
+
+                if (isModalLoading) {
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = ErrorColor
-                        )
+                            .fillMaxSize()
+                            .background(SurfaceColor),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        Text(
-                            text = "CANCELAR"
-                        )
+                        AppLoader(modifier = Modifier.size(80.dp))
+                    }
+                }
+
+                if(showConfirmBillDeletionDialog) {
+                    BasicAlertDialog(
+                        onDismissRequest = { showConfirmBillDeletionDialog = false },
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(15.dp))
+                            .border(1.dp, OnSurfaceColor, RoundedCornerShape(15.dp))
+                            .background(SurfaceColor)
+                            .padding(8.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "EXCLUIR CONTA",
+                                color = PrimaryColor,
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+
+                            Text(
+                                text = "Tem certeza que deseja excluir a conta: ${billDialogState.title}",
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+
+                            Column(
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Button(
+                                    onClick = {
+                                        onDeleteBill(billDialogState)
+                                    },
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = ErrorColor
+                                    )
+                                ) {
+                                    Text("EXCLUIR")
+                                }
+
+                                Button(
+                                    onClick = { showConfirmBillDeletionDialog = false },
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                                ) {
+                                    Text("CANCELAR")
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
     }
 }
+
 
 @Preview
 @Composable
@@ -754,14 +877,19 @@ private fun AddOrEditBillDialogPreview(
         val deviceScreenHeight = configuration.screenHeightDp.dp
 
         Column(
-            modifier = Modifier.fillMaxSize().background(BackgroundColor)
+            modifier = Modifier
+                .fillMaxSize()
+                .background(BackgroundColor)
         ) {
             AddOrEditBillDialog(
                 billState = billsViewModel.billDialogState,
+                isAddOrEditSuccess = billsViewModel.isAddOrEditSuccess,
+                isBillDeleted = billsViewModel.isBillDeleted,
                 onValueChange = {},
                 deviceScreenHeight = deviceScreenHeight,
                 onAddBill = {},
                 onUpdateBill = {},
+                onDeleteBill = {},
                 onDismiss = {}
             )
         }
@@ -771,6 +899,7 @@ private fun AddOrEditBillDialogPreview(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CategoriesDropdown(
+    inputedOption: String?,
     modifier: Modifier = Modifier,
     onValueSelected: (selectedCategory: String) -> Unit
 ) {
@@ -785,8 +914,14 @@ private fun CategoriesDropdown(
     )
     var showCategoriesDropdown by remember { mutableStateOf(false) }
 
+    LaunchedEffect(inputedOption) {
+        inputedOption?.let {
+            category = inputedOption
+        }
+    }
+
     LaunchedEffect(category) {
-        if(category.isNotBlank()) {
+        if (category.isNotBlank()) {
             onValueSelected(category)
         }
     }
@@ -825,7 +960,7 @@ private fun CategoriesDropdown(
                 trailingIcon = {
                     Icon(
                         imageVector =
-                        if (category != "") Icons.Filled.KeyboardArrowUp
+                        if (showCategoriesDropdown) Icons.Filled.KeyboardArrowUp
                         else Icons.Filled.KeyboardArrowDown,
                         contentDescription = "Ícone de seta para cima ou para baixo",
                         tint = White06Color
@@ -867,15 +1002,14 @@ private fun CategoriesDropdownPreview() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CategoriesDropdown() {}
+            CategoriesDropdown(inputedOption = null) {}
         }
     }
 }
 
 @Composable
 private fun Tag(
-    tag: String,
-    onDeleteTag: () -> Unit
+    tag: String
 ) {
     Row(
         modifier = Modifier
@@ -903,9 +1037,7 @@ private fun Tag(
             tint = White06Color,
             modifier = Modifier
                 .clip(CircleShape)
-                .clickable {
-                    onDeleteTag()
-                }
+                .clickable { /* ON DELETE TAG */ }
         )
     }
 }
@@ -914,12 +1046,14 @@ private fun Tag(
 @Composable
 private fun TagPreview() {
     WCSMFinanceiroTheme(dynamicColor = false) {
-        Tag("Lazer") {}
+        Tag("Lazer")
     }
 }
 
 @Composable
-fun TagsContainer(tags: List<String>) {
+fun TagsContainer(
+    tags: List<String>
+) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = Modifier
@@ -931,7 +1065,7 @@ fun TagsContainer(tags: List<String>) {
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         items(tags) { tag ->
-            Tag(tag) { /* ON DELETe TAG */ }
+            Tag(tag)
         }
     }
 }

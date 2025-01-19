@@ -14,3 +14,27 @@ fun getBillTypeFromString(displayName: String) : BillType {
 fun getFormattedTags(tagsDividedByComma: String) : List<String> {
     return tagsDividedByComma.split(",")
 }
+
+fun getDoubleForStringPrice(price: String) : Double {
+    var formatedPrice = price
+
+    if(price.length == 1) { // 3 -> 0,03
+        formatedPrice = "0,0$price"
+    } else if(price.length == 2) { // 30 -> 0,30
+        formatedPrice = "0,$price"
+    } else {
+        formatedPrice = formatNumberWithComma(price)
+    }
+
+    formatedPrice = formatedPrice.replace(",", ".")
+
+    return formatedPrice.toDoubleOrNull() ?: 0.0
+}
+
+private fun formatNumberWithComma(stringNumber: String) : String {
+    if(stringNumber.length < 3) return stringNumber
+
+    val prefix = stringNumber.dropLast(2)
+    val suffix = stringNumber.takeLast(2)
+    return "$prefix,$suffix"
+}

@@ -1,11 +1,12 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wcsm.wcsmfinanceiro.data.entity.Bill
+import com.wcsm.wcsmfinanceiro.domain.usecase.DeleteBillUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.GetBillsUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.SaveBillUseCase
+import com.wcsm.wcsmfinanceiro.domain.usecase.UpdateBillUseCase
 import com.wcsm.wcsmfinanceiro.presentation.model.BillState
 import com.wcsm.wcsmfinanceiro.presentation.util.toBill
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +19,9 @@ import javax.inject.Inject
 @HiltViewModel
 class BillsViewModel @Inject constructor(
     private val getBillsUseCase: GetBillsUseCase,
-    private val saveBillUseCase: SaveBillUseCase
+    private val saveBillUseCase: SaveBillUseCase,
+    private val updateBillUseCase: UpdateBillUseCase,
+    private val deleteBillUseCase: DeleteBillUseCase
 ) : ViewModel() {
     // Temp for tests
     /*private val billsList = listOf(
@@ -273,6 +276,12 @@ class BillsViewModel @Inject constructor(
     private val _bills = MutableStateFlow<List<Bill>?>(null)
     val bills: StateFlow<List<Bill>?> = _bills
 
+    private val _isAddOrEditSuccess = MutableStateFlow(false)
+    val isAddOrEditSuccess: StateFlow<Boolean> = _isAddOrEditSuccess
+
+    private val _isBillDeleted = MutableStateFlow(false)
+    val isBillDeleted: StateFlow<Boolean> = _isBillDeleted
+
     /*fun updateFilterSelectedDateRange(startDate: Long, endDate: Long) {
         _filterSelectedDateRange.value = Pair(startDate, endDate)
     }*/
@@ -285,41 +294,70 @@ class BillsViewModel @Inject constructor(
         _billDialogState.value = updatedState
     }
 
-    fun updateBillDialogStateLoading(isLoading: Boolean) {
-        val currentState = _billDialogState.value
-        updateBillDialogState(
-            currentState.copy(
-                isLoading = isLoading
-            )
-        )
+    fun updateIsAddOrEditSuccess(state: Boolean) {
+        _isAddOrEditSuccess.value = state
+    }
+
+    fun resetBillDialogState() {
+        _billDialogState.value = BillState()
+        _isAddOrEditSuccess.value = false
     }
 
     fun getBills() {
         viewModelScope.launch(Dispatchers.IO) {
             val bills = getBillsUseCase()
-            _bills.value = bills
+            _bills.value = bills.reversed()
         }
     }
 
     fun saveBill(billState: BillState) {
         resetErrorMessages()
 
-        updateBillDialogStateLoading(true)
-
         viewModelScope.launch(Dispatchers.IO) {
             if(isBillStateValid()) {
                 val bill = billState.toBill()
                 saveBillUseCase(bill)
 
+                updateIsAddOrEditSuccess(true)
                 _billDialogState.value = BillState()
-            }
 
-            updateBillDialogStateLoading(false)
+                getBills()
+            }
+        }
+    }
+
+    fun updateBill(billState: BillState) {
+        resetErrorMessages()
+
+        viewModelScope.launch(Dispatchers.IO) {
+            if(isBillStateValid()) {
+                val bill = billState.toBill()
+                updateBillUseCase(bill)
+
+                updateIsAddOrEditSuccess(true)
+                _billDialogState.value = BillState()
+                getBills()
+            }
+        }
+    }
+
+    fun deleteBill(billState: BillState) {
+        _isBillDeleted.value = false
+
+        viewModelScope.launch(Dispatchers.IO)  {
+            if(isBillStateValid()) {
+                val bill = billState.toBill()
+                deleteBillUseCase(bill)
+
+                _isBillDeleted.value = true
+                _billDialogState.value = BillState()
+
+                getBills()
+            }
         }
     }
 
     fun resetErrorMessages() {
-        Log.i("#-# TESTE #-#", "RESETOU AS MENSAGENS DE ERRO")
         val currentState = _billDialogState.value
         updateBillDialogState(
             currentState.copy(
@@ -333,7 +371,6 @@ class BillsViewModel @Inject constructor(
     private fun isBillStateValid() : Boolean {
         val currentState = _billDialogState.value
 
-        Log.i("#-# TESTE #-#", "VALIDOU")
         val isTitleValid = validateTitle(billDialogState.value.title)
         val isDateValid = validateDate(billDialogState.value.date)
         val isValueValid = validateValue(billDialogState.value.value)

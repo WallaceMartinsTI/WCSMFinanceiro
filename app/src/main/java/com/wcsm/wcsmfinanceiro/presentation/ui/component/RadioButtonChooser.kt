@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,12 +30,19 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
 
 @Composable
 fun RadioButtonChooser(
+    inputedOption: String?,
     optionsList: List<String>,
     modifier: Modifier = Modifier,
     onOptionSelected: (String) -> Unit
 ) {
     val radioOptions by remember { mutableStateOf(optionsList) }
     val (selectedOption, setOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
+
+    LaunchedEffect(inputedOption) {
+        inputedOption?.let {
+            setOptionSelected(it)
+        }
+    }
 
     Column(
         modifier = modifier
@@ -78,6 +86,6 @@ fun RadioButtonChooser(
 private fun RadioButtonChooserPreview() {
     WCSMFinanceiroTheme(dynamicColor = false) {
         val options = listOf(PaymentType.MONEY.displayName, PaymentType.CARD.displayName)
-        RadioButtonChooser(optionsList = options) {}
+        RadioButtonChooser(inputedOption = null, optionsList = options) {}
     }
 }

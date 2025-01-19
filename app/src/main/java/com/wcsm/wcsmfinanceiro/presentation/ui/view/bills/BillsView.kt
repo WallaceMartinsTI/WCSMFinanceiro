@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -26,12 +27,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalConfiguration
@@ -75,11 +78,7 @@ fun BillsView(
 
     val bills by billsViewModel.bills.collectAsStateWithLifecycle()
 
-    //val billState by billsViewModel.billState.collectAsStateWithLifecycle()
-
     var showRegisterOrEditBillDialog by remember { mutableStateOf(false) }
-
-    var selectedBillToModal: Bill? by remember { mutableStateOf(null) }
 
     val deviceScreenHeight = configuration.screenHeightDp.dp
 
@@ -181,17 +180,14 @@ fun BillsView(
             ) {
                 items(
                     items = bills ?: emptyList(),
-                    key = { bill -> bill.id }
+                    //key = { bill -> bill.id } -> Erro de não atualizar a lista ao adicionar uma nova bill
                 ) { bill ->
                     BillCard(bill = bill) {
-                        selectedBillToModal = bill
+                        billsViewModel.updateBillDialogState(
+                            bill.toBillState()
+                        )
                         showRegisterOrEditBillDialog = true
                     }
-
-                    /*Column {
-                        Text(bill.title)
-                        Text(bill.billType.displayName)
-                    }*/
                 }
 
                 item {
@@ -200,7 +196,6 @@ fun BillsView(
             }
             FloatingActionButton(
                 onClick = {
-                    selectedBillToModal = null
                     showRegisterOrEditBillDialog = true
                 },
                 modifier = Modifier.align(Alignment.BottomEnd),
@@ -219,6 +214,8 @@ fun BillsView(
         if (showRegisterOrEditBillDialog) {
             AddOrEditBillDialog(
                 billState = billsViewModel.billDialogState,
+                isAddOrEditSuccess = billsViewModel.isAddOrEditSuccess,
+                isBillDeleted = billsViewModel.isBillDeleted,
                 onValueChange = { updatedValue ->
                     billsViewModel.updateBillDialogState(updatedValue)
                 },
@@ -226,9 +223,14 @@ fun BillsView(
                 onAddBill = { billState ->
                     billsViewModel.saveBill(billState)
                 },
-                onUpdateBill = {},
+                onUpdateBill = { billState ->
+                    billsViewModel.updateBill(billState)
+                },
+                onDeleteBill = { billState ->
+                    billsViewModel.deleteBill(billState)
+                },
                 onDismiss = {
-                    billsViewModel.resetErrorMessages()
+                    billsViewModel.resetBillDialogState()
                     showRegisterOrEditBillDialog = false
                 }
             )
@@ -252,7 +254,7 @@ private fun BillCard(
     val titleAndPriceColor = if (bill.billType == BillType.INCOME) MoneyGreenColor else RedColor
 
     ElevatedCard(
-        modifier = Modifier.clickable { onExpandBillCard() }
+        modifier = Modifier.clip(RoundedCornerShape(15.dp)).clickable { onExpandBillCard() }
     ) {
         Row(
             modifier = Modifier

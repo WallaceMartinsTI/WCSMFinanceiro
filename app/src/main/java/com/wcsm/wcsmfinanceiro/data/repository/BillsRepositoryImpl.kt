@@ -8,8 +8,8 @@ import javax.inject.Inject
 class BillsRepositoryImpl @Inject constructor(
     private val billsDao: BillsDao
 ) : BillsRepository {
-    override suspend fun saveBill(bill2: Bill): RoomOperationResult {
-        val billId = billsDao.saveBill(bill2)
+    override suspend fun saveBill(bill: Bill): RoomOperationResult {
+        val billId = billsDao.saveBill(bill)
         if(billId > 0) {
             return RoomOperationResult(
                 success = true,
@@ -23,12 +23,31 @@ class BillsRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun updateBill(bill2: Bill): RoomOperationResult {
-        TODO("Not yet implemented")
+    override suspend fun updateBill(bill: Bill): RoomOperationResult {
+        val billId = billsDao.updateBill(bill)
+        if(billId > 0) {
+            return RoomOperationResult(
+                success = true,
+                message = "Conta atualizada com sucesso."
+            )
+        }
+
+        return RoomOperationResult(
+            success = false,
+            message = "Erro ao atualizar conta."
+        )
     }
 
-    override suspend fun deleteBill(bill2: Bill): RoomOperationResult {
-        TODO("Not yet implemented")
+    override suspend fun deleteBill(bill: Bill): RoomOperationResult {
+        val registerQuantity = billsDao.deleteBill(bill)
+        if(registerQuantity > 0) {
+            return RoomOperationResult(
+                true, "Conta removida com sucesso."
+            )
+        }
+        return RoomOperationResult(
+            false, "Erro ao remover conta."
+        )
     }
 
     override suspend fun getBills(): List<Bill> {
