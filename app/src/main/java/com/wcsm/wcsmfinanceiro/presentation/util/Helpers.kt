@@ -12,7 +12,7 @@ fun getBillTypeFromString(displayName: String) : BillType {
 }
 
 fun getFormattedTags(tagsDividedByComma: String) : List<String> {
-    return tagsDividedByComma.split(",")
+    return tagsDividedByComma.split(",").map { it.trim() }
 }
 
 fun getDoubleForStringPrice(price: String) : Double {

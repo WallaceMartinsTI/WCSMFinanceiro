@@ -226,6 +226,9 @@ fun BillsView(
                 onUpdateBill = { billState ->
                     billsViewModel.updateBill(billState)
                 },
+                onDeleteTag = { tagToDelete ->
+                    billsViewModel.deleteTag(tagToDelete)
+                },
                 onDeleteBill = { billState ->
                     billsViewModel.deleteBill(billState)
                 },

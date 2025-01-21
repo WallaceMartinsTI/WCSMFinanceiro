@@ -326,7 +326,22 @@ class BillsViewModel @Inject constructor(
         }
     }
 
-    fun updateBill(billState: BillState) {
+    fun deleteTag(tag: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val currentState = _billDialogState.value
+            updateBillDialogState(
+                currentState.copy(
+                    tags = currentState.tags.filter {
+                        it != tag
+                    }
+                )
+            )
+
+            updateBill(billDialogState.value, true)
+        }
+    }
+
+    fun updateBill(billState: BillState, isUpdatingOnlyTags: Boolean = false) {
         resetErrorMessages()
 
         viewModelScope.launch(Dispatchers.IO) {
@@ -334,9 +349,11 @@ class BillsViewModel @Inject constructor(
                 val bill = billState.toBill()
                 updateBillUseCase(bill)
 
-                updateIsAddOrEditSuccess(true)
-                _billDialogState.value = BillState()
-                getBills()
+                if(!isUpdatingOnlyTags) {
+                    updateIsAddOrEditSuccess(true)
+                    _billDialogState.value = BillState()
+                    getBills()
+                }
             }
         }
     }
@@ -358,9 +375,9 @@ class BillsViewModel @Inject constructor(
     }
 
     fun resetErrorMessages() {
-        val currentState = _billDialogState.value
+        //val currentState = _billDialogState.value
         updateBillDialogState(
-            currentState.copy(
+            billDialogState.value.copy(
                 titleErrorMessage = "",
                 dateErrorMessage = "",
                 valueErrorMessage = ""

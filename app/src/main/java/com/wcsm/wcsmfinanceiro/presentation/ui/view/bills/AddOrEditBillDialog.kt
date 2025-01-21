@@ -114,6 +114,7 @@ fun AddOrEditBillDialog(
     deviceScreenHeight: Dp,
     onAddBill: (billState: BillState) -> Unit,
     onUpdateBill: (billState: BillState) -> Unit,
+    onDeleteTag: (tag: String) -> Unit,
     onDeleteBill: (billState: BillState) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -721,10 +722,10 @@ fun AddOrEditBillDialog(
                         )
                     }
 
-                    // TAGS
-                    //if (billDialogState.tags.isNotEmpty()) {
                     if(billHasTag == true) {
-                        TagsContainer(tags = billDialogState.tags)
+                        TagsContainer(tags = billDialogState.tags) { tagToDelete ->
+                            onDeleteTag(tagToDelete)
+                        }
                     } else {
                         OutlinedTextField(
                             value = tagsToAdd,
@@ -907,6 +908,7 @@ private fun AddOrEditBillDialogPreview(
                 deviceScreenHeight = deviceScreenHeight,
                 onAddBill = {},
                 onUpdateBill = {},
+                onDeleteTag = {},
                 onDeleteBill = {},
                 onDismiss = {}
             )
@@ -1027,7 +1029,8 @@ private fun CategoriesDropdownPreview() {
 
 @Composable
 private fun Tag(
-    tag: String
+    tag: String,
+    onDeleteTag: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -1055,7 +1058,7 @@ private fun Tag(
             tint = White06Color,
             modifier = Modifier
                 .clip(CircleShape)
-                .clickable { /* ON DELETE TAG */ }
+                .clickable { onDeleteTag() }
         )
     }
 }
@@ -1064,13 +1067,14 @@ private fun Tag(
 @Composable
 private fun TagPreview() {
     WCSMFinanceiroTheme(dynamicColor = false) {
-        Tag("Lazer")
+        Tag("Lazer") {}
     }
 }
 
 @Composable
 fun TagsContainer(
-    tags: List<String>
+    tags: List<String>,
+    onDeleteTag: (tagToDelete: String) -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -1083,7 +1087,9 @@ fun TagsContainer(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         items(tags) { tag ->
-            Tag(tag)
+            Tag(tag) {
+                onDeleteTag(tag)
+            }
         }
     }
 }
@@ -1101,7 +1107,7 @@ private fun TagsContainerPreview() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TagsContainer(tags = tags)
+            TagsContainer(tags = tags) {}
         }
     }
 }
