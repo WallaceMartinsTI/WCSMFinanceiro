@@ -8,4 +8,5 @@ interface BillsRepository {
     suspend fun updateBill(bill: Bill) : RoomOperationResult
     suspend fun deleteBill(bill: Bill) : RoomOperationResult
     suspend fun getBills() : List<Bill>
+    suspend fun getBillsBetweenDate(startDate: Long, endDate: Long) : List<Bill>
 }

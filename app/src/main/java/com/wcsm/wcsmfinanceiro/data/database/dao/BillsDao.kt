@@ -20,4 +20,7 @@ interface BillsDao {
 
     @Query("SELECT * FROM bills")
     fun selectAllBills() : List<Bill>
+
+    @Query("SELECT * FROM bills WHERE date BETWEEN :startDate AND :endDate")
+    fun selectBillsByDate(startDate: Long, endDate: Long) : List<Bill>
 }

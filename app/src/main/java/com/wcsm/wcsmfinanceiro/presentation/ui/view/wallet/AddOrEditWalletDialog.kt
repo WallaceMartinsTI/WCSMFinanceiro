@@ -3,10 +3,8 @@ package com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,7 +19,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.CreditCard
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -38,7 +35,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -57,7 +53,7 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
 
 @Composable
-fun AddOrEditAccountDialog(
+fun AddOrEditWalletDialog(
     account: Account? = null,
     deviceScreenHeight: Dp,
     onDismiss: () -> Unit
@@ -452,7 +448,7 @@ fun AddOrEditAccountDialog(
 
 @Preview
 @Composable
-private fun AddOrEditBillDialogPreview() {
+private fun AddOrEditWalletDialogPreview() {
     WCSMFinanceiroTheme(dynamicColor = false) {
 
         val configuration = LocalConfiguration.current
@@ -461,7 +457,7 @@ private fun AddOrEditBillDialogPreview() {
         Column(
             modifier = Modifier.fillMaxSize().background(BackgroundColor)
         ) {
-            AddOrEditAccountDialog(null, deviceScreenHeight) { }
+            AddOrEditWalletDialog(null, deviceScreenHeight) { }
         }
     }
 }

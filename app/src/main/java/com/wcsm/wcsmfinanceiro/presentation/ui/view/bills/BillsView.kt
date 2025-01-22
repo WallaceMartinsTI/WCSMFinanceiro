@@ -51,7 +51,6 @@ import com.wcsm.wcsmfinanceiro.R
 import com.wcsm.wcsmfinanceiro.data.entity.Bill
 import com.wcsm.wcsmfinanceiro.data.model.BillType
 import com.wcsm.wcsmfinanceiro.data.model.PaymentType
-import com.wcsm.wcsmfinanceiro.presentation.model.BillState
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.DateRangeFilter
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.MoneyGreenColor
@@ -77,8 +76,9 @@ fun BillsView(
     val textFilterFocusRequester = remember { FocusRequester() }
 
     val bills by billsViewModel.bills.collectAsStateWithLifecycle()
+    val filterSelectedDateRange by billsViewModel.filterSelectedDateRange.collectAsStateWithLifecycle()
 
-    var showRegisterOrEditBillDialog by remember { mutableStateOf(false) }
+    var showAddOrEditBillDialog by remember { mutableStateOf(false) }
 
     val deviceScreenHeight = configuration.screenHeightDp.dp
 
@@ -97,7 +97,7 @@ fun BillsView(
             fontFamily = PoppinsFontFamily
         )
 
-        /*DateRangeFilter(
+        DateRangeFilter(
             filterSelectedDateRange = filterSelectedDateRange,
             onDateSelected = { startDate, endDate ->
                 billsViewModel.updateFilterSelectedDateRange(
@@ -105,14 +105,14 @@ fun BillsView(
                     endDate = endDate
                 )
             },
-            onClearFilter = {  },
+            onClearFilter = { billsViewModel.clearFilter() },
             onFilter = { startDate, endDate ->
-                *//*billsViewModel.applyDateRangeFilter(
+                billsViewModel.applyDateRangeFilter(
                     startDate = startDate,
                     endDate = endDate
-                )*//*
+                )
             }
-        )*/
+        )
 
         HorizontalDivider(
             modifier = Modifier.padding(16.dp),
@@ -179,14 +179,13 @@ fun BillsView(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(
-                    items = bills ?: emptyList(),
-                    //key = { bill -> bill.id } -> Erro de não atualizar a lista ao adicionar uma nova bill
+                    items = bills ?: emptyList()
                 ) { bill ->
                     BillCard(bill = bill) {
                         billsViewModel.updateBillDialogState(
                             bill.toBillState()
                         )
-                        showRegisterOrEditBillDialog = true
+                        showAddOrEditBillDialog = true
                     }
                 }
 
@@ -196,7 +195,7 @@ fun BillsView(
             }
             FloatingActionButton(
                 onClick = {
-                    showRegisterOrEditBillDialog = true
+                    showAddOrEditBillDialog = true
                 },
                 modifier = Modifier.align(Alignment.BottomEnd),
                 containerColor = PrimaryColor,
@@ -210,8 +209,7 @@ fun BillsView(
             }
         }
 
-        // ABRIR DIALOG PASSANDO BILL PARA EDIÇÃO
-        if (showRegisterOrEditBillDialog) {
+        if (showAddOrEditBillDialog) {
             AddOrEditBillDialog(
                 billState = billsViewModel.billDialogState,
                 isAddOrEditSuccess = billsViewModel.isAddOrEditSuccess,
@@ -234,7 +232,7 @@ fun BillsView(
                 },
                 onDismiss = {
                     billsViewModel.resetBillDialogState()
-                    showRegisterOrEditBillDialog = false
+                    showAddOrEditBillDialog = false
                 }
             )
         }

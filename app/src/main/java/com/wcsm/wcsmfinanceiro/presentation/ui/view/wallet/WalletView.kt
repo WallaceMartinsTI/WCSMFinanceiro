@@ -25,10 +25,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -58,7 +62,13 @@ import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianReal
 fun WalletView(
     walletViewModel: WalletViewModel = viewModel()
 ) {
+    val configuration = LocalConfiguration.current
+
     val wallets by walletViewModel.wallets.collectAsStateWithLifecycle()
+
+    var showAddOrEditWalletDialog by remember { mutableStateOf(false) }
+
+    val deviceScreenHeight = configuration.screenHeightDp.dp
 
     Box(
         modifier = Modifier.fillMaxSize().padding(16.dp)
@@ -93,7 +103,9 @@ fun WalletView(
         }
 
         FloatingActionButton(
-            onClick = {},
+            onClick = {
+                showAddOrEditWalletDialog = true
+            },
             modifier = Modifier.align(Alignment.BottomEnd),
             containerColor = PrimaryColor,
             contentColor = OnSecondaryColor
@@ -101,6 +113,13 @@ fun WalletView(
             Icon(
                 imageVector = Icons.Default.AddCard,
                 contentDescription = "Ícone de adicionar cartão",
+            )
+        }
+        
+        if(showAddOrEditWalletDialog) {
+            AddOrEditWalletDialog(
+                deviceScreenHeight = deviceScreenHeight,
+                onDismiss = { showAddOrEditWalletDialog = false }
             )
         }
     }

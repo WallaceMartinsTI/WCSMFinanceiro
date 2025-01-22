@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wcsm.wcsmfinanceiro.data.entity.Bill
 import com.wcsm.wcsmfinanceiro.domain.usecase.DeleteBillUseCase
+import com.wcsm.wcsmfinanceiro.domain.usecase.GetBillsByDateUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.GetBillsUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.SaveBillUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.UpdateBillUseCase
@@ -21,7 +22,8 @@ class BillsViewModel @Inject constructor(
     private val getBillsUseCase: GetBillsUseCase,
     private val saveBillUseCase: SaveBillUseCase,
     private val updateBillUseCase: UpdateBillUseCase,
-    private val deleteBillUseCase: DeleteBillUseCase
+    private val deleteBillUseCase: DeleteBillUseCase,
+    private val getBillsByDateUseCase: GetBillsByDateUseCase
 ) : ViewModel() {
     // Temp for tests
     /*private val billsList = listOf(
@@ -270,8 +272,8 @@ class BillsViewModel @Inject constructor(
     private val _billDialogState = MutableStateFlow(BillState())
     val billDialogState: StateFlow<BillState> = _billDialogState
 
-    //private val _filterSelectedDateRange = MutableStateFlow<Pair<Long, Long>?>(null)
-    //val filterSelectedDateRange: StateFlow<Pair<Long, Long>?> = _filterSelectedDateRange
+    private val _filterSelectedDateRange = MutableStateFlow<Pair<Long, Long>?>(null)
+    val filterSelectedDateRange: StateFlow<Pair<Long, Long>?> = _filterSelectedDateRange
 
     private val _bills = MutableStateFlow<List<Bill>?>(null)
     val bills: StateFlow<List<Bill>?> = _bills
@@ -282,12 +284,12 @@ class BillsViewModel @Inject constructor(
     private val _isBillDeleted = MutableStateFlow(false)
     val isBillDeleted: StateFlow<Boolean> = _isBillDeleted
 
-    /*fun updateFilterSelectedDateRange(startDate: Long, endDate: Long) {
-        _filterSelectedDateRange.value = Pair(startDate, endDate)
-    }*/
-
     init {
         getBills()
+    }
+
+    fun updateFilterSelectedDateRange(startDate: Long, endDate: Long) {
+        _filterSelectedDateRange.value = Pair(startDate, endDate)
     }
 
     fun updateBillDialogState(updatedState: BillState) {
@@ -301,6 +303,20 @@ class BillsViewModel @Inject constructor(
     fun resetBillDialogState() {
         _billDialogState.value = BillState()
         _isAddOrEditSuccess.value = false
+    }
+
+    fun applyDateRangeFilter(startDate: Long, endDate: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val billsByDate = getBillsByDateUseCase(startDate, endDate)
+            _bills.value = billsByDate.sortedBy { bill ->
+                bill.date
+            }
+        }
+    }
+
+    fun clearFilter() {
+        _filterSelectedDateRange.value = null
+        getBills()
     }
 
     fun getBills() {
@@ -374,8 +390,7 @@ class BillsViewModel @Inject constructor(
         }
     }
 
-    fun resetErrorMessages() {
-        //val currentState = _billDialogState.value
+    private fun resetErrorMessages() {
         updateBillDialogState(
             billDialogState.value.copy(
                 titleErrorMessage = "",

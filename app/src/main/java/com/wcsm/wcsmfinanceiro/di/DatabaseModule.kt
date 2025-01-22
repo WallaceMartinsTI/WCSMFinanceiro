@@ -3,9 +3,8 @@ package com.wcsm.wcsmfinanceiro.di
 import android.content.Context
 import com.wcsm.wcsmfinanceiro.data.database.WCSMFinanceiroDatabase
 import com.wcsm.wcsmfinanceiro.data.database.dao.BillsDao
-import com.wcsm.wcsmfinanceiro.domain.repository.BillsRepository
 import com.wcsm.wcsmfinanceiro.data.repository.BillsRepositoryImpl
-import com.wcsm.wcsmfinanceiro.domain.usecase.SaveBillUseCase
+import com.wcsm.wcsmfinanceiro.domain.repository.BillsRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,7 +13,7 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-object AppModule {
+object DatabaseModule {
 
     @Provides
     fun provideWCSMFinanceiroDatabas(
@@ -33,13 +32,6 @@ object AppModule {
     @Provides
     fun provideBillsRepository(billsDao: BillsDao) : BillsRepository {
         return BillsRepositoryImpl(billsDao)
-    }
-
-    @Provides
-    fun provideSaveBillUseCase(
-        billsRepository: BillsRepository
-    ) : SaveBillUseCase {
-        return SaveBillUseCase(billsRepository)
     }
 
 }

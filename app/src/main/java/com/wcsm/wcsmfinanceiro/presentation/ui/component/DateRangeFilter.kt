@@ -1,5 +1,7 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.component
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -31,6 +33,7 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
 import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianDateString
 
+@SuppressLint("UnrememberedMutableState")
 @Composable
 fun DateRangeFilter(
     filterSelectedDateRange: Pair<Long, Long>?,
@@ -55,6 +58,14 @@ fun DateRangeFilter(
             val endDateString = endDate!!.toBrazilianDateString()
             selectedFilterDate = "$startDateString - $endDateString"
         }
+    }
+
+    LaunchedEffect(key1 = mutableStateOf(Unit)) {
+        Log.i("#-# TESTE #-#", "===================== LAUNCHED EFFECT INICIO ===================== ")
+        Log.i("#-# TESTE #-#", "alreadyFiltered: $alreadyFiltered")
+        Log.i("#-# TESTE #-#", "selectedFilterDate: $selectedFilterDate")
+        Log.i("#-# TESTE #-#", "startDate: $startDate - endDate: $endDate")
+        Log.i("#-# TESTE #-#", "===================== LAUNCHED EFFECT FIM =====================")
     }
 
     Row(
@@ -110,9 +121,11 @@ fun DateRangeFilter(
         )
         IconButton(
             onClick = {
+                Log.i("#-# TESTE #-#", "CLICOU BOTÃO")
                 if(alreadyFiltered) {
                     onClearFilter()
                     alreadyFiltered = false
+                    selectedFilterDate = "Selecione uma data"
                 } else {
                     selectedFilterDateErrorMessage = ""
                     if (selectedFilterDate == "Selecione uma data") {
