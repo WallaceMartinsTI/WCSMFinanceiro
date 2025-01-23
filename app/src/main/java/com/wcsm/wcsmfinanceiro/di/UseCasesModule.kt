@@ -1,12 +1,12 @@
 package com.wcsm.wcsmfinanceiro.di
 
 import com.wcsm.wcsmfinanceiro.domain.repository.BillsRepository
-import com.wcsm.wcsmfinanceiro.domain.usecase.DeleteBillUseCase
-import com.wcsm.wcsmfinanceiro.domain.usecase.GetBillsByDateUseCase
-import com.wcsm.wcsmfinanceiro.domain.usecase.GetBillsByTextUseCase
-import com.wcsm.wcsmfinanceiro.domain.usecase.GetBillsUseCase
-import com.wcsm.wcsmfinanceiro.domain.usecase.SaveBillUseCase
-import com.wcsm.wcsmfinanceiro.domain.usecase.UpdateBillUseCase
+import com.wcsm.wcsmfinanceiro.domain.usecase.bills.DeleteBillUseCase
+import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsByDateUseCase
+import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsByTextUseCase
+import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsUseCase
+import com.wcsm.wcsmfinanceiro.domain.usecase.bills.SaveBillUseCase
+import com.wcsm.wcsmfinanceiro.domain.usecase.bills.UpdateBillUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

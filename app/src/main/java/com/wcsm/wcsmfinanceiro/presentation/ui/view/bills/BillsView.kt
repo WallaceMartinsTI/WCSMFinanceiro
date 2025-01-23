@@ -1,6 +1,5 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -86,10 +85,7 @@ fun BillsView(
     val deviceScreenHeight = configuration.screenHeightDp.dp
 
     LaunchedEffect(textFilter) {
-        Log.i("#-# TESTE #-#", "filterSelectedDateRange != null: ${filterSelectedDateRange != null}")
-        Log.i("#-# TESTE #-#", "textFilter.isNotBlank(): ${textFilter.isNotBlank()}")
         if(filterSelectedDateRange != null && textFilter.isNotBlank()) {
-            //billsViewModel.updateFilterSelectedDateRange(null)
             billsViewModel.clearFilter()
         }
     }

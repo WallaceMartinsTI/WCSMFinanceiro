@@ -1,20 +1,24 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wcsm.wcsmfinanceiro.data.entity.Bill
-import com.wcsm.wcsmfinanceiro.domain.usecase.DeleteBillUseCase
-import com.wcsm.wcsmfinanceiro.domain.usecase.GetBillsByDateUseCase
-import com.wcsm.wcsmfinanceiro.domain.usecase.GetBillsByTextUseCase
-import com.wcsm.wcsmfinanceiro.domain.usecase.GetBillsUseCase
-import com.wcsm.wcsmfinanceiro.domain.usecase.SaveBillUseCase
-import com.wcsm.wcsmfinanceiro.domain.usecase.UpdateBillUseCase
+import com.wcsm.wcsmfinanceiro.domain.model.Response
+import com.wcsm.wcsmfinanceiro.domain.usecase.bills.DeleteBillUseCase
+import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsByDateUseCase
+import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsByTextUseCase
+import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsUseCase
+import com.wcsm.wcsmfinanceiro.domain.usecase.bills.SaveBillUseCase
+import com.wcsm.wcsmfinanceiro.domain.usecase.bills.UpdateBillUseCase
 import com.wcsm.wcsmfinanceiro.presentation.model.BillState
+import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.util.toBill
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -272,26 +276,26 @@ class BillsViewModel @Inject constructor(
     )*/
 
     private val _billDialogState = MutableStateFlow(BillState())
-    val billDialogState: StateFlow<BillState> = _billDialogState
+    val billDialogState = _billDialogState.asStateFlow()
 
     private val _filterSelectedDateRange = MutableStateFlow<Pair<Long, Long>?>(null)
-    val filterSelectedDateRange: StateFlow<Pair<Long, Long>?> = _filterSelectedDateRange
+    val filterSelectedDateRange = _filterSelectedDateRange.asStateFlow()
 
     private val _bills = MutableStateFlow<List<Bill>?>(null)
-    val bills: StateFlow<List<Bill>?> = _bills
+    val bills = _bills.asStateFlow()
 
     private val _isAddOrEditSuccess = MutableStateFlow(false)
-    val isAddOrEditSuccess: StateFlow<Boolean> = _isAddOrEditSuccess
+    val isAddOrEditSuccess = _isAddOrEditSuccess.asStateFlow()
 
     private val _isBillDeleted = MutableStateFlow(false)
-    val isBillDeleted: StateFlow<Boolean> = _isBillDeleted
+    val isBillDeleted = _isBillDeleted.asStateFlow()
 
     init {
         getBills()
     }
 
     fun updateFilterSelectedDateRange(filterSelectedRange: Pair<Long, Long>?) {
-        _filterSelectedDateRange.value = filterSelectedRange //Pair(startDate, endDate)
+        _filterSelectedDateRange.value = filterSelectedRange
     }
 
     fun updateBillDialogState(updatedState: BillState) {
@@ -309,17 +313,35 @@ class BillsViewModel @Inject constructor(
 
     fun applyDateRangeFilter(startDate: Long, endDate: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            val billsByDate = getBillsByDateUseCase(startDate, endDate)
-            _bills.value = billsByDate.sortedBy { bill ->
-                bill.date
+            getBillsByDateUseCase(startDate, endDate).collect { result ->
+                when(result) {
+                    is Response.Loading -> {}
+                    is Response.Error -> {
+                        // SHOW ERROR MESSAGE result.message
+                    }
+                    is Response.Success -> {
+                        _bills.value = result.data.sortedBy { bill ->
+                            bill.date
+                        }
+                    }
+                }
             }
         }
     }
 
     fun applyTextFilter(text: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val billsByText = getBillsByTextUseCase(text)
-            _bills.value = billsByText
+            getBillsByTextUseCase(text).collect { result ->
+                when(result) {
+                    is Response.Loading -> {}
+                    is Response.Error -> {
+                        // SHOW ERROR MESSAGE result.message
+                    }
+                    is Response.Success -> {
+                        _bills.value = result.data
+                    }
+                }
+            }
         }
     }
 
@@ -330,8 +352,18 @@ class BillsViewModel @Inject constructor(
 
     private fun getBills() {
         viewModelScope.launch(Dispatchers.IO) {
-            val bills = getBillsUseCase()
-            _bills.value = bills.reversed()
+            getBillsUseCase().collect { result ->
+                when(result) {
+                    is Response.Loading -> {
+                    }
+                    is Response.Error -> {
+                        // SHOW ERROR MESSAGE result.message
+                    }
+                    is Response.Success -> {
+                        _bills.value = result.data.reversed()
+                    }
+                }
+            }
         }
     }
 
@@ -341,7 +373,19 @@ class BillsViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             if(isBillStateValid()) {
                 val bill = billState.toBill()
-                saveBillUseCase(bill)
+                saveBillUseCase(bill).collect { result ->
+                    when(result) {
+                        is Response.Loading -> {
+                            // SET LOADING
+                        }
+                        is Response.Error -> {
+                            // SHOW ERROR MESSAGE result.message
+                        }
+                        is Response.Success -> {
+                            //
+                        }
+                    }
+                }
 
                 updateIsAddOrEditSuccess(true)
                 _billDialogState.value = BillState()
@@ -372,12 +416,23 @@ class BillsViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             if(isBillStateValid()) {
                 val bill = billState.toBill()
-                updateBillUseCase(bill)
 
-                if(!isUpdatingOnlyTags) {
-                    updateIsAddOrEditSuccess(true)
-                    _billDialogState.value = BillState()
-                    getBills()
+                updateBillUseCase(bill).collect { result ->
+                    when(result) {
+                        is Response.Loading -> {
+                            // SET LOADING
+                        }
+                        is Response.Error -> {
+                            // SHOW ERROR MESSAGE result.message
+                        }
+                        is Response.Success -> {
+                            if(!isUpdatingOnlyTags) {
+                                updateIsAddOrEditSuccess(true)
+                                _billDialogState.value = BillState()
+                                getBills()
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -389,12 +444,22 @@ class BillsViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO)  {
             if(isBillStateValid()) {
                 val bill = billState.toBill()
-                deleteBillUseCase(bill)
+                deleteBillUseCase(bill).collect { result ->
+                    when(result) {
+                        is Response.Loading -> {
+                            // SET LOADING
+                        }
+                        is Response.Error -> {
+                            // SHOW ERROR MESSAGE result.message
+                        }
+                        is Response.Success -> {
+                            _isBillDeleted.value = true
+                            _billDialogState.value = BillState()
 
-                _isBillDeleted.value = true
-                _billDialogState.value = BillState()
-
-                getBills()
+                            getBills()
+                        }
+                    }
+                }
             }
         }
     }

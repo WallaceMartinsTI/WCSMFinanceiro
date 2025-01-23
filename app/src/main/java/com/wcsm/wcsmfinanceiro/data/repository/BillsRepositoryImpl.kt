@@ -2,64 +2,100 @@ package com.wcsm.wcsmfinanceiro.data.repository
 
 import com.wcsm.wcsmfinanceiro.data.database.dao.BillsDao
 import com.wcsm.wcsmfinanceiro.data.entity.Bill
+import com.wcsm.wcsmfinanceiro.domain.model.Response
 import com.wcsm.wcsmfinanceiro.domain.repository.BillsRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class BillsRepositoryImpl @Inject constructor(
     private val billsDao: BillsDao
 ) : BillsRepository {
-    override suspend fun saveBill(bill: Bill): RoomOperationResult {
-        val billId = billsDao.saveBill(bill)
-        if(billId > 0) {
-            return RoomOperationResult(
-                success = true,
-                message = "Conta salva com sucesso."
-            )
+    override suspend fun saveBill(bill: Bill): Flow<Response<Long>> = flow {
+        try {
+            emit(Response.Loading)
+
+            val response = billsDao.saveBill(bill)
+            if(response > 0) {
+                emit(Response.Success(response))
+            } else {
+                emit(Response.Error("Erro ao salvar conta."))
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emit(Response.Error("Erro desconhecido ao salvar conta, informe o administrador."))
         }
-
-        return RoomOperationResult(
-            success = false,
-            message = "Erro ao salvar conta."
-        )
     }
 
-    override suspend fun updateBill(bill: Bill): RoomOperationResult {
-        val billId = billsDao.updateBill(bill)
-        if(billId > 0) {
-            return RoomOperationResult(
-                success = true,
-                message = "Conta atualizada com sucesso."
-            )
+    override suspend fun updateBill(bill: Bill): Flow<Response<Int>> = flow {
+        try {
+            emit(Response.Loading)
+
+            val response = billsDao.updateBill(bill)
+            if(response > 0) {
+                emit(Response.Success(response))
+            } else {
+                emit(Response.Error("Erro ao atualizar conta."))
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emit(Response.Error("Erro desconhecido ao atualizar conta, informe o administrador."))
         }
-
-        return RoomOperationResult(
-            success = false,
-            message = "Erro ao atualizar conta."
-        )
     }
 
-    override suspend fun deleteBill(bill: Bill): RoomOperationResult {
-        val registerQuantity = billsDao.deleteBill(bill)
-        if(registerQuantity > 0) {
-            return RoomOperationResult(
-                true, "Conta removida com sucesso."
-            )
+    override suspend fun deleteBill(bill: Bill): Flow<Response<Int>> = flow {
+        try {
+            emit(Response.Loading)
+
+            val response = billsDao.deleteBill(bill)
+            if(response > 0) {
+                emit(Response.Success(response))
+            } else {
+                emit(Response.Error("Erro ao deletar conta."))
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emit(Response.Error("Erro desconhecido ao deletar conta, informe o administrador."))
         }
-        return RoomOperationResult(
-            false, "Erro ao remover conta."
-        )
     }
 
-    override suspend fun getBills(): List<Bill> {
-        return billsDao.selectAllBills()
+    override suspend fun getBills(): Flow<Response<List<Bill>>> = flow {
+        try {
+            emit(Response.Loading)
+
+            val response = billsDao.selectAllBills()
+            emit(Response.Success(response))
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emit(Response.Error("Erro desconhecido ao buscar conta, informe o administrador."))
+        }
     }
 
-    override suspend fun getBillsByDate(startDate: Long, endDate: Long): List<Bill> {
-        return billsDao.selectBillsByDate(startDate, endDate)
+    override suspend fun getBillsByDate(
+        startDate: Long,
+        endDate: Long)
+    : Flow<Response<List<Bill>>> = flow {
+        try {
+            emit(Response.Loading)
+
+            val response = billsDao.selectBillsByDate(startDate, endDate)
+            emit(Response.Success(response))
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emit(Response.Error("Erro desconhecido ao buscar contas pela data, informe o administrador."))
+        }
     }
 
-    override suspend fun getBillsByText(text: String): List<Bill> {
-        return billsDao.selectBillsByText(text)
+    override suspend fun getBillsByText(text: String): Flow<Response<List<Bill>>> = flow {
+        try {
+            emit(Response.Loading)
+
+            val response = billsDao.selectBillsByText(text)
+            emit(Response.Success(response))
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emit(Response.Error("Erro desconhecido ao buscar contas pelo texto, informe o administrador."))
+        }
     }
 }
 
