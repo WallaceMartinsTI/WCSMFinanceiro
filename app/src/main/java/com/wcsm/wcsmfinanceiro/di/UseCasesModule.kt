@@ -3,6 +3,7 @@ package com.wcsm.wcsmfinanceiro.di
 import com.wcsm.wcsmfinanceiro.domain.repository.BillsRepository
 import com.wcsm.wcsmfinanceiro.domain.usecase.DeleteBillUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.GetBillsByDateUseCase
+import com.wcsm.wcsmfinanceiro.domain.usecase.GetBillsByTextUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.GetBillsUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.SaveBillUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.UpdateBillUseCase
@@ -48,6 +49,13 @@ object UseCasesModule {
         billsRepository: BillsRepository
     ) : GetBillsByDateUseCase {
         return GetBillsByDateUseCase(billsRepository)
+    }
+
+    @Provides
+    fun provideGetBillsByTextUseCase(
+        billsRepository: BillsRepository
+    ) : GetBillsByTextUseCase {
+        return GetBillsByTextUseCase(billsRepository)
     }
 
 }

@@ -23,4 +23,12 @@ interface BillsDao {
 
     @Query("SELECT * FROM bills WHERE date BETWEEN :startDate AND :endDate")
     fun selectBillsByDate(startDate: Long, endDate: Long) : List<Bill>
+
+    @Query("""
+        SELECT * FROM bills WHERE 
+        origin LIKE '%' || :text || '%' OR
+        title LIKE '%' || :text || '%' OR
+        description LIKE '%' || :text || '%'
+    """)
+    fun selectBillsByText(text: String) : List<Bill>
 }

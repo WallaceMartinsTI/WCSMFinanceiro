@@ -145,20 +145,9 @@ fun AddOrEditBillDialog(
     var showConfirmBillDeletionDialog by remember { mutableStateOf(false) }
 
     var billHasTag: Boolean? by remember { mutableStateOf(null) }
-    /*
-    * Usar o LaunchedEffect em Unti(rodar apenas 1x) e salvar
-    * o valor fixo se tem tags ou nao, e executar a adição (feita no lAunched de tagsTo Add)
-    * apenas se não tiver tag.
-    * */
 
-    //LaunchedEffect(deviceScreenHeight) {
     LaunchedEffect(Unit) {
         billHasTag = billDialogState.tags.isNotEmpty()
-    }
-
-    LaunchedEffect(billHasTag) {
-        Log.i("#-# TESTE #-#", "LE -> billHasTag: $billHasTag")
-        Log.i("#-# TESTE #-#", "LE -> billHasTag == true: ${billHasTag == true}")
     }
 
     LaunchedEffect(billDialogState) {

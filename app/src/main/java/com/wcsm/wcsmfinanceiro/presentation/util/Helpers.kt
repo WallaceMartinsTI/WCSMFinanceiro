@@ -16,14 +16,12 @@ fun getFormattedTags(tagsDividedByComma: String) : List<String> {
 }
 
 fun getDoubleForStringPrice(price: String) : Double {
-    var formatedPrice = price
-
-    if(price.length == 1) { // 3 -> 0,03
-        formatedPrice = "0,0$price"
+    var formatedPrice = if(price.length == 1) { // 3 -> 0,03
+        "0,0$price"
     } else if(price.length == 2) { // 30 -> 0,30
-        formatedPrice = "0,$price"
+        "0,$price"
     } else {
-        formatedPrice = formatNumberWithComma(price)
+        formatNumberWithComma(price)
     }
 
     formatedPrice = formatedPrice.replace(",", ".")

@@ -3,10 +3,10 @@ package com.wcsm.wcsmfinanceiro.domain.usecase
 import com.wcsm.wcsmfinanceiro.data.entity.Bill
 import com.wcsm.wcsmfinanceiro.domain.repository.BillsRepository
 
-class GetBillsByDateUseCase(
+class GetBillsByTextUseCase(
     private val billsRepository: BillsRepository
 ) {
-    suspend operator fun invoke(startDate: Long, endDate: Long) : List<Bill> {
-        return billsRepository.getBillsByDate(startDate, endDate)
+    suspend operator fun invoke(text: String) : List<Bill> {
+        return billsRepository.getBillsByText(text)
     }
 }

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.wcsm.wcsmfinanceiro.data.entity.Bill
 import com.wcsm.wcsmfinanceiro.domain.usecase.DeleteBillUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.GetBillsByDateUseCase
+import com.wcsm.wcsmfinanceiro.domain.usecase.GetBillsByTextUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.GetBillsUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.SaveBillUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.UpdateBillUseCase
@@ -23,7 +24,8 @@ class BillsViewModel @Inject constructor(
     private val saveBillUseCase: SaveBillUseCase,
     private val updateBillUseCase: UpdateBillUseCase,
     private val deleteBillUseCase: DeleteBillUseCase,
-    private val getBillsByDateUseCase: GetBillsByDateUseCase
+    private val getBillsByDateUseCase: GetBillsByDateUseCase,
+    private val getBillsByTextUseCase: GetBillsByTextUseCase
 ) : ViewModel() {
     // Temp for tests
     /*private val billsList = listOf(
@@ -288,8 +290,8 @@ class BillsViewModel @Inject constructor(
         getBills()
     }
 
-    fun updateFilterSelectedDateRange(startDate: Long, endDate: Long) {
-        _filterSelectedDateRange.value = Pair(startDate, endDate)
+    fun updateFilterSelectedDateRange(filterSelectedRange: Pair<Long, Long>?) {
+        _filterSelectedDateRange.value = filterSelectedRange //Pair(startDate, endDate)
     }
 
     fun updateBillDialogState(updatedState: BillState) {
@@ -314,12 +316,19 @@ class BillsViewModel @Inject constructor(
         }
     }
 
+    fun applyTextFilter(text: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val billsByText = getBillsByTextUseCase(text)
+            _bills.value = billsByText
+        }
+    }
+
     fun clearFilter() {
         _filterSelectedDateRange.value = null
         getBills()
     }
 
-    fun getBills() {
+    private fun getBills() {
         viewModelScope.launch(Dispatchers.IO) {
             val bills = getBillsUseCase()
             _bills.value = bills.reversed()

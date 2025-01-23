@@ -54,8 +54,12 @@ class BillsRepositoryImpl @Inject constructor(
         return billsDao.selectAllBills()
     }
 
-    override suspend fun getBillsBetweenDate(startDate: Long, endDate: Long): List<Bill> {
+    override suspend fun getBillsByDate(startDate: Long, endDate: Long): List<Bill> {
         return billsDao.selectBillsByDate(startDate, endDate)
+    }
+
+    override suspend fun getBillsByText(text: String): List<Bill> {
+        return billsDao.selectBillsByText(text)
     }
 }
 

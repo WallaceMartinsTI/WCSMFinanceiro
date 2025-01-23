@@ -1,5 +1,6 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -38,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -70,10 +73,10 @@ import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianReal
 fun BillsView(
     billsViewModel: BillsViewModel = hiltViewModel()
 ) {
+    val focusManager = LocalFocusManager.current
     val configuration = LocalConfiguration.current
 
     var textFilter by remember { mutableStateOf("") }
-    val textFilterFocusRequester = remember { FocusRequester() }
 
     val bills by billsViewModel.bills.collectAsStateWithLifecycle()
     val filterSelectedDateRange by billsViewModel.filterSelectedDateRange.collectAsStateWithLifecycle()
@@ -81,6 +84,15 @@ fun BillsView(
     var showAddOrEditBillDialog by remember { mutableStateOf(false) }
 
     val deviceScreenHeight = configuration.screenHeightDp.dp
+
+    LaunchedEffect(textFilter) {
+        Log.i("#-# TESTE #-#", "filterSelectedDateRange != null: ${filterSelectedDateRange != null}")
+        Log.i("#-# TESTE #-#", "textFilter.isNotBlank(): ${textFilter.isNotBlank()}")
+        if(filterSelectedDateRange != null && textFilter.isNotBlank()) {
+            //billsViewModel.updateFilterSelectedDateRange(null)
+            billsViewModel.clearFilter()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -101,16 +113,20 @@ fun BillsView(
             filterSelectedDateRange = filterSelectedDateRange,
             onDateSelected = { startDate, endDate ->
                 billsViewModel.updateFilterSelectedDateRange(
-                    startDate = startDate,
-                    endDate = endDate
+                    Pair(startDate, endDate)
                 )
             },
-            onClearFilter = { billsViewModel.clearFilter() },
+            onClearFilter = {
+                textFilter = ""
+                billsViewModel.clearFilter()
+            },
             onFilter = { startDate, endDate ->
                 billsViewModel.applyDateRangeFilter(
                     startDate = startDate,
                     endDate = endDate
                 )
+                textFilter = ""
+                focusManager.clearFocus()
             }
         )
 
@@ -123,12 +139,11 @@ fun BillsView(
             value = textFilter,
             onValueChange = {
                 textFilter = it
-                //billsViewModel.applyTextFilter(textFilter)
+                billsViewModel.applyTextFilter(textFilter)
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .focusRequester(textFilterFocusRequester),
+                .padding(horizontal = 16.dp),
             placeholder = {
                 Text(
                     text = "Digite para filtrar"
@@ -142,15 +157,14 @@ fun BillsView(
                 )
             },
             trailingIcon = {
-                if(textFilter.isNotEmpty()) {
+                if(textFilter.isNotBlank()) {
                     Icon(
                         imageVector = Icons.Default.Clear,
                         contentDescription = "Ícone de x",
                         modifier = Modifier
                             .clickable {
                                 textFilter = ""
-                                textFilterFocusRequester.requestFocus()
-                                //billsViewModel.clearFilters()
+                                billsViewModel.clearFilter()
                             },
                         tint = White06Color
                     )
@@ -158,9 +172,13 @@ fun BillsView(
             },
             singleLine = true,
             keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done
+                imeAction = ImeAction.Search
             ),
-
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                    focusManager.clearFocus()
+                }
+            )
         )
 
         HorizontalDivider(
@@ -255,7 +273,9 @@ private fun BillCard(
     val titleAndPriceColor = if (bill.billType == BillType.INCOME) MoneyGreenColor else RedColor
 
     ElevatedCard(
-        modifier = Modifier.clip(RoundedCornerShape(15.dp)).clickable { onExpandBillCard() }
+        modifier = Modifier
+            .clip(RoundedCornerShape(15.dp))
+            .clickable { onExpandBillCard() }
     ) {
         Row(
             modifier = Modifier

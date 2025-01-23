@@ -57,15 +57,9 @@ fun DateRangeFilter(
             val startDateString = startDate!!.toBrazilianDateString()
             val endDateString = endDate!!.toBrazilianDateString()
             selectedFilterDate = "$startDateString - $endDateString"
+        } else {
+            selectedFilterDate = "Selecione uma data"
         }
-    }
-
-    LaunchedEffect(key1 = mutableStateOf(Unit)) {
-        Log.i("#-# TESTE #-#", "===================== LAUNCHED EFFECT INICIO ===================== ")
-        Log.i("#-# TESTE #-#", "alreadyFiltered: $alreadyFiltered")
-        Log.i("#-# TESTE #-#", "selectedFilterDate: $selectedFilterDate")
-        Log.i("#-# TESTE #-#", "startDate: $startDate - endDate: $endDate")
-        Log.i("#-# TESTE #-#", "===================== LAUNCHED EFFECT FIM =====================")
     }
 
     Row(
