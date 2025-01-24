@@ -773,7 +773,6 @@ fun AddOrEditBillDialog(
 
                     Button(
                         onClick = {
-                            Log.i("#-# TESTE #-#", "+++++++++ CLICOU ++++++")
                             if (isBillToEdit) {
                                 // UPDATE BILL
                                 onUpdateBill(billDialogState)

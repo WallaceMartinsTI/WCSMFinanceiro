@@ -41,6 +41,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -55,6 +56,7 @@ import com.wcsm.wcsmfinanceiro.R
 import com.wcsm.wcsmfinanceiro.data.entity.Bill
 import com.wcsm.wcsmfinanceiro.data.model.BillType
 import com.wcsm.wcsmfinanceiro.data.model.PaymentType
+import com.wcsm.wcsmfinanceiro.presentation.model.OperationType
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.DateRangeFilter
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
@@ -67,6 +69,7 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.RedColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.TertiaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
+import com.wcsm.wcsmfinanceiro.presentation.util.showToastMessage
 import com.wcsm.wcsmfinanceiro.presentation.util.toBillState
 import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianDateString
 import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianReal
@@ -76,22 +79,56 @@ import kotlinx.coroutines.delay
 fun BillsView() {
     val billsViewModel: BillsViewModel = hiltViewModel()
 
+    val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val configuration = LocalConfiguration.current
 
     var textFilter by remember { mutableStateOf("") }
 
     val bills by billsViewModel.bills.collectAsStateWithLifecycle()
-    val isLoading by remember { mutableStateOf(false) }
+    val uiState by billsViewModel.uiState.collectAsStateWithLifecycle()
     val filterSelectedDateRange by billsViewModel.filterSelectedDateRange.collectAsStateWithLifecycle()
 
     var showAddOrEditBillDialog by remember { mutableStateOf(false) }
 
     val deviceScreenHeight = configuration.screenHeightDp.dp
 
+    var isLoading by remember { mutableStateOf(uiState.isLoading) }
+
     LaunchedEffect(textFilter) {
         if(filterSelectedDateRange != null && textFilter.isNotBlank()) {
             billsViewModel.clearFilter()
+        }
+    }
+
+    LaunchedEffect(uiState) {
+        isLoading = uiState.isLoading
+
+        uiState.error?.let { errorMessage ->
+            showToastMessage(context, errorMessage)
+        }
+
+        if(uiState.success) {
+            uiState.operationType?.let { operationType ->
+                when(operationType) {
+                    OperationType.SAVE -> {
+                        Log.i("#-# TESTE #-#", "SAVE")
+                        showToastMessage(context, "Conta salva!")
+                    }
+                    OperationType.UPDATE -> {
+                        Log.i("#-# TESTE #-#", "UPDATE")
+                        showToastMessage(context, "Conta atualizada!")
+                    }
+                    OperationType.DELETE -> {
+                        Log.i("#-# TESTE #-#", "DELETE")
+                        showToastMessage(context, "Conta removida!")
+                    }
+                }
+            }
+        }
+
+        if(uiState.operationType != null) {
+            billsViewModel.resetUiState()
         }
     }
 

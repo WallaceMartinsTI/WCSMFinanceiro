@@ -1,5 +1,7 @@
 package com.wcsm.wcsmfinanceiro.presentation.util
 
+import android.content.Context
+import android.widget.Toast
 import com.wcsm.wcsmfinanceiro.data.model.BillType
 import com.wcsm.wcsmfinanceiro.data.model.PaymentType
 
@@ -13,6 +15,10 @@ fun getBillTypeFromString(displayName: String) : BillType {
 
 fun getFormattedTags(tagsDividedByComma: String) : List<String> {
     return tagsDividedByComma.split(",").map { it.trim() }
+}
+
+fun showToastMessage(context: Context, message: String) {
+    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }
 
 fun getDoubleForStringPrice(price: String) : Double {
