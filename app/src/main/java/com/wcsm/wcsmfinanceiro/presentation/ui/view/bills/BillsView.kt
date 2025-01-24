@@ -1,5 +1,6 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +26,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,6 +55,7 @@ import com.wcsm.wcsmfinanceiro.R
 import com.wcsm.wcsmfinanceiro.data.entity.Bill
 import com.wcsm.wcsmfinanceiro.data.model.BillType
 import com.wcsm.wcsmfinanceiro.data.model.PaymentType
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.DateRangeFilter
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.MoneyGreenColor
@@ -67,17 +70,19 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
 import com.wcsm.wcsmfinanceiro.presentation.util.toBillState
 import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianDateString
 import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianReal
+import kotlinx.coroutines.delay
 
 @Composable
-fun BillsView(
-    billsViewModel: BillsViewModel = hiltViewModel()
-) {
+fun BillsView() {
+    val billsViewModel: BillsViewModel = hiltViewModel()
+
     val focusManager = LocalFocusManager.current
     val configuration = LocalConfiguration.current
 
     var textFilter by remember { mutableStateOf("") }
 
     val bills by billsViewModel.bills.collectAsStateWithLifecycle()
+    val isLoading by remember { mutableStateOf(false) }
     val filterSelectedDateRange by billsViewModel.filterSelectedDateRange.collectAsStateWithLifecycle()
 
     var showAddOrEditBillDialog by remember { mutableStateOf(false) }
@@ -187,39 +192,53 @@ fun BillsView(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(
-                    items = bills ?: emptyList()
-                ) { bill ->
-                    BillCard(bill = bill) {
-                        billsViewModel.updateBillDialogState(
-                            bill.toBillState()
-                        )
-                        showAddOrEditBillDialog = true
+            if(isLoading) {
+                AppLoader(
+                    modifier = Modifier.size(80.dp).align(Alignment.Center)
+                )
+            } else {
+                if(bills?.isEmpty() == true) {
+                    Text(
+                        text = "Sem contas no momento.",
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(
+                            items = bills ?: emptyList()
+                        ) { bill ->
+                            BillCard(bill = bill) {
+                                billsViewModel.updateBillDialogState(
+                                    bill.toBillState()
+                                )
+                                showAddOrEditBillDialog = true
+                            }
+                        }
+
+                        item {
+                            Spacer(modifier = Modifier.height(60.dp))
+                        }
                     }
                 }
-
-                item {
-                    Spacer(modifier = Modifier.height(60.dp))
+                FloatingActionButton(
+                    onClick = {
+                        showAddOrEditBillDialog = true
+                    },
+                    modifier = Modifier.align(Alignment.BottomEnd),
+                    containerColor = PrimaryColor,
+                    contentColor = OnSecondaryColor
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.add_bill),
+                        contentDescription = "Ícone de adicionar conta",
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
-            }
-            FloatingActionButton(
-                onClick = {
-                    showAddOrEditBillDialog = true
-                },
-                modifier = Modifier.align(Alignment.BottomEnd),
-                containerColor = PrimaryColor,
-                contentColor = OnSecondaryColor
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.add_bill),
-                    contentDescription = "Ícone de adicionar conta",
-                    modifier = Modifier.size(20.dp)
-                )
             }
         }
 
@@ -258,129 +277,5 @@ fun BillsView(
 private fun BillsViewPreview() {
     WCSMFinanceiroTheme(dynamicColor = false) {
         BillsView()
-    }
-}
-
-@Composable
-private fun BillCard(
-    bill: Bill,
-    onExpandBillCard: () -> Unit
-) {
-    val titleAndPriceColor = if (bill.billType == BillType.INCOME) MoneyGreenColor else RedColor
-
-    ElevatedCard(
-        modifier = Modifier
-            .clip(RoundedCornerShape(15.dp))
-            .clickable { onExpandBillCard() }
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = bill.title,
-                        color = titleAndPriceColor,
-                        fontWeight = FontWeight.SemiBold,
-                        fontFamily = PoppinsFontFamily,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    Text(
-                        text = bill.date.toBrazilianDateString(extendedYear = false),
-                        fontFamily = PoppinsFontFamily
-                    )
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = bill.value.toBrazilianReal(),
-                        color = titleAndPriceColor,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = PoppinsFontFamily
-                    )
-
-                    Text(
-                        text = bill.category,
-                        color = TertiaryColor,
-                        fontFamily = PoppinsFontFamily
-                    )
-                }
-            }
-
-            Icon(
-                imageVector = Icons.Default.Expand,
-                contentDescription = "Ícone de expandir",
-                tint = White06Color
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun BillCardPreview() {
-    WCSMFinanceiroTheme(dynamicColor = false) {
-        val incomeBill = Bill(
-            id = 1,
-            billType = BillType.INCOME,
-            origin = "Trabalho",
-            title = "Salário",
-            value = 2624.72,
-            description = "Salário do mês de Janeiro",
-            date = 1736208000000, // Mon Jan 06 2025 21:00:00.000
-            category = "Trabalho",
-            dueDate = 1739588400000, // Sat Feb 15 2025 00:00:00.000
-            expired = false,
-            paid = true,
-            paymentType = PaymentType.MONEY,
-            tags = listOf("Salario", "Trabalho")
-        )
-
-        val expenseBill = Bill(
-            id = 1,
-            billType = BillType.EXPENSE,
-            origin = "Mercado",
-            title = "Compra do Mês",
-            value = 975.35,
-            description = "Compra do mês de Janeiro",
-            date = 1736208000000, // Mon Jan 06 2025 21:00:00.000
-            category = "Mercado",
-            dueDate = 1739588400000, // Sat Feb 15 2025 00:00:00.000
-            expired = false,
-            paid = true,
-            paymentType = PaymentType.CARD,
-            tags = listOf("Mercado")
-        )
-
-        Column(
-            modifier = Modifier
-                .size(width = 400.dp, height = 250.dp)
-                .background(BackgroundColor),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            BillCard(bill = incomeBill) {}
-
-            Spacer(Modifier.height(16.dp))
-
-            BillCard(bill = expenseBill) {}
-        }
     }
 }

@@ -5,7 +5,11 @@ import com.wcsm.wcsmfinanceiro.data.entity.Bill
 import com.wcsm.wcsmfinanceiro.domain.model.Response
 import com.wcsm.wcsmfinanceiro.domain.repository.BillsRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class BillsRepositoryImpl @Inject constructor(
@@ -63,8 +67,12 @@ class BillsRepositoryImpl @Inject constructor(
         try {
             emit(Response.Loading)
 
-            val response = billsDao.selectAllBills()
-            emit(Response.Success(response))
+            emitAll(
+                billsDao.selectAllBills()
+                    .map { billsList ->
+                        Response.Success(billsList)
+                    }
+            )
         } catch (e: Exception) {
             e.printStackTrace()
             emit(Response.Error("Erro desconhecido ao buscar conta, informe o administrador."))
@@ -78,8 +86,12 @@ class BillsRepositoryImpl @Inject constructor(
         try {
             emit(Response.Loading)
 
-            val response = billsDao.selectBillsByDate(startDate, endDate)
-            emit(Response.Success(response))
+            emitAll(
+                billsDao.selectBillsByDate(startDate, endDate)
+                    .map { billsList ->
+                        Response.Success(billsList)
+                    }
+            )
         } catch (e: Exception) {
             e.printStackTrace()
             emit(Response.Error("Erro desconhecido ao buscar contas pela data, informe o administrador."))
@@ -90,8 +102,12 @@ class BillsRepositoryImpl @Inject constructor(
         try {
             emit(Response.Loading)
 
-            val response = billsDao.selectBillsByText(text)
-            emit(Response.Success(response))
+            emitAll(
+                billsDao.selectBillsByText(text)
+                    .map { billsList ->
+                        Response.Success(billsList)
+                    }
+            )
         } catch (e: Exception) {
             e.printStackTrace()
             emit(Response.Error("Erro desconhecido ao buscar contas pelo texto, informe o administrador."))

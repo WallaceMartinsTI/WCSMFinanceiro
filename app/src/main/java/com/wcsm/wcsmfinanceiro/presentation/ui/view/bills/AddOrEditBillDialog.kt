@@ -188,6 +188,7 @@ fun AddOrEditBillDialog(
     }
 
     LaunchedEffect(billDeleteWithSuccess) {
+        Log.i("#-# TESTE #-#", "billDeleteWithSuccess: $billDeleteWithSuccess")
         if(billDeleteWithSuccess) {
             showConfirmBillDeletionDialog = false
             onDismiss()
@@ -772,6 +773,7 @@ fun AddOrEditBillDialog(
 
                     Button(
                         onClick = {
+                            Log.i("#-# TESTE #-#", "+++++++++ CLICOU ++++++")
                             if (isBillToEdit) {
                                 // UPDATE BILL
                                 onUpdateBill(billDialogState)
@@ -782,7 +784,7 @@ fun AddOrEditBillDialog(
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
+                            .padding(horizontal = 16.dp),
                     ) {
                         Text(
                             text = if (isBillToEdit) "ATUALIZAR" else "SALVAR"

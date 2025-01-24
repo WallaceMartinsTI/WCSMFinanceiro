@@ -12,12 +12,11 @@ import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.SaveBillUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.UpdateBillUseCase
 import com.wcsm.wcsmfinanceiro.presentation.model.BillState
-import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.util.toBill
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -308,6 +307,7 @@ class BillsViewModel @Inject constructor(
 
     fun resetBillDialogState() {
         _billDialogState.value = BillState()
+        _isBillDeleted.value = false
         _isAddOrEditSuccess.value = false
     }
 
@@ -376,21 +376,18 @@ class BillsViewModel @Inject constructor(
                 saveBillUseCase(bill).collect { result ->
                     when(result) {
                         is Response.Loading -> {
-                            // SET LOADING
                         }
                         is Response.Error -> {
                             // SHOW ERROR MESSAGE result.message
                         }
                         is Response.Success -> {
-                            //
+                            updateIsAddOrEditSuccess(true)
+                            _billDialogState.value = BillState()
+
+                            getBills()
                         }
                     }
                 }
-
-                updateIsAddOrEditSuccess(true)
-                _billDialogState.value = BillState()
-
-                getBills()
             }
         }
     }
@@ -420,7 +417,6 @@ class BillsViewModel @Inject constructor(
                 updateBillUseCase(bill).collect { result ->
                     when(result) {
                         is Response.Loading -> {
-                            // SET LOADING
                         }
                         is Response.Error -> {
                             // SHOW ERROR MESSAGE result.message
@@ -429,6 +425,7 @@ class BillsViewModel @Inject constructor(
                             if(!isUpdatingOnlyTags) {
                                 updateIsAddOrEditSuccess(true)
                                 _billDialogState.value = BillState()
+
                                 getBills()
                             }
                         }
@@ -447,7 +444,6 @@ class BillsViewModel @Inject constructor(
                 deleteBillUseCase(bill).collect { result ->
                     when(result) {
                         is Response.Loading -> {
-                            // SET LOADING
                         }
                         is Response.Error -> {
                             // SHOW ERROR MESSAGE result.message
@@ -504,9 +500,9 @@ class BillsViewModel @Inject constructor(
 
     private fun validateDate(date: Long) : Pair<Boolean, String> {
         return if(date == 0L) {
-            Pair(false, "Você deve escolher uma data")
+            Pair(false, "Você deve escolher uma data.")
         } else if(date < 0) {
-            Pair(false, "Data inválida")
+            Pair(false, "Data inválida.")
         } else {
             Pair(true, "")
         }
@@ -514,9 +510,9 @@ class BillsViewModel @Inject constructor(
 
     private fun validateValue(value: Double) : Pair<Boolean, String> {
         return if(value == 0.0) {
-            Pair(false, "Você deve informar o valor")
+            Pair(false, "Você deve informar um valor maior que 0.")
         } else if(value < 0) {
-            Pair(false, "Valor inválido")
+            Pair(false, "Valor inválido.")
         } else {
             Pair(true, "")
         }
