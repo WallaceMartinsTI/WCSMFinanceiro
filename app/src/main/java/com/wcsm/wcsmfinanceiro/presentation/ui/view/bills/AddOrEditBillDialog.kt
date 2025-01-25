@@ -81,6 +81,7 @@ import com.wcsm.wcsmfinanceiro.data.model.BillType
 import com.wcsm.wcsmfinanceiro.data.model.Category
 import com.wcsm.wcsmfinanceiro.data.model.PaymentType
 import com.wcsm.wcsmfinanceiro.presentation.model.BillState
+import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppDatePicker
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.RadioButtonChooser
@@ -107,7 +108,8 @@ import kotlinx.coroutines.flow.StateFlow
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddOrEditBillDialog(
-    billState: StateFlow<BillState>,
+    billStateFlow: StateFlow<BillState>,
+    uiStateFlow: StateFlow<UiState>,
     isAddOrEditSuccess: StateFlow<Boolean>,
     isBillDeleted: StateFlow<Boolean>,
     onValueChange: (updatedValue: BillState) -> Unit,
@@ -135,7 +137,8 @@ fun AddOrEditBillDialog(
     var tagsToAdd by remember { mutableStateOf("") }
     var monetaryValue by remember { mutableStateOf("") }
 
-    val billDialogState by billState.collectAsStateWithLifecycle()
+    val billDialogState by billStateFlow.collectAsStateWithLifecycle()
+    val uiState by uiStateFlow.collectAsStateWithLifecycle()
     val addOrEditWithSuccess by isAddOrEditSuccess.collectAsStateWithLifecycle()
     val billDeleteWithSuccess by isBillDeleted.collectAsStateWithLifecycle()
 
@@ -891,7 +894,7 @@ private fun AddOrEditBillDialogPreview(
                 .background(BackgroundColor)
         ) {
             AddOrEditBillDialog(
-                billState = billsViewModel.billDialogState,
+                billStateFlow = billsViewModel.billDialogState,
                 isAddOrEditSuccess = billsViewModel.isAddOrEditSuccess,
                 isBillDeleted = billsViewModel.isBillDeleted,
                 onValueChange = {},

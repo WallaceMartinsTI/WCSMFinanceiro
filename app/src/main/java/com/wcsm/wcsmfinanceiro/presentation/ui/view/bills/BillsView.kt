@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,14 +14,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Expand
 import androidx.compose.material.icons.filled.FilterAlt
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -37,47 +33,38 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.R
-import com.wcsm.wcsmfinanceiro.data.entity.Bill
-import com.wcsm.wcsmfinanceiro.data.model.BillType
-import com.wcsm.wcsmfinanceiro.data.model.PaymentType
 import com.wcsm.wcsmfinanceiro.presentation.model.OperationType
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.DateRangeFilter
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
-import com.wcsm.wcsmfinanceiro.presentation.ui.theme.MoneyGreenColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnBackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnSecondaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PoppinsFontFamily
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PrimaryColor
-import com.wcsm.wcsmfinanceiro.presentation.ui.theme.RedColor
-import com.wcsm.wcsmfinanceiro.presentation.ui.theme.TertiaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
 import com.wcsm.wcsmfinanceiro.presentation.util.showToastMessage
 import com.wcsm.wcsmfinanceiro.presentation.util.toBillState
-import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianDateString
-import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianReal
-import kotlinx.coroutines.delay
 
 @Composable
 fun BillsView() {
     val billsViewModel: BillsViewModel = hiltViewModel()
+
+    PASSAR UI STATE PRO DIALOG e TARTAR LA, EX:
+    no LaunchedEffect:
+            if(operationType == OperationType.DELETE && uiState.succes) ...
 
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
@@ -281,7 +268,7 @@ fun BillsView() {
 
         if (showAddOrEditBillDialog) {
             AddOrEditBillDialog(
-                billState = billsViewModel.billDialogState,
+                billStateFlow = billsViewModel.billDialogState,
                 isAddOrEditSuccess = billsViewModel.isAddOrEditSuccess,
                 isBillDeleted = billsViewModel.isBillDeleted,
                 onValueChange = { updatedValue ->
