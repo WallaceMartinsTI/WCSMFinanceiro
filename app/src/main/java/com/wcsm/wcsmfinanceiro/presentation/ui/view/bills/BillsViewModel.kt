@@ -288,12 +288,6 @@ class BillsViewModel @Inject constructor(
     private val _bills = MutableStateFlow<List<Bill>?>(null)
     val bills = _bills.asStateFlow()
 
-    private val _isAddOrEditSuccess = MutableStateFlow(false)
-    val isAddOrEditSuccess = _isAddOrEditSuccess.asStateFlow()
-
-    private val _isBillDeleted = MutableStateFlow(false)
-    val isBillDeleted = _isBillDeleted.asStateFlow()
-
     init {
         getBills()
     }
@@ -306,14 +300,8 @@ class BillsViewModel @Inject constructor(
         _billDialogState.value = updatedState
     }
 
-    fun updateIsAddOrEditSuccess(state: Boolean) {
-        _isAddOrEditSuccess.value = state
-    }
-
     fun resetBillDialogState() {
         _billDialogState.value = BillState()
-        _isBillDeleted.value = false
-        _isAddOrEditSuccess.value = false
     }
 
     fun resetUiState() {
@@ -395,9 +383,9 @@ class BillsViewModel @Inject constructor(
 
     private fun getBills() {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = uiState.value.copy(
+            /*_uiState.value = uiState.value.copy(
                 operationType = null
-            )
+            )*/
 
             getBillsUseCase().collect { result ->
                 when(result) {
@@ -450,7 +438,6 @@ class BillsViewModel @Inject constructor(
                             )
                         }
                         is Response.Success -> {
-                            updateIsAddOrEditSuccess(true)
                             _billDialogState.value = BillState()
 
                             getBills()
@@ -477,7 +464,7 @@ class BillsViewModel @Inject constructor(
                 )
             )
 
-            updateBill(billDialogState.value, true)
+            //updateBill(billDialogState.value, true)
         }
     }
 
@@ -508,7 +495,6 @@ class BillsViewModel @Inject constructor(
                         }
                         is Response.Success -> {
                             if(!isUpdatingOnlyTags) {
-                                updateIsAddOrEditSuccess(true)
                                 _billDialogState.value = BillState()
 
                                 getBills()
@@ -526,8 +512,6 @@ class BillsViewModel @Inject constructor(
     }
 
     fun deleteBill(billState: BillState) {
-        _isBillDeleted.value = false
-
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = uiState.value.copy(
                 operationType = OperationType.DELETE
@@ -550,7 +534,6 @@ class BillsViewModel @Inject constructor(
                             )
                         }
                         is Response.Success -> {
-                            _isBillDeleted.value = true
                             _billDialogState.value = BillState()
 
                             getBills()

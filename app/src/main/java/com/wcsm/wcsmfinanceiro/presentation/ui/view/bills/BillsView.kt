@@ -1,6 +1,5 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -62,10 +61,6 @@ import com.wcsm.wcsmfinanceiro.presentation.util.toBillState
 fun BillsView() {
     val billsViewModel: BillsViewModel = hiltViewModel()
 
-    PASSAR UI STATE PRO DIALOG e TARTAR LA, EX:
-    no LaunchedEffect:
-            if(operationType == OperationType.DELETE && uiState.succes) ...
-
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val configuration = LocalConfiguration.current
@@ -99,22 +94,17 @@ fun BillsView() {
             uiState.operationType?.let { operationType ->
                 when(operationType) {
                     OperationType.SAVE -> {
-                        Log.i("#-# TESTE #-#", "SAVE")
                         showToastMessage(context, "Conta salva!")
                     }
                     OperationType.UPDATE -> {
-                        Log.i("#-# TESTE #-#", "UPDATE")
                         showToastMessage(context, "Conta atualizada!")
                     }
                     OperationType.DELETE -> {
-                        Log.i("#-# TESTE #-#", "DELETE")
                         showToastMessage(context, "Conta removida!")
                     }
                 }
             }
-        }
 
-        if(uiState.operationType != null) {
             billsViewModel.resetUiState()
         }
     }
@@ -269,8 +259,7 @@ fun BillsView() {
         if (showAddOrEditBillDialog) {
             AddOrEditBillDialog(
                 billStateFlow = billsViewModel.billDialogState,
-                isAddOrEditSuccess = billsViewModel.isAddOrEditSuccess,
-                isBillDeleted = billsViewModel.isBillDeleted,
+                uiStateFlow = billsViewModel.uiState,
                 onValueChange = { updatedValue ->
                     billsViewModel.updateBillDialogState(updatedValue)
                 },

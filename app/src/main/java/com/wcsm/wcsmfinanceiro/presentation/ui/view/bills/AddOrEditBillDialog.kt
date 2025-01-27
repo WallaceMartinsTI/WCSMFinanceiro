@@ -1,6 +1,5 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,6 +19,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -66,6 +66,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -81,6 +82,7 @@ import com.wcsm.wcsmfinanceiro.data.model.BillType
 import com.wcsm.wcsmfinanceiro.data.model.Category
 import com.wcsm.wcsmfinanceiro.data.model.PaymentType
 import com.wcsm.wcsmfinanceiro.presentation.model.BillState
+import com.wcsm.wcsmfinanceiro.presentation.model.OperationType
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppDatePicker
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
@@ -110,8 +112,6 @@ import kotlinx.coroutines.flow.StateFlow
 fun AddOrEditBillDialog(
     billStateFlow: StateFlow<BillState>,
     uiStateFlow: StateFlow<UiState>,
-    isAddOrEditSuccess: StateFlow<Boolean>,
-    isBillDeleted: StateFlow<Boolean>,
     onValueChange: (updatedValue: BillState) -> Unit,
     deviceScreenHeight: Dp,
     onAddBill: (billState: BillState) -> Unit,
@@ -139,8 +139,6 @@ fun AddOrEditBillDialog(
 
     val billDialogState by billStateFlow.collectAsStateWithLifecycle()
     val uiState by uiStateFlow.collectAsStateWithLifecycle()
-    val addOrEditWithSuccess by isAddOrEditSuccess.collectAsStateWithLifecycle()
-    val billDeleteWithSuccess by isBillDeleted.collectAsStateWithLifecycle()
 
     val isBillToEdit by remember { mutableStateOf(billDialogState.id != 0L) }
     var isModalLoading by remember { mutableStateOf(isBillToEdit) }
@@ -164,6 +162,9 @@ fun AddOrEditBillDialog(
             isModalLoading = false
         }
 
+        if(billDialogState.tags.isEmpty()) {
+            billHasTag = false
+        }
     }
 
     LaunchedEffect(billDialogState.date, billDialogState.dueDate) {
@@ -184,17 +185,11 @@ fun AddOrEditBillDialog(
         }
     }
 
-    LaunchedEffect(addOrEditWithSuccess) {
-        if (addOrEditWithSuccess) {
-            onDismiss()
-        }
-    }
-
-    LaunchedEffect(billDeleteWithSuccess) {
-        Log.i("#-# TESTE #-#", "billDeleteWithSuccess: $billDeleteWithSuccess")
-        if(billDeleteWithSuccess) {
-            showConfirmBillDeletionDialog = false
-            onDismiss()
+    LaunchedEffect(uiState) {
+        uiState.operationType?.let {
+            if(uiState.success) {
+                onDismiss()
+            }
         }
     }
 
@@ -644,6 +639,31 @@ fun AddOrEditBillDialog(
                         }
                     }
 
+                    Row(
+                        modifier = Modifier
+                            .width(280.dp)
+                            .padding(bottom = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = billDialogState.expired,
+                            onCheckedChange = {
+                                onValueChange(
+                                    billDialogState.copy(
+                                        expired = !billDialogState.expired
+                                    )
+                                )
+                            },
+                            enabled = false
+                        )
+
+                        Text(
+                            text = "Conta Vencida.",
+                            fontFamily = PoppinsFontFamily,
+                            color = if (billDialogState.expired) PrimaryColor else White06Color
+                        )
+                    }
+
                     CategoriesDropdown(
                         inputedOption = if (isBillToEdit) billDialogState.category else null,
                         modifier = Modifier.padding(bottom = 8.dp),
@@ -669,7 +689,22 @@ fun AddOrEditBillDialog(
                     }
 
                     Row(
-                        modifier = Modifier.width(280.dp),
+                        modifier = Modifier
+                            .padding(vertical = 8.dp)
+                            .clip(RoundedCornerShape(15.dp))
+                            .border(1.dp, White06Color, RoundedCornerShape(15.dp))
+                            .width(280.dp)
+                            .selectable(
+                                selected = billDialogState.paid,
+                                onClick = {
+                                    onValueChange(
+                                        billDialogState.copy(
+                                            paid = !billDialogState.paid
+                                        )
+                                    )
+                                },
+                                role = Role.Checkbox
+                            ),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Checkbox(
@@ -680,38 +715,13 @@ fun AddOrEditBillDialog(
                                         paid = !billDialogState.paid
                                     )
                                 )
-                            }
+                            },
                         )
 
                         Text(
                             text = "Paga?",
                             fontFamily = PoppinsFontFamily,
-                            color = if (billDialogState.paid) PrimaryColor else White06Color
-                        )
-                    }
-
-                    Row(
-                        modifier = Modifier
-                            .width(280.dp)
-                            .padding(bottom = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Checkbox(
-                            checked = billDialogState.expired,
-                            onCheckedChange = {
-                                onValueChange(
-                                    billDialogState.copy(
-                                        expired = !billDialogState.expired
-                                    )
-                                )
-                            },
-                            enabled = false
-                        )
-
-                        Text(
-                            text = "Vencida?",
-                            fontFamily = PoppinsFontFamily,
-                            color = if (billDialogState.expired) PrimaryColor else White06Color
+                            color = if (billDialogState.paid) PrimaryColor else White06Color,
                         )
                     }
 
@@ -895,8 +905,7 @@ private fun AddOrEditBillDialogPreview(
         ) {
             AddOrEditBillDialog(
                 billStateFlow = billsViewModel.billDialogState,
-                isAddOrEditSuccess = billsViewModel.isAddOrEditSuccess,
-                isBillDeleted = billsViewModel.isBillDeleted,
+                uiStateFlow = billsViewModel.uiState,
                 onValueChange = {},
                 deviceScreenHeight = deviceScreenHeight,
                 onAddBill = {},
