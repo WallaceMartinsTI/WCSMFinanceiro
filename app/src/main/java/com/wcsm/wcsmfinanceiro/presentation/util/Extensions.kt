@@ -3,7 +3,9 @@ package com.wcsm.wcsmfinanceiro.presentation.util
 import android.icu.util.Calendar
 import com.wcsm.wcsmfinanceiro.data.entity.Bill
 import com.wcsm.wcsmfinanceiro.data.entity.Wallet
+import com.wcsm.wcsmfinanceiro.data.entity.WalletCard
 import com.wcsm.wcsmfinanceiro.presentation.model.BillState
+import com.wcsm.wcsmfinanceiro.presentation.model.WalletCardState
 import com.wcsm.wcsmfinanceiro.presentation.model.WalletState
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -86,5 +88,28 @@ fun WalletState.toWallet() : Wallet {
         walletId = this.walletId,
         title = this.title,
         balance = this.balance
+    )
+}
+
+fun WalletCard.toWalletCardState() : WalletCardState {
+    return WalletCardState(
+        walletCardId = this.walletCardId,
+        title = this.title,
+        limit = this.limit,
+        spent = this.spent,
+        available = this.available,
+        blocked = this.blocked
+    )
+}
+
+fun WalletCardState.toWalletCard() : WalletCard {
+    return WalletCard(
+        walletId = this.walletId,
+        walletCardId = this.walletCardId,
+        title = this.title,
+        limit = this.limit,
+        spent = this.spent,
+        available = this.available,
+        blocked = this.blocked
     )
 }

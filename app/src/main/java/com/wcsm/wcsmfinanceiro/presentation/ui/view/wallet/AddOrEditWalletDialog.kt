@@ -1,5 +1,6 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -46,6 +47,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -55,6 +57,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.data.entity.Wallet
 import com.wcsm.wcsmfinanceiro.data.entity.WalletCard
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
+import com.wcsm.wcsmfinanceiro.presentation.model.WalletCardState
 import com.wcsm.wcsmfinanceiro.presentation.model.WalletState
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
@@ -66,11 +69,13 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
 import com.wcsm.wcsmfinanceiro.presentation.util.CurrencyVisualTransformation
 import com.wcsm.wcsmfinanceiro.presentation.util.getDoubleForStringPrice
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun AddOrEditWalletDialog(
     walletStateFlow: StateFlow<WalletState>,
+    walletCardStateFlow: StateFlow<WalletCardState>,
     uiStateFlow: StateFlow<UiState>,
     onValueChange: (updatedValue: WalletState) -> Unit,
     onAddWallet: (walletState: WalletState) -> Unit,
@@ -80,10 +85,29 @@ fun AddOrEditWalletDialog(
 ) {
     val uiState by uiStateFlow.collectAsStateWithLifecycle()
     val walletDialogState by walletStateFlow.collectAsStateWithLifecycle()
+    val walletCardDialogState by walletCardStateFlow.collectAsStateWithLifecycle()
 
     val isWalletToEdit by remember { mutableStateOf(walletDialogState.walletId != 0L) }
 
+    var isModalLoading by remember { mutableStateOf(isWalletToEdit) }
+
     var monetaryValue by remember { mutableStateOf("") }
+
+    var walletHasCards: Boolean? by remember { mutableStateOf(null) }
+
+    LaunchedEffect(Unit) {
+        walletHasCards = walletCardDialogState.walletCardId != 0L
+    }
+
+    LaunchedEffect(walletDialogState) {
+        if(isWalletToEdit) {
+            monetaryValue = walletDialogState.balance.toString().replace(".", "")
+
+            delay(1500)
+
+            isModalLoading = false
+        }
+    }
 
     LaunchedEffect(uiState) {
         uiState.operationType?.let {
@@ -137,202 +161,222 @@ fun AddOrEditWalletDialog(
                 )
             }
 
-            OutlinedTextField(
-                value = walletDialogState.title,
-                onValueChange = {
-                    onValueChange(
-                        walletDialogState.copy(
-                            title = it
-                        )
-                    )
-                },
-                modifier = Modifier
-                    .width(280.dp),
-                    //.focusRequester(focusRequester[0]),
-                label = {
-                    Text(
-                        text = "Título*",
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                },
-                placeholder = {
-                    Text(
-                        text = "Digite o título da carteira"
-                    )
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Wallet,
-                        contentDescription = "Ícone de carteira",
-                        tint = White06Color
-                    )
-                },
-                trailingIcon = {
-                    /*if (billModalState.origin.isNotEmpty()) {
-                        Icon(
-                            imageVector = Icons.Default.Clear,
-                            contentDescription = "Ícone de x",
-                            modifier = Modifier
-                                .clickable {
-                                    billModalState = billModalState.copy(
-                                        origin = ""
-                                    )
-                                    focusRequester[0].requestFocus()
-                                },
-                            tint = White06Color
-                        )
-                    }*/
-                },
-                singleLine = true,
-                isError = walletDialogState.titleErrorMessage.isNotEmpty(),
-                supportingText = {
-                    if(walletDialogState.titleErrorMessage.isNotEmpty()) {
-                        Text(
-                            text = walletDialogState.titleErrorMessage,
-                            fontFamily = PoppinsFontFamily
-                        )
-                    }
-                },
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Next
-                ),
-            )
-
-            OutlinedTextField(
-                value = monetaryValue,
-                onValueChange = { newValue ->
-                    monetaryValue = newValue
-                },
-                modifier = Modifier
-                    .width(280.dp),
-                //.focusRequester(focusRequester[0]),
-                label = {
-                    Text(
-                        text = "Saldo*",
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                },
-                placeholder = {
-                    Text(
-                        text = "Digite o valor que você tem nesta carteira"
-                    )
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.AttachMoney,
-                        contentDescription = "Ícone de dinheiro",
-                        tint = White06Color
-                    )
-                },
-                trailingIcon = {
-                    /*if (billModalState.origin.isNotEmpty()) {
-                        Icon(
-                            imageVector = Icons.Default.Clear,
-                            contentDescription = "Ícone de x",
-                            modifier = Modifier
-                                .clickable {
-                                    billModalState = billModalState.copy(
-                                        origin = ""
-                                    )
-                                    focusRequester[0].requestFocus()
-                                },
-                            tint = White06Color
-                        )
-                    }*/
-                },
-                singleLine = true,
-                isError = walletDialogState.balanceErrorMessage.isNotEmpty(),
-                supportingText = {
-                    if(walletDialogState.balanceErrorMessage.isNotEmpty()) {
-                        Text(
-                            text = walletDialogState.balanceErrorMessage,
-                            fontFamily = PoppinsFontFamily
-                        )
-                    }
-                },
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Next
-                ),
-                visualTransformation = CurrencyVisualTransformation()
-            )
-
-            Column(
-               modifier =  Modifier
-                   .width(280.dp)
-                   .padding(8.dp),
-               horizontalAlignment = Alignment.CenterHorizontally
+            Box(
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = "CARTÕES",
-                    color = PrimaryColor,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
+                Column {
+                    OutlinedTextField(
+                        value = walletDialogState.title,
+                        onValueChange = {
+                            onValueChange(
+                                walletDialogState.copy(
+                                    title = it
+                                )
+                            )
+                        },
+                        modifier = Modifier
+                            .width(280.dp),
+                        //.focusRequester(focusRequester[0]),
+                        label = {
+                            Text(
+                                text = "Título*",
+                                style = MaterialTheme.typography.labelMedium
+                            )
+                        },
+                        placeholder = {
+                            Text(
+                                text = "Digite o título da carteira"
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Wallet,
+                                contentDescription = "Ícone de carteira",
+                                tint = White06Color
+                            )
+                        },
+                        trailingIcon = {
+                            /*if (billModalState.origin.isNotEmpty()) {
+                                Icon(
+                                    imageVector = Icons.Default.Clear,
+                                    contentDescription = "Ícone de x",
+                                    modifier = Modifier
+                                        .clickable {
+                                            billModalState = billModalState.copy(
+                                                origin = ""
+                                            )
+                                            focusRequester[0].requestFocus()
+                                        },
+                                    tint = White06Color
+                                )
+                            }*/
+                        },
+                        singleLine = true,
+                        isError = walletDialogState.titleErrorMessage.isNotEmpty(),
+                        supportingText = {
+                            if(walletDialogState.titleErrorMessage.isNotEmpty()) {
+                                Text(
+                                    text = walletDialogState.titleErrorMessage,
+                                    fontFamily = PoppinsFontFamily
+                                )
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Next
+                        ),
+                    )
 
-                val walletCard = WalletCard(
-                    walletId = 1,
-                    walletCardId = 1,
-                    title = "Cartão de Crédito",
-                    limit = 5000.00,
-                    spent = 1500.00,
-                    available = 3500.00,
-                    blocked = false
-                )
+                    OutlinedTextField(
+                        value = monetaryValue,
+                        onValueChange = { newValue ->
+                            monetaryValue = newValue
+                        },
+                        modifier = Modifier
+                            .width(280.dp),
+                        //.focusRequester(focusRequester[0]),
+                        label = {
+                            Text(
+                                text = "Saldo*",
+                                style = MaterialTheme.typography.labelMedium
+                            )
+                        },
+                        placeholder = {
+                            Text(
+                                text = "Digite o valor que você tem nesta carteira"
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.AttachMoney,
+                                contentDescription = "Ícone de dinheiro",
+                                tint = White06Color
+                            )
+                        },
+                        trailingIcon = {
+                            /*if (billModalState.origin.isNotEmpty()) {
+                                Icon(
+                                    imageVector = Icons.Default.Clear,
+                                    contentDescription = "Ícone de x",
+                                    modifier = Modifier
+                                        .clickable {
+                                            billModalState = billModalState.copy(
+                                                origin = ""
+                                            )
+                                            focusRequester[0].requestFocus()
+                                        },
+                                    tint = White06Color
+                                )
+                            }*/
+                        },
+                        singleLine = true,
+                        isError = walletDialogState.balanceErrorMessage.isNotEmpty(),
+                        supportingText = {
+                            if(walletDialogState.balanceErrorMessage.isNotEmpty()) {
+                                Text(
+                                    text = walletDialogState.balanceErrorMessage,
+                                    fontFamily = PoppinsFontFamily
+                                )
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Done,
+                        ),
+                        visualTransformation = CurrencyVisualTransformation()
+                    )
 
-                // COLOCAR ONCLICK NO CARTAO PARA AO CLICAR ABRIR O DIALOG
-                // DE ADD/EDIT WalletCard e permitir edição e exclusão
-                LazyRow(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(10.dp))
-                        .border(1.dp, White06Color, RoundedCornerShape(10.dp))
-                        .padding(8.dp)
-                ) {
-                    items(4) {
-                        WalletCardContainer(
-                            modifier = Modifier.scale(0.9f),
-                            card = walletCard
-                        )
+                    if(walletHasCards == true) {
+                        Column(
+                            modifier =  Modifier
+                                .width(280.dp)
+                                .padding(8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "CARTÕES",
+                                color = PrimaryColor,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.SemiBold
+                            )
+
+                            val walletCard = WalletCard(
+                                walletId = 1,
+                                walletCardId = 1,
+                                title = "Cartão de Crédito",
+                                limit = 5000.00,
+                                spent = 1500.00,
+                                available = 3500.00,
+                                blocked = false
+                            )
+
+                            // COLOCAR ONCLICK NO CARTAO PARA AO CLICAR ABRIR O DIALOG
+                            // DE ADD/EDIT WalletCard e permitir edição e exclusão
+                            LazyRow(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .border(1.dp, White06Color, RoundedCornerShape(10.dp))
+                                    .padding(8.dp)
+                            ) {
+                                items(4) {
+                                    WalletCardContainer(
+                                        modifier = Modifier.scale(0.9f),
+                                        card = walletCard
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Button(
+                        onClick = {
+                            if(isWalletToEdit) {
+                                // UPDATE WALLET
+                            } else {
+                                // NEW WALLET
+                                onAddWallet(walletDialogState)
+                            }
+                        }
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            /*if(isBillToEdit) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = "Ícone de editar."
+                                )
+                            } else {*/
+                            Icon(
+                                imageVector = Icons.Default.Save,
+                                contentDescription = "Ícone de salvar."
+                            )
+                            //}
+
+                            Text(
+                                //text = if (isBillToEdit) "ATUALIZAR" else "SALVAR",
+                                text = "SALVAR",
+                                color = Color.White,
+                                fontFamily = PoppinsFontFamily,
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
+                        }
                     }
                 }
-            }
 
-            //Spacer(modifier = Modifier.weight(1f))
-
-            Button(
-                onClick = {
-                    if(isWalletToEdit) {
-                        // UPDATE WALLET
-                    } else {
-                        // NEW WALLET
-                        onAddWallet(walletDialogState)
+                if (isModalLoading) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(350.dp)
+                            .background(SurfaceColor),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        AppLoader(modifier = Modifier.size(80.dp))
                     }
-                }
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    /*if(isBillToEdit) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Ícone de editar."
-                        )
-                    } else {*/
-                        Icon(
-                            imageVector = Icons.Default.Save,
-                            contentDescription = "Ícone de salvar."
-                        )
-                    //}
-
-                    Text(
-                        //text = if (isBillToEdit) "ATUALIZAR" else "SALVAR",
-                        text = "SALVAR",
-                        color = Color.White,
-                        fontFamily = PoppinsFontFamily,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
                 }
             }
         }
@@ -350,6 +394,7 @@ private fun AddOrEditWalletDialogPreview() {
         ) {
             AddOrEditWalletDialog(
                 walletStateFlow = walletViewModel.walletStateFlow,
+                walletCardStateFlow = walletViewModel.walletCardStateFlow,
                 uiStateFlow = walletViewModel.uiState,
                 onValueChange = {},
                 onAddWallet = {},

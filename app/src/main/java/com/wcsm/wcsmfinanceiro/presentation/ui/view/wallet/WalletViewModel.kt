@@ -1,5 +1,6 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wcsm.wcsmfinanceiro.data.entity.Wallet
@@ -15,10 +16,12 @@ import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.model.WalletCardState
 import com.wcsm.wcsmfinanceiro.presentation.model.WalletState
 import com.wcsm.wcsmfinanceiro.presentation.util.toWallet
+import com.wcsm.wcsmfinanceiro.presentation.util.toWalletCard
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -174,6 +177,14 @@ class WalletViewModel @Inject constructor(
         _walletCardStateFlow.value = updatedState
     }
 
+    fun resetWalletState() {
+        _walletStateFlow.value = WalletState()
+    }
+
+    fun resetWalletCardState() {
+        _walletCardStateFlow.value = WalletCardState()
+    }
+
     fun resetUiState() {
         _uiState.value = UiState()
     }
@@ -195,8 +206,7 @@ class WalletViewModel @Inject constructor(
                         )
                     }
                     is Response.Success -> {
-                        //_walletsWithCards.value = result.data.reversed()
-                        _walletsWithCards.value = result.data + accountsLists
+                        _walletsWithCards.value = result.data.reversed() + accountsLists
 
                         _uiState.value = uiState.value.copy(
                             isLoading = false,
@@ -257,17 +267,9 @@ class WalletViewModel @Inject constructor(
         )
     }
 
-    private fun resetWalletCardStateErrorMessages() {
-        updateWalletCardState(
-            walletCardStateFlow.value.copy(
-                titleErrorMessage = "",
-                limitErrorMessage = "",
-                spentErrorMessage = ""
-            )
-        )
-    }
 
-    private fun isWalletStateValid() : Boolean {
+
+    private fun isWalletStateValid(): Boolean {
         val isTitleValid = validateWalletTitle(walletStateFlow.value.title)
         val isBalanceValid = validateWalletBalance(walletStateFlow.value.balance)
 
@@ -281,7 +283,7 @@ class WalletViewModel @Inject constructor(
         return isTitleValid.first && isBalanceValid.first
     }
 
-    private fun validateWalletTitle(title: String) : Pair<Boolean, String> {
+    private fun validateWalletTitle(title: String): Pair<Boolean, String> {
         return if(title.isBlank()) {
             Pair(false, "O título não pode ser vazio")
         } else if(title.length < 3) {
@@ -291,7 +293,7 @@ class WalletViewModel @Inject constructor(
         }
     }
 
-    private fun validateWalletBalance(balance: Double) : Pair<Boolean, String> {
+    private fun validateWalletBalance(balance: Double): Pair<Boolean, String> {
         return if(balance == 0.0) {
             Pair(false, "Você deve informar um valor maior que 0.")
         } else if(balance < 0) {
@@ -301,23 +303,97 @@ class WalletViewModel @Inject constructor(
         }
     }
 
-    private fun isWalletCardStateValid() : Boolean {
+    // WALLET CARD SECTION
+
+    fun saveWalletCard(walletCardState: WalletCardState) {
+        resetWalletCardStateErrorMessages()
+
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.value = uiState.value.copy(
+                operationType = OperationType.SAVE
+            )
+
+            if(isWalletCardStateValid()) {
+                val walletCard = walletCardState.toWalletCard()
+                saveWalletCardUseCase(walletCard).collect { result ->
+                    when(result) {
+                        is Response.Loading -> {
+                            _uiState.value = uiState.value.copy(
+                                isLoading = false,
+                            )
+                        }
+                        is Response.Error -> {
+                            // SHOW ERROR MESSAGE result.message
+                            _uiState.value = uiState.value.copy(
+                                isLoading = false,
+                                error = result.message
+                            )
+                        }
+                        is Response.Success -> {
+                            _walletCardStateFlow.value = WalletCardState()
+
+                            _uiState.value = uiState.value.copy(
+                                isLoading = false,
+                                success = true
+                            )
+
+                            getWalletWithCards()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun resetWalletCardStateErrorMessages() {
+        updateWalletCardState(
+            walletCardStateFlow.value.copy(
+                titleErrorMessage = "",
+                limitErrorMessage = "",
+                spentErrorMessage = ""
+            )
+        )
+    }
+
+    private fun isWalletCardStateValid(): Boolean {
         val isTitleValid = validateWalletCardTitle(walletCardStateFlow.value.title)
         val isLimitValid = validateWalletCardLimit(walletCardStateFlow.value.limit)
         val isSpentValid = validateWalletCardSpent(walletCardStateFlow.value.spent)
+        val isWalletIdValid = validateWalletIdForCreateWalletCard(walletCardStateFlow.value.walletId)
 
         updateWalletCardState(
             walletCardStateFlow.value.copy(
                 titleErrorMessage = isTitleValid.second,
                 limitErrorMessage = isLimitValid.second,
-                spentErrorMessage = isSpentValid.second
+                spentErrorMessage = isSpentValid.second,
+                walletIdErrorMessage = isWalletIdValid.second
             )
         )
 
-        return isTitleValid.first && isLimitValid.first && isSpentValid.first
+        return isTitleValid.first && isLimitValid.first && isSpentValid.first && isWalletIdValid.first
     }
 
-    private fun validateWalletCardTitle(title: String) : Pair<Boolean, String> {
+    private fun validateWalletIdForCreateWalletCard(walletId: Long): Pair<Boolean, String> {
+        if(walletId == 0L) {
+            return Pair(false, "Você deve selecionar uma conta.")
+        }
+
+        walletsWithCards.value?.map {
+            it.wallet
+        }?.let {
+            val walletIdExist = it.filter { wallet ->
+                wallet.walletId == walletId
+            }
+
+            if(walletIdExist.size == 1) {
+                return Pair(true, "")
+            }
+        }
+
+        return Pair(false, "Erro desconhecido, informe o administrador.")
+    }
+
+    private fun validateWalletCardTitle(title: String): Pair<Boolean, String> {
         return if(title.isBlank()) {
             Pair(false, "O título não pode ser vazio")
         } else if(title.length < 3) {
@@ -327,7 +403,7 @@ class WalletViewModel @Inject constructor(
         }
     }
 
-    private fun validateWalletCardLimit(limit: Double) : Pair<Boolean, String> {
+    private fun validateWalletCardLimit(limit: Double): Pair<Boolean, String> {
         return if(limit == 0.0) {
             Pair(false, "Você deve informar um valor maior que 0.")
         } else if(limit < 0) {
@@ -337,7 +413,7 @@ class WalletViewModel @Inject constructor(
         }
     }
 
-    private fun validateWalletCardSpent(spent: Double) : Pair<Boolean, String> {
+    private fun validateWalletCardSpent(spent: Double): Pair<Boolean, String> {
         return if(spent == 0.0) {
             Pair(false, "Você deve informar um valor maior que 0.")
         } else if(spent < 0) {

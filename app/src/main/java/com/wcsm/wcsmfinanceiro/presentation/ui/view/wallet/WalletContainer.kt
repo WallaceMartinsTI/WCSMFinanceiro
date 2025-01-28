@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,13 +27,17 @@ import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianReal
 
 @Composable
 fun WalletContainer(
-    walletsWithCards: WalletWithCards
+    walletsWithCards: WalletWithCards,
+    onWalletClick: () -> Unit
 ) {
-    ElevatedCard {
+    ElevatedCard(
+        onClick = { onWalletClick() }
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
+                .padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -54,22 +59,30 @@ fun WalletContainer(
                 )
             }
 
-            LazyRow(
-                modifier = Modifier.padding(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(
-                    items = walletsWithCards.walletCards,
-                    key = { walletCard -> walletCard.walletCardId }
-                ) { walletCard ->
-                    WalletCardContainer(card = walletCard)
+            if(walletsWithCards.walletCards.isEmpty()) {
+                Text(
+                    text = "Carteira sem cartões.",
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.padding(8.dp)
+                )
+            } else {
+                LazyRow(
+                    modifier = Modifier.padding(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(
+                        items = walletsWithCards.walletCards,
+                        key = { walletCard -> walletCard.walletCardId }
+                    ) { walletCard ->
+                        WalletCardContainer(card = walletCard)
+                    }
                 }
             }
         }
     }
 }
 
-@Preview
+@Preview(name = "With Cards")
 @Composable
 private fun WalletContainerPreview() {
     WCSMFinanceiroTheme(dynamicColor = false) {
@@ -101,6 +114,23 @@ private fun WalletContainerPreview() {
             )
         )
 
-        WalletContainer(walletWithCard)
+        WalletContainer(walletWithCard) {}
+    }
+}
+
+@Preview(name = "No Cards")
+@Composable
+private fun WalletContainerNoCardsPreview() {
+    WCSMFinanceiroTheme(dynamicColor = false) {
+        val walletWithCard = WalletWithCards(
+            wallet = Wallet(
+                walletId = 1,
+                title = "Nubank",
+                balance = 1725.74
+            ),
+            walletCards = emptyList()
+        )
+
+        WalletContainer(walletWithCard) {}
     }
 }
