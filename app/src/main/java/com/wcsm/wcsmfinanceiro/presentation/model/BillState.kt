@@ -4,7 +4,7 @@ import com.wcsm.wcsmfinanceiro.data.model.BillType
 import com.wcsm.wcsmfinanceiro.data.model.PaymentType
 
 data class BillState(
-    var id: Long = 0,
+    var billId: Long = 0,
     var billType: BillType = BillType.INCOME,
     var origin: String = "",
     var title: String = "",

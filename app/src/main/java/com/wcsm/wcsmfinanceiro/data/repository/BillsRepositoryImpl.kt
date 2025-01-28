@@ -76,7 +76,7 @@ class BillsRepositoryImpl @Inject constructor(
             )
         } catch (e: Exception) {
             e.printStackTrace()
-            emit(Response.Error("Erro desconhecido ao buscar conta, informe o administrador."))
+            emit(Response.Error("Erro desconhecido ao buscar contas, informe o administrador."))
         }
     }
 

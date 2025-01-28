@@ -1,6 +1,5 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wcsm.wcsmfinanceiro.data.entity.Bill
@@ -17,7 +16,6 @@ import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.util.toBill
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -279,8 +277,8 @@ class BillsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(UiState())
     val uiState = _uiState.asStateFlow()
 
-    private val _billDialogState = MutableStateFlow(BillState())
-    val billDialogState = _billDialogState.asStateFlow()
+    private val _billStateFlow = MutableStateFlow(BillState())
+    val billStateFlow = _billStateFlow.asStateFlow()
 
     private val _filterSelectedDateRange = MutableStateFlow<Pair<Long, Long>?>(null)
     val filterSelectedDateRange = _filterSelectedDateRange.asStateFlow()
@@ -296,12 +294,12 @@ class BillsViewModel @Inject constructor(
         _filterSelectedDateRange.value = filterSelectedRange
     }
 
-    fun updateBillDialogState(updatedState: BillState) {
-        _billDialogState.value = updatedState
+    fun updateBillState(updatedState: BillState) {
+        _billStateFlow.value = updatedState
     }
 
-    fun resetBillDialogState() {
-        _billDialogState.value = BillState()
+    fun resetBillState() {
+        _billStateFlow.value = BillState()
     }
 
     fun resetUiState() {
@@ -383,10 +381,6 @@ class BillsViewModel @Inject constructor(
 
     private fun getBills() {
         viewModelScope.launch(Dispatchers.IO) {
-            /*_uiState.value = uiState.value.copy(
-                operationType = null
-            )*/
-
             getBillsUseCase().collect { result ->
                 when(result) {
                     is Response.Loading -> {
@@ -438,14 +432,14 @@ class BillsViewModel @Inject constructor(
                             )
                         }
                         is Response.Success -> {
-                            _billDialogState.value = BillState()
-
-                            getBills()
+                            _billStateFlow.value = BillState()
 
                             _uiState.value = uiState.value.copy(
                                 isLoading = false,
                                 success = true
                             )
+
+                            getBills()
                         }
                     }
                 }
@@ -455,16 +449,14 @@ class BillsViewModel @Inject constructor(
 
     fun deleteTag(tag: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val currentState = _billDialogState.value
-            updateBillDialogState(
+            val currentState = _billStateFlow.value
+            updateBillState(
                 currentState.copy(
                     tags = currentState.tags.filter {
                         it != tag
                     }
                 )
             )
-
-            //updateBill(billDialogState.value, true)
         }
     }
 
@@ -495,14 +487,14 @@ class BillsViewModel @Inject constructor(
                         }
                         is Response.Success -> {
                             if(!isUpdatingOnlyTags) {
-                                _billDialogState.value = BillState()
-
-                                getBills()
+                                _billStateFlow.value = BillState()
 
                                 _uiState.value = uiState.value.copy(
                                     isLoading = false,
                                     success = true
                                 )
+
+                                getBills()
                             }
                         }
                     }
@@ -534,14 +526,14 @@ class BillsViewModel @Inject constructor(
                             )
                         }
                         is Response.Success -> {
-                            _billDialogState.value = BillState()
-
-                            getBills()
+                            _billStateFlow.value = BillState()
 
                             _uiState.value = uiState.value.copy(
                                 isLoading = false,
                                 success = true
                             )
+
+                            getBills()
                         }
                     }
                 }
@@ -550,8 +542,8 @@ class BillsViewModel @Inject constructor(
     }
 
     private fun resetErrorMessages() {
-        updateBillDialogState(
-            billDialogState.value.copy(
+        updateBillState(
+            billStateFlow.value.copy(
                 titleErrorMessage = "",
                 dateErrorMessage = "",
                 valueErrorMessage = ""
@@ -560,14 +552,14 @@ class BillsViewModel @Inject constructor(
     }
 
     private fun isBillStateValid() : Boolean {
-        val currentState = _billDialogState.value
+        //val currentState = _billStateFlow.value
 
-        val isTitleValid = validateTitle(billDialogState.value.title)
-        val isDateValid = validateDate(billDialogState.value.date)
-        val isValueValid = validateValue(billDialogState.value.value)
+        val isTitleValid = validateTitle(billStateFlow.value.title)
+        val isDateValid = validateDate(billStateFlow.value.date)
+        val isValueValid = validateValue(billStateFlow.value.value)
 
-        updateBillDialogState(
-            currentState.copy(
+        updateBillState(
+            billStateFlow.value.copy(
                 titleErrorMessage = isTitleValid.second,
                 dateErrorMessage = isDateValid.second,
                 valueErrorMessage = isValueValid.second
@@ -579,9 +571,9 @@ class BillsViewModel @Inject constructor(
 
     private fun validateTitle(title: String) : Pair<Boolean, String> {
         return if(title.isBlank()) {
-            Pair(false, "O título não pode ser vazio")
+            Pair(false, "O título não pode ser vazio.")
         } else if(title.length < 3) {
-            Pair(false, "O título é muito curto (min. 3 caracteres)")
+            Pair(false, "O título é muito curto (min. 3 caracteres).")
         } else {
             Pair(true, "")
         }

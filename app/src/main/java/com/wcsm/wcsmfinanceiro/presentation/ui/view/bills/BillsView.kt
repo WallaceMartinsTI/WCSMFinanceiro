@@ -227,7 +227,7 @@ fun BillsView() {
                             items = bills ?: emptyList()
                         ) { bill ->
                             BillCard(bill = bill) {
-                                billsViewModel.updateBillDialogState(
+                                billsViewModel.updateBillState(
                                     bill.toBillState()
                                 )
                                 showAddOrEditBillDialog = true
@@ -258,10 +258,10 @@ fun BillsView() {
 
         if (showAddOrEditBillDialog) {
             AddOrEditBillDialog(
-                billStateFlow = billsViewModel.billDialogState,
+                billStateFlow = billsViewModel.billStateFlow,
                 uiStateFlow = billsViewModel.uiState,
                 onValueChange = { updatedValue ->
-                    billsViewModel.updateBillDialogState(updatedValue)
+                    billsViewModel.updateBillState(updatedValue)
                 },
                 deviceScreenHeight = deviceScreenHeight,
                 onAddBill = { billState ->
@@ -277,7 +277,7 @@ fun BillsView() {
                     billsViewModel.deleteBill(billState)
                 },
                 onDismiss = {
-                    billsViewModel.resetBillDialogState()
+                    billsViewModel.resetBillState()
                     showAddOrEditBillDialog = false
                 }
             )

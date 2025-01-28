@@ -1,4 +1,4 @@
-package com.wcsm.wcsmfinanceiro.di
+package com.wcsm.wcsmfinanceiro.di.usecases
 
 import com.wcsm.wcsmfinanceiro.domain.repository.BillsRepository
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.DeleteBillUseCase
@@ -14,7 +14,7 @@ import dagger.hilt.android.components.ViewModelComponent
 
 @Module
 @InstallIn(ViewModelComponent::class)
-object UseCasesModule {
+object BillsUseCasesModule {
 
     @Provides
     fun provideGetBillsUseCase(

@@ -114,7 +114,7 @@ fun BillCard(
 private fun BillCardPreview() {
     WCSMFinanceiroTheme(dynamicColor = false) {
         val incomeBill = Bill(
-            id = 1,
+            billId = 1,
             billType = BillType.INCOME,
             origin = "Trabalho",
             title = "Salário",
@@ -130,7 +130,7 @@ private fun BillCardPreview() {
         )
 
         val expenseBill = Bill(
-            id = 1,
+            billId = 1,
             billType = BillType.EXPENSE,
             origin = "Mercado",
             title = "Compra do Mês",

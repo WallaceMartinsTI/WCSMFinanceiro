@@ -12,7 +12,7 @@ import com.wcsm.wcsmfinanceiro.data.model.PaymentType
 data class Bill(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "bill_id")
-    val id: Long,
+    val billId: Long,
     @ColumnInfo(name = "bill_type")
     val billType: BillType,
     val origin: String,

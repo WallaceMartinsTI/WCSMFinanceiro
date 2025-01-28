@@ -1,110 +1,349 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet
 
 import androidx.lifecycle.ViewModel
-import com.wcsm.wcsmfinanceiro.data.entity.Account
-import com.wcsm.wcsmfinanceiro.data.entity.AccountCard
+import androidx.lifecycle.viewModelScope
+import com.wcsm.wcsmfinanceiro.data.entity.Wallet
+import com.wcsm.wcsmfinanceiro.data.entity.WalletCard
+import com.wcsm.wcsmfinanceiro.data.entity.relation.WalletWithCards
+import com.wcsm.wcsmfinanceiro.domain.model.Response
+import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.GetWalletWithCardsUseCase
+import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.SaveWalletCardUseCase
+import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.SaveWalletUseCase
+import com.wcsm.wcsmfinanceiro.presentation.model.BillState
+import com.wcsm.wcsmfinanceiro.presentation.model.OperationType
+import com.wcsm.wcsmfinanceiro.presentation.model.UiState
+import com.wcsm.wcsmfinanceiro.presentation.model.WalletCardState
+import com.wcsm.wcsmfinanceiro.presentation.model.WalletState
+import com.wcsm.wcsmfinanceiro.presentation.util.toWallet
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class WalletViewModel : ViewModel() {
-    private val accountsList = listOf(
-        Account(
-            id = 1,
-            title = "Nubank",
-            balance = 1725.74,
-            accountCards = listOf(
-                AccountCard(
-                    id = 1,
+@HiltViewModel
+class WalletViewModel @Inject constructor(
+    private val getWalletWithCardsUseCase: GetWalletWithCardsUseCase,
+    private val saveWalletUseCase: SaveWalletUseCase,
+    private val saveWalletCardUseCase: SaveWalletCardUseCase
+) : ViewModel() {
+    private val accountsLists = listOf(
+        WalletWithCards(
+            wallet = Wallet(
+                walletId = 1999999,
+                title = "Nubank",
+                balance = 1725.74
+            ),
+            walletCards = listOf(
+                WalletCard(
+                    walletCardId = 1999999,
+                    walletId = 1999999,
                     title = "Cartão de Crédito",
-                    total = 5000.00,
+                    limit = 5000.00,
                     spent = 1500.00,
-                    remaining = 3500.00
+                    available = 3500.00,
+                    blocked = false
                 ),
-                AccountCard(
-                    id = 2,
+                WalletCard(
+                    walletCardId = 2999999,
+                    walletId = 1999999,
                     title = "Cartão Adicional",
-                    total = 5000.00,
+                    limit = 5000.00,
                     spent = 1500.00,
-                    remaining = 3500.00
+                    available = 3500.00,
+                    blocked = false
                 )
             )
         ),
-        Account(
-            id = 2,
-            title = "Inter",
-            balance = 1725.74,
-            accountCards = listOf(
-                AccountCard(
-                    id = 3,
+        WalletWithCards(
+            wallet = Wallet(
+                walletId = 2999999,
+                title = "Inter",
+                balance = 1725.74
+            ),
+            walletCards = listOf(
+                WalletCard(
+                    walletCardId = 3999999,
+                    walletId = 2999999,
                     title = "Cartão de Crédito",
-                    total = 5000.00,
+                    limit = 5000.00,
                     spent = 1500.00,
-                    remaining = 3500.00
+                    available = 3500.00,
+                    blocked = true
                 )
             )
         ),
-        Account(
-            id = 3,
-            title = "Caixa",
-            balance = 1725.74,
-            accountCards = listOf(
-                AccountCard(
-                    id = 4,
+        WalletWithCards(
+            wallet = Wallet(
+                walletId = 3999999,
+                title = "Caixa",
+                balance = 1725.74
+            ),
+            walletCards = listOf(
+                WalletCard(
+                    walletCardId = 4999999,
+                    walletId = 3999999,
                     title = "Cartão de Crédito",
-                    total = 5000.00,
+                    limit = 5000.00,
                     spent = 1500.00,
-                    remaining = 3500.00
+                    available = 3500.00,
+                    blocked = false
                 ),
-                AccountCard(
-                    id = 5,
+                WalletCard(
+                    walletCardId = 5999999,
+                    walletId = 3999999,
                     title = "Cartão Adicional",
-                    total = 5000.00,
+                    limit = 5000.00,
                     spent = 1500.00,
-                    remaining = 3500.00
-                ),
-                AccountCard(
-                    id = 6,
+                    available = 3500.00,
+                    blocked = true
+                )
+                ,
+                WalletCard(
+                    walletCardId = 6999999,
+                    walletId = 3999999,
                     title = "Teste",
-                    total = 5000.00,
+                    limit = 5000.00,
                     spent = 1500.00,
-                    remaining = 3500.00
+                    available = 3500.00,
+                    blocked = false
                 )
             )
         ),
-        Account(
-            id = 4,
-            title = "Sicoob",
-            balance = 1725.74,
-            accountCards = listOf(
-                AccountCard(
-                    id = 4,
+        WalletWithCards(
+            wallet = Wallet(
+                walletId = 4999999,
+                title = "Sicoob",
+                balance = 1725.74
+            ),
+            walletCards = listOf(
+                WalletCard(
+                    walletCardId = 7999999,
+                    walletId = 4999999,
                     title = "Cartão de Crédito",
-                    total = 5000.00,
+                    limit = 5000.00,
                     spent = 1500.00,
-                    remaining = 3500.00
+                    available = 3500.00,
+                    blocked = false
                 )
             )
         ),
-        Account(
-            id = 5,
-            title = "Itaú",
-            balance = 1725.74,
-            accountCards = listOf(
-                AccountCard(
-                    id = 5,
+        WalletWithCards(
+            wallet = Wallet(
+                walletId = 5999999,
+                title = "Itaú",
+                balance = 1725.74
+            ),
+            walletCards = listOf(
+                WalletCard(
+                    walletCardId = 8999999,
+                    walletId = 5999999,
                     title = "Cartão de Crédito",
-                    total = 5000.00,
+                    limit = 5000.00,
                     spent = 1500.00,
-                    remaining = 3500.00
+                    available = 3500.00,
+                    blocked = false
                 )
             )
-        ),
+        )
     )
 
-    private val _wallets = MutableStateFlow<List<Account>?>(null)
-    val wallets: StateFlow<List<Account>?> = _wallets
+    private val _uiState = MutableStateFlow(UiState())
+    val uiState = _uiState.asStateFlow()
+
+    private val _walletStateFlow = MutableStateFlow(WalletState())
+    val walletStateFlow = _walletStateFlow.asStateFlow()
+
+    private val _walletCardStateFlow = MutableStateFlow(WalletCardState())
+    val walletCardStateFlow = _walletCardStateFlow.asStateFlow()
+
+    private val _walletsWithCards = MutableStateFlow<List<WalletWithCards>?>(null)
+    val walletsWithCards = _walletsWithCards.asStateFlow()
 
     init {
-        _wallets.value = accountsList
+        //_walletsWithCards.value = accountsLists
+        getWalletWithCards()
+    }
+
+    fun updateWalletState(updatedState: WalletState) {
+        _walletStateFlow.value = updatedState
+    }
+
+    fun updateWalletCardState(updatedState: WalletCardState) {
+        _walletCardStateFlow.value = updatedState
+    }
+
+    fun resetUiState() {
+        _uiState.value = UiState()
+    }
+
+    private fun getWalletWithCards() {
+        viewModelScope.launch(Dispatchers.IO) {
+            getWalletWithCardsUseCase().collect { result ->
+                when(result) {
+                    is Response.Loading -> {
+                        _uiState.value = uiState.value.copy(
+                            isLoading = true
+                        )
+                    }
+                    is Response.Error -> {
+                        // SHOW ERROR MESSAGE result.message
+                        _uiState.value = uiState.value.copy(
+                            isLoading = false,
+                            error = result.message
+                        )
+                    }
+                    is Response.Success -> {
+                        //_walletsWithCards.value = result.data.reversed()
+                        _walletsWithCards.value = result.data + accountsLists
+
+                        _uiState.value = uiState.value.copy(
+                            isLoading = false,
+                            success = true
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun saveWallet(walletState: WalletState) {
+        resetWalletStateErrorMessages()
+
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.value = uiState.value.copy(
+                operationType = OperationType.SAVE
+            )
+
+            if(isWalletStateValid()) {
+                val wallet = walletState.toWallet()
+                saveWalletUseCase(wallet).collect { result ->
+                    when(result) {
+                        is Response.Loading -> {
+                            _uiState.value = uiState.value.copy(
+                                isLoading = false,
+                            )
+                        }
+                        is Response.Error -> {
+                            // SHOW ERROR MESSAGE result.message
+                            _uiState.value = uiState.value.copy(
+                                isLoading = false,
+                                error = result.message
+                            )
+                        }
+                        is Response.Success -> {
+                            _walletStateFlow.value = WalletState()
+
+                            _uiState.value = uiState.value.copy(
+                                isLoading = false,
+                                success = true
+                            )
+
+                            getWalletWithCards()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun resetWalletStateErrorMessages() {
+        updateWalletState(
+            walletStateFlow.value.copy(
+                titleErrorMessage = "",
+                balanceErrorMessage = ""
+            )
+        )
+    }
+
+    private fun resetWalletCardStateErrorMessages() {
+        updateWalletCardState(
+            walletCardStateFlow.value.copy(
+                titleErrorMessage = "",
+                limitErrorMessage = "",
+                spentErrorMessage = ""
+            )
+        )
+    }
+
+    private fun isWalletStateValid() : Boolean {
+        val isTitleValid = validateWalletTitle(walletStateFlow.value.title)
+        val isBalanceValid = validateWalletBalance(walletStateFlow.value.balance)
+
+        updateWalletState(
+            walletStateFlow.value.copy(
+                titleErrorMessage = isTitleValid.second,
+                balanceErrorMessage = isBalanceValid.second
+            )
+        )
+
+        return isTitleValid.first && isBalanceValid.first
+    }
+
+    private fun validateWalletTitle(title: String) : Pair<Boolean, String> {
+        return if(title.isBlank()) {
+            Pair(false, "O título não pode ser vazio")
+        } else if(title.length < 3) {
+            Pair(false, "O título é muito curto (min. 3 caracteres)")
+        } else {
+            Pair(true, "")
+        }
+    }
+
+    private fun validateWalletBalance(balance: Double) : Pair<Boolean, String> {
+        return if(balance == 0.0) {
+            Pair(false, "Você deve informar um valor maior que 0.")
+        } else if(balance < 0) {
+            Pair(false, "Valor inválido.")
+        } else {
+            Pair(true, "")
+        }
+    }
+
+    private fun isWalletCardStateValid() : Boolean {
+        val isTitleValid = validateWalletCardTitle(walletCardStateFlow.value.title)
+        val isLimitValid = validateWalletCardLimit(walletCardStateFlow.value.limit)
+        val isSpentValid = validateWalletCardSpent(walletCardStateFlow.value.spent)
+
+        updateWalletCardState(
+            walletCardStateFlow.value.copy(
+                titleErrorMessage = isTitleValid.second,
+                limitErrorMessage = isLimitValid.second,
+                spentErrorMessage = isSpentValid.second
+            )
+        )
+
+        return isTitleValid.first && isLimitValid.first && isSpentValid.first
+    }
+
+    private fun validateWalletCardTitle(title: String) : Pair<Boolean, String> {
+        return if(title.isBlank()) {
+            Pair(false, "O título não pode ser vazio")
+        } else if(title.length < 3) {
+            Pair(false, "O título é muito curto (min. 3 caracteres)")
+        } else {
+            Pair(true, "")
+        }
+    }
+
+    private fun validateWalletCardLimit(limit: Double) : Pair<Boolean, String> {
+        return if(limit == 0.0) {
+            Pair(false, "Você deve informar um valor maior que 0.")
+        } else if(limit < 0) {
+            Pair(false, "Valor inválido.")
+        } else {
+            Pair(true, "")
+        }
+    }
+
+    private fun validateWalletCardSpent(spent: Double) : Pair<Boolean, String> {
+        return if(spent == 0.0) {
+            Pair(false, "Você deve informar um valor maior que 0.")
+        } else if(spent < 0) {
+            Pair(false, "Valor inválido.")
+        } else {
+            Pair(true, "")
+        }
     }
 }

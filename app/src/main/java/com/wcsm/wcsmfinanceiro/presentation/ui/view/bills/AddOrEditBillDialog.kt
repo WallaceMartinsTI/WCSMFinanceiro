@@ -11,43 +11,31 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachMoney
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.Healing
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.LocalPharmacy
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.NoteAlt
-import androidx.compose.material.icons.filled.ShoppingBag
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -65,13 +53,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -79,17 +66,14 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.data.model.BillType
-import com.wcsm.wcsmfinanceiro.data.model.Category
 import com.wcsm.wcsmfinanceiro.data.model.PaymentType
 import com.wcsm.wcsmfinanceiro.presentation.model.BillState
-import com.wcsm.wcsmfinanceiro.presentation.model.OperationType
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppDatePicker
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.RadioButtonChooser
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.ErrorColor
-import com.wcsm.wcsmfinanceiro.presentation.ui.theme.GrayColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnBackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnSurfaceColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PoppinsFontFamily
@@ -140,7 +124,7 @@ fun AddOrEditBillDialog(
     val billDialogState by billStateFlow.collectAsStateWithLifecycle()
     val uiState by uiStateFlow.collectAsStateWithLifecycle()
 
-    val isBillToEdit by remember { mutableStateOf(billDialogState.id != 0L) }
+    val isBillToEdit by remember { mutableStateOf(billDialogState.billId != 0L) }
     var isModalLoading by remember { mutableStateOf(isBillToEdit) }
 
     var showConfirmBillDeletionDialog by remember { mutableStateOf(false) }
@@ -408,7 +392,7 @@ fun AddOrEditBillDialog(
                         supportingText = {
                             if (billDialogState.dateErrorMessage.isNotEmpty()) {
                                 Text(
-                                    text = billDialogState.titleErrorMessage,
+                                    text = billDialogState.dateErrorMessage,
                                     style = MaterialTheme.typography.bodySmall
                                 )
                             }
@@ -664,8 +648,8 @@ fun AddOrEditBillDialog(
                         )
                     }
 
-                    CategoriesDropdown(
-                        inputedOption = if (isBillToEdit) billDialogState.category else null,
+                    BillCategoriesDropdown(
+                        inputtedOption = if (isBillToEdit) billDialogState.category else null,
                         modifier = Modifier.padding(bottom = 8.dp),
                         onValueSelected = { selectedCategory ->
                             onValueChange(
@@ -726,7 +710,7 @@ fun AddOrEditBillDialog(
                     }
 
                     if(billHasTag == true) {
-                        TagsContainer(tags = billDialogState.tags) { tagToDelete ->
+                        BillTagsContainer(tags = billDialogState.tags) { tagToDelete ->
                             onDeleteTag(tagToDelete)
                         }
                     } else {
@@ -782,7 +766,7 @@ fun AddOrEditBillDialog(
                         )
                     }
 
-                    Spacer(Modifier.heightIn(16.dp))
+                    Spacer(Modifier.height(16.dp))
 
                     Button(
                         onClick = {
@@ -798,9 +782,32 @@ fun AddOrEditBillDialog(
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
                     ) {
-                        Text(
-                            text = if (isBillToEdit) "ATUALIZAR" else "SALVAR"
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if(isBillToEdit) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = "Ícone de editar."
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.Save,
+                                    contentDescription = "Ícone de salvar."
+                                )
+                            }
+
+                            Text(
+                                text = if (isBillToEdit) "ATUALIZAR" else "SALVAR",
+                                color = Color.White,
+                                fontFamily = PoppinsFontFamily,
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
+                        }
+
                     }
 
                     if (isBillToEdit) {
@@ -888,23 +895,21 @@ fun AddOrEditBillDialog(
     }
 }
 
-
 @Preview
 @Composable
-private fun AddOrEditBillDialogPreview(
-    billsViewModel: BillsViewModel = hiltViewModel()
-) {
+private fun AddOrEditBillDialogPreview() {
     WCSMFinanceiroTheme(dynamicColor = false) {
+        val billsViewModel: BillsViewModel = hiltViewModel()
+
         val configuration = LocalConfiguration.current
         val deviceScreenHeight = configuration.screenHeightDp.dp
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(BackgroundColor)
         ) {
             AddOrEditBillDialog(
-                billStateFlow = billsViewModel.billDialogState,
+                billStateFlow = billsViewModel.billStateFlow,
                 uiStateFlow = billsViewModel.uiState,
                 onValueChange = {},
                 deviceScreenHeight = deviceScreenHeight,
@@ -914,202 +919,6 @@ private fun AddOrEditBillDialogPreview(
                 onDeleteBill = {},
                 onDismiss = {}
             )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun CategoriesDropdown(
-    inputedOption: String?,
-    modifier: Modifier = Modifier,
-    onValueSelected: (selectedCategory: String) -> Unit
-) {
-    var category by remember { mutableStateOf("") }
-
-    val categoriesDrowpdownOptions = listOf(
-        Category(0, "Saúde", Icons.Default.Healing),
-        Category(1, "Mercado", Icons.Default.ShoppingCart),
-        Category(2, "Farmácia", Icons.Default.LocalPharmacy),
-        Category(3, "Lazer", Icons.Default.ShoppingBag),
-        Category(4, "Manutenção", Icons.Default.Build),
-    )
-    var showCategoriesDropdown by remember { mutableStateOf(false) }
-
-    LaunchedEffect(inputedOption) {
-        inputedOption?.let {
-            category = inputedOption
-        }
-    }
-
-    LaunchedEffect(category) {
-        if (category.isNotBlank()) {
-            onValueSelected(category)
-        }
-    }
-
-    Box(
-        modifier = modifier
-    ) {
-        ExposedDropdownMenuBox(
-            expanded = showCategoriesDropdown,
-            onExpandedChange = { showCategoriesDropdown = !showCategoriesDropdown }
-        ) {
-            OutlinedTextField(
-                modifier = Modifier
-                    .menuAnchor()
-                    .width(280.dp),
-                value = category,
-                onValueChange = {
-                    showCategoriesDropdown = !showCategoriesDropdown
-                },
-                label = {
-                    Text(
-                        text = "Categoria",
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                },
-                singleLine = true,
-                //isError = installmentFieldErrorMessage.isNotEmpty(),
-                supportingText = {},
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Category,
-                        contentDescription = "Ícone de categoria",
-                        tint = White06Color
-                    )
-                },
-                trailingIcon = {
-                    Icon(
-                        imageVector =
-                        if (showCategoriesDropdown) Icons.Filled.KeyboardArrowUp
-                        else Icons.Filled.KeyboardArrowDown,
-                        contentDescription = "Ícone de seta para cima ou para baixo",
-                        tint = White06Color
-                    )
-                },
-                readOnly = true,
-                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.None)
-            )
-
-            ExposedDropdownMenu(
-                expanded = showCategoriesDropdown,
-                onDismissRequest = { showCategoriesDropdown = false }
-            ) {
-                categoriesDrowpdownOptions.forEach { categorySelected ->
-                    DropdownMenuItem(
-                        text = {
-                            Text(text = categorySelected.title)
-                        },
-                        onClick = {
-                            category = categorySelected.title
-                            showCategoriesDropdown = false
-                        }
-                    )
-                }
-            }
-        }
-    }
-
-}
-
-@Preview
-@Composable
-private fun CategoriesDropdownPreview() {
-    WCSMFinanceiroTheme(dynamicColor = false) {
-        Column(
-            modifier = Modifier
-                .size(350.dp, 100.dp)
-                .background(BackgroundColor),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            CategoriesDropdown(inputedOption = null) {}
-        }
-    }
-}
-
-@Composable
-private fun Tag(
-    tag: String,
-    onDeleteTag: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .clip(RoundedCornerShape(25.dp))
-            .background(GrayColor)
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = tag,
-            color = OnSurfaceColor,
-            fontFamily = PoppinsFontFamily,
-            fontWeight = FontWeight.SemiBold,
-            fontStyle = FontStyle.Italic,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .padding(end = 8.dp)
-                .weight(1f)
-        )
-
-        Icon(
-            imageVector = Icons.Default.Clear,
-            contentDescription = "Ícone de x",
-            tint = White06Color,
-            modifier = Modifier
-                .clip(CircleShape)
-                .clickable { onDeleteTag() }
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun TagPreview() {
-    WCSMFinanceiroTheme(dynamicColor = false) {
-        Tag("Lazer") {}
-    }
-}
-
-@Composable
-fun TagsContainer(
-    tags: List<String>,
-    onDeleteTag: (tagToDelete: String) -> Unit
-) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        modifier = Modifier
-            .heightIn(0.dp, 200.dp)
-            .clip(RoundedCornerShape(15.dp))
-            .border(1.dp, White06Color, RoundedCornerShape(15.dp))
-            .padding(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        items(tags) { tag ->
-            Tag(tag) {
-                onDeleteTag(tag)
-            }
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun TagsContainerPreview() {
-    WCSMFinanceiroTheme(dynamicColor = false) {
-        val tags = listOf("Entrada", "Trabalho", "Bonificação", "2025")
-
-        Column(
-            modifier = Modifier
-                .size(350.dp, 100.dp)
-                .background(BackgroundColor),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            TagsContainer(tags = tags) {}
         }
     }
 }
