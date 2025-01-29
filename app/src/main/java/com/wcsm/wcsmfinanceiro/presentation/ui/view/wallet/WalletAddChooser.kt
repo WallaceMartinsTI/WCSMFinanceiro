@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.wcsm.wcsmfinanceiro.presentation.ui.theme.GrayColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PoppinsFontFamily
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PrimaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.SurfaceColor
@@ -32,6 +33,7 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 
 @Composable
 fun WalletAddChooser(
+    createCardAllowed: Boolean,
     onAddWallet: () -> Unit,
     onAddCard: () -> Unit,
     onDismiss: () -> Unit,
@@ -79,15 +81,19 @@ fun WalletAddChooser(
 
             Spacer(Modifier.height(8.dp))
 
+            val backgroundColor = if(createCardAllowed) PrimaryColor else GrayColor
+            val contentColor = if(createCardAllowed) Color.White else Color.White.copy(alpha = 0.6f)
             Row(
                 modifier = Modifier
                     .clickable {
-                        onAddCard()
-                        onDismiss()
+                        if(createCardAllowed) {
+                            onAddCard()
+                            onDismiss()
+                        }
                     }
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(15.dp))
-                    .background(PrimaryColor)
+                    .background(backgroundColor)
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
@@ -95,13 +101,13 @@ fun WalletAddChooser(
                 Icon(
                     imageVector = Icons.Default.CreditCard,
                     contentDescription = "Ícone de cartão.",
-                    tint = Color.White,
+                    tint = contentColor,
                     modifier = Modifier.padding(end = 8.dp)
                 )
 
                 Text(
                     text = "ADICIONAR CARTÃO",
-                    color = Color.White,
+                    color = contentColor,
                     fontFamily = PoppinsFontFamily,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -110,11 +116,25 @@ fun WalletAddChooser(
     }
 }
 
-@Preview
+@Preview(name = "Create card ALLOWED")
 @Composable
-private fun WalletAddChooserPreview() {
+private fun WalletAddChooserAllowedPreview() {
     WCSMFinanceiroTheme(dynamicColor = false) {
         WalletAddChooser(
+            createCardAllowed = true,
+            onAddWallet = {},
+            onAddCard = {},
+            onDismiss = {}
+        )
+    }
+}
+
+@Preview(name = "Create card NOT ALLOWED")
+@Composable
+private fun WalletAddChooserNotAllowedPreview() {
+    WCSMFinanceiroTheme(dynamicColor = false) {
+        WalletAddChooser(
+            createCardAllowed = false,
             onAddWallet = {},
             onAddCard = {},
             onDismiss = {}

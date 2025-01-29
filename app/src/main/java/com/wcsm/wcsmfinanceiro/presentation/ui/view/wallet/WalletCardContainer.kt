@@ -67,13 +67,13 @@ fun WalletCardContainer(
         ) {
             Column {
                 Text(
-                    text = "Gasto",
-                    color = ErrorColor,
+                    text = "Total",
+                    color = OnSurfaceColor,
                     style = customTextStyle
                 )
                 Text(
-                    text = "Total",
-                    color = OnSurfaceColor,
+                    text = "Gasto",
+                    color = ErrorColor,
                     style = customTextStyle
                 )
                 Text(
@@ -85,13 +85,13 @@ fun WalletCardContainer(
 
             Column {
                 Text(
-                    text = card.spent.toBrazilianReal(),
-                    color = ErrorColor,
+                    text = card.limit.toBrazilianReal(),
+                    color = OnSurfaceColor,
                     style = customTextStyle
                 )
                 Text(
-                    text = card.limit.toBrazilianReal(),
-                    color = OnSurfaceColor,
+                    text = card.spent.toBrazilianReal(),
+                    color = ErrorColor,
                     style = customTextStyle
                 )
                 Text(

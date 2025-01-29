@@ -1,6 +1,5 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wcsm.wcsmfinanceiro.data.entity.Wallet
@@ -10,7 +9,6 @@ import com.wcsm.wcsmfinanceiro.domain.model.Response
 import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.GetWalletWithCardsUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.SaveWalletCardUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.SaveWalletUseCase
-import com.wcsm.wcsmfinanceiro.presentation.model.BillState
 import com.wcsm.wcsmfinanceiro.presentation.model.OperationType
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.model.WalletCardState
@@ -21,7 +19,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -165,7 +162,6 @@ class WalletViewModel @Inject constructor(
     val walletsWithCards = _walletsWithCards.asStateFlow()
 
     init {
-        //_walletsWithCards.value = accountsLists
         getWalletWithCards()
     }
 
@@ -304,7 +300,6 @@ class WalletViewModel @Inject constructor(
     }
 
     // WALLET CARD SECTION
-
     fun saveWalletCard(walletCardState: WalletCardState) {
         resetWalletCardStateErrorMessages()
 
@@ -375,7 +370,7 @@ class WalletViewModel @Inject constructor(
 
     private fun validateWalletIdForCreateWalletCard(walletId: Long): Pair<Boolean, String> {
         if(walletId == 0L) {
-            return Pair(false, "Você deve selecionar uma conta.")
+            return Pair(false, "Você deve selecionar uma carteira.")
         }
 
         walletsWithCards.value?.map {
@@ -395,9 +390,9 @@ class WalletViewModel @Inject constructor(
 
     private fun validateWalletCardTitle(title: String): Pair<Boolean, String> {
         return if(title.isBlank()) {
-            Pair(false, "O título não pode ser vazio")
+            Pair(false, "O título não pode ser vazio.")
         } else if(title.length < 3) {
-            Pair(false, "O título é muito curto (min. 3 caracteres)")
+            Pair(false, "O título é muito curto (min. 3 caracteres).")
         } else {
             Pair(true, "")
         }
@@ -414,9 +409,7 @@ class WalletViewModel @Inject constructor(
     }
 
     private fun validateWalletCardSpent(spent: Double): Pair<Boolean, String> {
-        return if(spent == 0.0) {
-            Pair(false, "Você deve informar um valor maior que 0.")
-        } else if(spent < 0) {
+        return if(spent < 0) {
             Pair(false, "Valor inválido.")
         } else {
             Pair(true, "")

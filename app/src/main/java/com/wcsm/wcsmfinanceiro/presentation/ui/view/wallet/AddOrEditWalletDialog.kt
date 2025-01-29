@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -56,6 +57,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.data.entity.Wallet
 import com.wcsm.wcsmfinanceiro.data.entity.WalletCard
+import com.wcsm.wcsmfinanceiro.data.entity.relation.WalletWithCards
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.model.WalletCardState
 import com.wcsm.wcsmfinanceiro.presentation.model.WalletState
@@ -75,7 +77,7 @@ import kotlinx.coroutines.flow.StateFlow
 @Composable
 fun AddOrEditWalletDialog(
     walletStateFlow: StateFlow<WalletState>,
-    walletCardStateFlow: StateFlow<WalletCardState>,
+    walletCards: List<WalletCard>,
     uiStateFlow: StateFlow<UiState>,
     onValueChange: (updatedValue: WalletState) -> Unit,
     onAddWallet: (walletState: WalletState) -> Unit,
@@ -85,7 +87,6 @@ fun AddOrEditWalletDialog(
 ) {
     val uiState by uiStateFlow.collectAsStateWithLifecycle()
     val walletDialogState by walletStateFlow.collectAsStateWithLifecycle()
-    val walletCardDialogState by walletCardStateFlow.collectAsStateWithLifecycle()
 
     val isWalletToEdit by remember { mutableStateOf(walletDialogState.walletId != 0L) }
 
@@ -96,7 +97,11 @@ fun AddOrEditWalletDialog(
     var walletHasCards: Boolean? by remember { mutableStateOf(null) }
 
     LaunchedEffect(Unit) {
-        walletHasCards = walletCardDialogState.walletCardId != 0L
+        walletHasCards = walletCards.isNotEmpty()
+    }
+
+    LaunchedEffect(walletHasCards) {
+        Log.i("#-# TESTE #-#", "walletHasCards: $walletHasCards")
     }
 
     LaunchedEffect(walletDialogState) {
@@ -299,7 +304,7 @@ fun AddOrEditWalletDialog(
                                 fontWeight = FontWeight.SemiBold
                             )
 
-                            val walletCard = WalletCard(
+                            /*val walletCard = WalletCard(
                                 walletId = 1,
                                 walletCardId = 1,
                                 title = "Cartão de Crédito",
@@ -307,7 +312,7 @@ fun AddOrEditWalletDialog(
                                 spent = 1500.00,
                                 available = 3500.00,
                                 blocked = false
-                            )
+                            )*/
 
                             // COLOCAR ONCLICK NO CARTAO PARA AO CLICAR ABRIR O DIALOG
                             // DE ADD/EDIT WalletCard e permitir edição e exclusão
@@ -317,7 +322,7 @@ fun AddOrEditWalletDialog(
                                     .border(1.dp, White06Color, RoundedCornerShape(10.dp))
                                     .padding(8.dp)
                             ) {
-                                items(4) {
+                                items(walletCards) { walletCard ->
                                     WalletCardContainer(
                                         modifier = Modifier.scale(0.9f),
                                         card = walletCard
@@ -370,7 +375,7 @@ fun AddOrEditWalletDialog(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(350.dp)
+                            .height(500.dp)
                             .background(SurfaceColor),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
@@ -394,7 +399,7 @@ private fun AddOrEditWalletDialogPreview() {
         ) {
             AddOrEditWalletDialog(
                 walletStateFlow = walletViewModel.walletStateFlow,
-                walletCardStateFlow = walletViewModel.walletCardStateFlow,
+                walletCards = emptyList(),
                 uiStateFlow = walletViewModel.uiState,
                 onValueChange = {},
                 onAddWallet = {},

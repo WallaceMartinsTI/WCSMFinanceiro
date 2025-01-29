@@ -1,28 +1,19 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet
 
-import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCard
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,13 +23,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,22 +32,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.data.entity.Wallet
 import com.wcsm.wcsmfinanceiro.data.entity.WalletCard
-import com.wcsm.wcsmfinanceiro.data.entity.relation.WalletWithCards
 import com.wcsm.wcsmfinanceiro.presentation.model.OperationType
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
-import com.wcsm.wcsmfinanceiro.presentation.ui.theme.ErrorColor
-import com.wcsm.wcsmfinanceiro.presentation.ui.theme.GrayColor
-import com.wcsm.wcsmfinanceiro.presentation.ui.theme.MoneyGreenColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnSecondaryColor
-import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnSurfaceColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PoppinsFontFamily
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PrimaryColor
-import com.wcsm.wcsmfinanceiro.presentation.ui.theme.SecondaryColor
-import com.wcsm.wcsmfinanceiro.presentation.ui.theme.TertiaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.util.showToastMessage
-import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianReal
 import com.wcsm.wcsmfinanceiro.presentation.util.toWalletState
 
 @Composable
@@ -79,6 +57,8 @@ fun WalletView(
     var showAddOrEditWalletCardDialog by remember { mutableStateOf(false) }
 
     var isLoading by remember { mutableStateOf(uiState.isLoading) }
+
+    var walletCards: List<WalletCard> by remember { mutableStateOf(emptyList()) }
 
     var walletsList: List<Wallet> by remember { mutableStateOf(emptyList()) }
 
@@ -148,6 +128,7 @@ fun WalletView(
                             walletsWithCards = walletsWithCards
                         ) {
                             walletViewModel.updateWalletState(walletsWithCards.wallet.toWalletState())
+                            walletCards = walletsWithCards.walletCards
                             showAddOrEditWalletDialog = true
                         }
                     }
@@ -171,6 +152,7 @@ fun WalletView(
 
         if(showWalletAddChooserDialog) {
             WalletAddChooser(
+                createCardAllowed = walletsList.isNotEmpty(),
                 onAddWallet = { showAddOrEditWalletDialog = true },
                 onAddCard = { showAddOrEditWalletCardDialog = true },
                 onDismiss = { showWalletAddChooserDialog = false }
@@ -180,7 +162,7 @@ fun WalletView(
         if(showAddOrEditWalletDialog) {
             AddOrEditWalletDialog(
                 walletStateFlow = walletViewModel.walletStateFlow,
-                walletCardStateFlow = walletViewModel.walletCardStateFlow,
+                walletCards = walletCards,
                 uiStateFlow = walletViewModel.uiState,
                 onValueChange = { updatedValue ->
                     walletViewModel.updateWalletState(updatedValue)
@@ -193,6 +175,7 @@ fun WalletView(
                 onDismiss = {
                     walletViewModel.resetWalletState()
                     walletViewModel.resetWalletCardState()
+                    walletCards = emptyList()
                     showAddOrEditWalletDialog = false
                 }
             )

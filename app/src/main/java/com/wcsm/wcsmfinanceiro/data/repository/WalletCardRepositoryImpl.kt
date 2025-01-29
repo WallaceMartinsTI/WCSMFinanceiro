@@ -5,13 +5,17 @@ import com.wcsm.wcsmfinanceiro.data.entity.WalletCard
 import com.wcsm.wcsmfinanceiro.domain.model.Response
 import com.wcsm.wcsmfinanceiro.domain.repository.WalletCardRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class WalletCardRepositoryImpl @Inject constructor(
     private val walletCardDao: WalletCardDao
 ) : WalletCardRepository {
-    override suspend fun saveWalletCard(walletCard: WalletCard): Flow<Response<Long>> = flow {
+    override suspend fun saveWalletCard(
+        walletCard: WalletCard
+    ): Flow<Response<Long>> = flow {
         try {
             emit(Response.Loading)
 
@@ -27,7 +31,9 @@ class WalletCardRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateWalletCard(walletCard: WalletCard): Flow<Response<Int>> = flow {
+    override suspend fun updateWalletCard(
+        walletCard: WalletCard
+    ): Flow<Response<Int>> = flow {
         try {
             emit(Response.Loading)
 
@@ -43,7 +49,9 @@ class WalletCardRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun deleteWalletCard(walletCard: WalletCard): Flow<Response<Int>> = flow {
+    override suspend fun deleteWalletCard(
+        walletCard: WalletCard
+    ): Flow<Response<Int>> = flow {
         try {
             emit(Response.Loading)
 

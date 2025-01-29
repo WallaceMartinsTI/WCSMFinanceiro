@@ -1,7 +1,9 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -80,6 +82,8 @@ fun AddOrEditWalletCardDialog(
     var monetaryValueLimit by remember { mutableStateOf("") }
     var monetaryValueSpent by remember { mutableStateOf("") }
 
+    var limit by remember { mutableDoubleStateOf(0.0) }
+    var spent by remember { mutableDoubleStateOf(0.0) }
     var availableAmount by remember { mutableDoubleStateOf(0.0) }
 
     LaunchedEffect(walletCardDialogState) {
@@ -107,7 +111,6 @@ fun AddOrEditWalletCardDialog(
             onValueChange(
                 walletCardDialogState.copy(
                     limit = getDoubleForStringPrice(monetaryValueLimit),
-                    available = (getDoubleForStringPrice(monetaryValueLimit) - getDoubleForStringPrice(monetaryValueSpent))
                 )
             )
         }
@@ -118,7 +121,26 @@ fun AddOrEditWalletCardDialog(
             onValueChange(
                 walletCardDialogState.copy(
                     spent = getDoubleForStringPrice(monetaryValueSpent),
-                    available = (getDoubleForStringPrice(monetaryValueLimit) - getDoubleForStringPrice(monetaryValueSpent))
+                )
+            )
+        }
+    }
+
+    // COMENTAR ESSE LAUNCHED E TESTAR NOVAMENTE
+    LaunchedEffect(monetaryValueLimit, monetaryValueSpent) {
+        limit = getDoubleForStringPrice(monetaryValueLimit)
+        spent = getDoubleForStringPrice(monetaryValueSpent)
+
+        availableAmount = limit - spent
+    }
+
+    LaunchedEffect(limit, spent) {
+        availableAmount = limit - spent
+
+        if(monetaryValueLimit.isNotBlank() && monetaryValueSpent.isNotBlank()) {
+            onValueChange(
+                walletCardDialogState.copy(
+                    available = availableAmount
                 )
             )
         }
@@ -368,6 +390,7 @@ fun AddOrEditWalletCardDialog(
                         tint = White06Color
                     )
                 },
+                enabled = false,
                 readOnly = true,
                 singleLine = true,
             )
