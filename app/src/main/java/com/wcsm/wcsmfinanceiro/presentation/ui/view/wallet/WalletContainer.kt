@@ -72,9 +72,11 @@ fun WalletContainer(
                 ) {
                     items(
                         items = walletsWithCards.walletCards,
-                        key = { walletCard -> walletCard.walletCardId }
+                        key = { it.walletCardId }
                     ) { walletCard ->
-                        WalletCardContainer(card = walletCard)
+                        WalletCardContainer(card = walletCard) {
+                            onWalletClick()
+                        }
                     }
                 }
             }
@@ -114,7 +116,7 @@ private fun WalletContainerPreview() {
             )
         )
 
-        WalletContainer(walletWithCard) {}
+        WalletContainer(walletWithCard, {}) //{}
     }
 }
 
@@ -131,6 +133,6 @@ private fun WalletContainerNoCardsPreview() {
             walletCards = emptyList()
         )
 
-        WalletContainer(walletWithCard) {}
+        WalletContainer(walletWithCard, {}) //{}
     }
 }

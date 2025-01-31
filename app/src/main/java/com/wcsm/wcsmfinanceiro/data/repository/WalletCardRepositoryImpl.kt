@@ -5,9 +5,7 @@ import com.wcsm.wcsmfinanceiro.data.entity.WalletCard
 import com.wcsm.wcsmfinanceiro.domain.model.Response
 import com.wcsm.wcsmfinanceiro.domain.repository.WalletCardRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class WalletCardRepositoryImpl @Inject constructor(

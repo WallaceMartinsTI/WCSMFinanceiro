@@ -93,6 +93,7 @@ fun WalletState.toWallet() : Wallet {
 
 fun WalletCard.toWalletCardState() : WalletCardState {
     return WalletCardState(
+        walletId = this.walletId,
         walletCardId = this.walletCardId,
         title = this.title,
         limit = this.limit,

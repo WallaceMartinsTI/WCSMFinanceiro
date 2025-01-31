@@ -10,8 +10,9 @@ import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsByTextUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.SaveBillUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.UpdateBillUseCase
+import com.wcsm.wcsmfinanceiro.presentation.model.BillOperationType
 import com.wcsm.wcsmfinanceiro.presentation.model.BillState
-import com.wcsm.wcsmfinanceiro.presentation.model.OperationType
+import com.wcsm.wcsmfinanceiro.presentation.model.WalletOperationType
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.util.toBill
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -274,7 +275,7 @@ class BillsViewModel @Inject constructor(
         ),
     )*/
 
-    private val _uiState = MutableStateFlow(UiState())
+    private val _uiState = MutableStateFlow(UiState<BillOperationType>())
     val uiState = _uiState.asStateFlow()
 
     private val _billStateFlow = MutableStateFlow(BillState())
@@ -412,7 +413,7 @@ class BillsViewModel @Inject constructor(
 
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = uiState.value.copy(
-                operationType = OperationType.SAVE
+                operationType = BillOperationType.SAVE
             )
 
             if(isBillStateValid()) {
@@ -465,12 +466,11 @@ class BillsViewModel @Inject constructor(
 
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = uiState.value.copy(
-                operationType = OperationType.UPDATE
+                operationType = BillOperationType.UPDATE
             )
 
             if(isBillStateValid()) {
                 val bill = billState.toBill()
-
                 updateBillUseCase(bill).collect { result ->
                     when(result) {
                         is Response.Loading -> {
@@ -506,7 +506,7 @@ class BillsViewModel @Inject constructor(
     fun deleteBill(billState: BillState) {
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = uiState.value.copy(
-                operationType = OperationType.DELETE
+                operationType = BillOperationType.DELETE
             )
 
             if(isBillStateValid()) {

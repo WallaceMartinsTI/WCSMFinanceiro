@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.NoteAlt
@@ -67,6 +68,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.data.model.BillType
 import com.wcsm.wcsmfinanceiro.data.model.PaymentType
+import com.wcsm.wcsmfinanceiro.presentation.model.BillOperationType
 import com.wcsm.wcsmfinanceiro.presentation.model.BillState
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppDatePicker
@@ -95,7 +97,7 @@ import kotlinx.coroutines.flow.StateFlow
 @Composable
 fun AddOrEditBillDialog(
     billStateFlow: StateFlow<BillState>,
-    uiStateFlow: StateFlow<UiState>,
+    uiStateFlow: StateFlow<UiState<BillOperationType>>,
     onValueChange: (updatedValue: BillState) -> Unit,
     deviceScreenHeight: Dp,
     onAddBill: (billState: BillState) -> Unit,
@@ -494,20 +496,11 @@ fun AddOrEditBillDialog(
                     )
 
                     OutlinedTextField(
-                        value = monetaryValue, //billDialogState.value.toBrazilianReal(),
-                        //value = if(billDialogState.value == 0.0) "" else billDialogState.value.toString(),
+                        value = monetaryValue,
                         onValueChange = { newValue ->
-                            //if(newValue.all { it.isDigit() }) {
-                            /*billModalState = billModalState.copy(
-                                value = newValue.toDoubleOrNull() ?: 0.0
-                            )*/
-                            monetaryValue = newValue
-                            /*onValueChange(
-                                billDialogState.copy(
-                                    value = newValue.toDoubleOrNull() ?: 5.25
-                                )
-                            )*/
-                            //}
+                            if(newValue.all { it.isDigit() }) {
+                                monetaryValue = newValue
+                            }
                         },
                         modifier = Modifier
                             .width(280.dp)
@@ -800,7 +793,7 @@ fun AddOrEditBillDialog(
                             }
 
                             Text(
-                                text = if (isBillToEdit) "ATUALIZAR" else "SALVAR",
+                                text = if (isBillToEdit) "ATUALIZAR CONTA" else "SALVAR CONTA",
                                 color = Color.White,
                                 fontFamily = PoppinsFontFamily,
                                 fontWeight = FontWeight.SemiBold,
@@ -820,9 +813,21 @@ fun AddOrEditBillDialog(
                                 containerColor = ErrorColor
                             )
                         ) {
-                            Text(
-                                text = "EXCLUIR CONTA"
-                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Ícone de lixeira."
+                                )
+
+                                Text(
+                                    text = "EXCLUIR CONTA"
+                                )
+                            }
+
                         }
                     }
                 }

@@ -1,5 +1,5 @@
 package com.wcsm.wcsmfinanceiro.presentation.model
 
-enum class OperationType {
+enum class BillOperationType {
     SAVE, UPDATE, DELETE
 }

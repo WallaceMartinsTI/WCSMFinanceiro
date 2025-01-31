@@ -2,9 +2,13 @@ package com.wcsm.wcsmfinanceiro.di.usecases
 
 import com.wcsm.wcsmfinanceiro.domain.repository.WalletCardRepository
 import com.wcsm.wcsmfinanceiro.domain.repository.WalletRepository
+import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.DeleteWalletCardUseCase
+import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.DeleteWalletUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.GetWalletWithCardsUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.SaveWalletCardUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.SaveWalletUseCase
+import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.UpdateWalletCardUseCase
+import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.UpdateWalletUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,10 +33,38 @@ object WalletUseCasesModule {
     }
 
     @Provides
+    fun provideUpdateWalletUseCase(
+        walletRepository: WalletRepository
+    ) : UpdateWalletUseCase {
+        return UpdateWalletUseCase(walletRepository)
+    }
+
+    @Provides
+    fun provideDeleteWalletUseCase(
+        walletRepository: WalletRepository
+    ) : DeleteWalletUseCase {
+        return DeleteWalletUseCase(walletRepository)
+    }
+
+    @Provides
     fun provideSaveWalletCardUseCase(
         walletCardRepository: WalletCardRepository
     ) : SaveWalletCardUseCase {
         return SaveWalletCardUseCase(walletCardRepository)
+    }
+
+    @Provides
+    fun provideUpdateWalletCardUseCase(
+        walletCardRepository: WalletCardRepository
+    ) : UpdateWalletCardUseCase {
+        return UpdateWalletCardUseCase(walletCardRepository)
+    }
+
+    @Provides
+    fun provideDeleteWalletCardUseCase(
+        walletCardRepository: WalletCardRepository
+    ) : DeleteWalletCardUseCase {
+        return DeleteWalletCardUseCase(walletCardRepository)
     }
 
 }

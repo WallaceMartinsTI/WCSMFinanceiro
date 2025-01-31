@@ -44,7 +44,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.R
-import com.wcsm.wcsmfinanceiro.presentation.model.OperationType
+import com.wcsm.wcsmfinanceiro.presentation.model.BillOperationType
+import com.wcsm.wcsmfinanceiro.presentation.model.WalletOperationType
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.DateRangeFilter
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
@@ -93,14 +94,16 @@ fun BillsView() {
         if(uiState.success) {
             uiState.operationType?.let { operationType ->
                 when(operationType) {
-                    OperationType.SAVE -> {
+                    BillOperationType.SAVE -> {
                         showToastMessage(context, "Conta salva!")
                     }
-                    OperationType.UPDATE -> {
+                    BillOperationType.UPDATE -> {
                         showToastMessage(context, "Conta atualizada!")
+
                     }
-                    OperationType.DELETE -> {
+                    BillOperationType.DELETE -> {
                         showToastMessage(context, "Conta removida!")
+
                     }
                 }
             }

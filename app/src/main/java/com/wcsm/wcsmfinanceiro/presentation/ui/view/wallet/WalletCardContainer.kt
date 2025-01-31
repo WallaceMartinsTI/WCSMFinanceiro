@@ -2,6 +2,7 @@ package com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,7 +36,8 @@ import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianReal
 @Composable
 fun WalletCardContainer(
     card: WalletCard,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onCardClick: (card: WalletCard) -> Unit
 ) {
     val customTextStyle = TextStyle(
         fontFamily = PoppinsFontFamily,
@@ -45,6 +47,7 @@ fun WalletCardContainer(
 
     Column(
         modifier
+            .clickable { onCardClick(card) }
             .clip(RoundedCornerShape(topStart = 15.dp, bottomEnd = 15.dp))
             .border(1.dp, Color.White, RoundedCornerShape(topStart = 15.dp, bottomEnd = 15.dp))
             .width(250.dp)
@@ -118,6 +121,9 @@ private fun WalletCardContainerPreview() {
             blocked = false
         )
 
-        WalletCardContainer(walletCard)
+        WalletCardContainer(
+            card = walletCard,
+            onCardClick = {}
+        )
     }
 }

@@ -1,5 +1,6 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,7 +33,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.data.entity.Wallet
 import com.wcsm.wcsmfinanceiro.data.entity.WalletCard
-import com.wcsm.wcsmfinanceiro.presentation.model.OperationType
+import com.wcsm.wcsmfinanceiro.presentation.model.WalletOperationType
+import com.wcsm.wcsmfinanceiro.presentation.model.WalletType
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnSecondaryColor
@@ -40,6 +42,7 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PoppinsFontFamily
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PrimaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.util.showToastMessage
+import com.wcsm.wcsmfinanceiro.presentation.util.toWalletCardState
 import com.wcsm.wcsmfinanceiro.presentation.util.toWalletState
 
 @Composable
@@ -62,11 +65,16 @@ fun WalletView(
 
     var walletsList: List<Wallet> by remember { mutableStateOf(emptyList()) }
 
+    val walletsWithCardsList = remember(walletsWithCards) { walletsWithCards ?: emptyList() }
+
     LaunchedEffect(walletsWithCards) {
         walletsList = walletsWithCards?.map {
             it.wallet
         } ?: emptyList()
     }
+
+    //CARTÃO NAO ESTA SENDO EXCLUIDO MESMO MOSTRANDO MENSAGEM DE "CARTAO EXCLUIDO"
+    //OLHAR ISSO
 
     LaunchedEffect(uiState) {
         isLoading = uiState.isLoading
@@ -77,15 +85,16 @@ fun WalletView(
 
         if(uiState.success) {
             uiState.operationType?.let { operationType ->
+                val message = getIdealSuccesMessage(operationType)
                 when(operationType) {
-                    OperationType.SAVE -> {
-                        showToastMessage(context, "Carteira salva!")
+                    is WalletOperationType.Save -> {
+                        showToastMessage(context, message)
                     }
-                    OperationType.UPDATE -> {
-                        showToastMessage(context, "Carteira atualizada!")
+                    is WalletOperationType.Update -> {
+                        showToastMessage(context, message)
                     }
-                    OperationType.DELETE -> {
-                        showToastMessage(context, "Carteira removida!")
+                    is WalletOperationType.Delete -> {
+                        showToastMessage(context, message)
                     }
                 }
             }
@@ -121,16 +130,17 @@ fun WalletView(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(
-                        items = walletsWithCards ?: emptyList(),
-                        key = { walletsWithCards -> walletsWithCards.wallet.walletId }
+                        items = walletsWithCardsList,
+                        key = { it.wallet.walletId }
                     ) { walletsWithCards ->
                         WalletContainer(
-                            walletsWithCards = walletsWithCards
-                        ) {
-                            walletViewModel.updateWalletState(walletsWithCards.wallet.toWalletState())
-                            walletCards = walletsWithCards.walletCards
-                            showAddOrEditWalletDialog = true
-                        }
+                            walletsWithCards = walletsWithCards,
+                            onWalletClick = {
+                                walletViewModel.updateWalletState(walletsWithCards.wallet.toWalletState())
+                                walletCards = walletsWithCards.walletCards
+                                showAddOrEditWalletDialog = true
+                            }
+                        )
                     }
                 }
             }
@@ -158,7 +168,11 @@ fun WalletView(
                 onDismiss = { showWalletAddChooserDialog = false }
             )
         }
-        
+
+        Log.i("#-# TESTE #-#", "####################################################")
+        Log.i("#-# TESTE #-#", "WALLET VIEW - walletCards: $walletCards")
+        Log.i("#-# TESTE #-#", "####################################################")
+
         if(showAddOrEditWalletDialog) {
             AddOrEditWalletDialog(
                 walletStateFlow = walletViewModel.walletStateFlow,
@@ -170,12 +184,22 @@ fun WalletView(
                 onAddWallet = { walletState ->
                     walletViewModel.saveWallet(walletState)
                 },
-                onUpdateWallet = {},
-                onDeleteWallet = {},
+                onUpdateWallet = { walletState ->
+                    walletViewModel.updateWallet(walletState)
+                },
+                onDeleteWallet = { walletState ->
+                    walletViewModel.deleteWallet(walletState)
+                },
+                onWalletCardClick = { walletCard ->
+                    walletViewModel.updateWalletCardState(walletCard.toWalletCardState())
+                    showAddOrEditWalletCardDialog = true
+                },
                 onDismiss = {
                     walletViewModel.resetWalletState()
                     walletViewModel.resetWalletCardState()
+
                     walletCards = emptyList()
+
                     showAddOrEditWalletDialog = false
                 }
             )
@@ -192,8 +216,12 @@ fun WalletView(
                 onAddWalletCard = { walletCardState ->
                     walletViewModel.saveWalletCard(walletCardState)
                 },
-                onUpdateWalletCard = {},
-                onDeleteWalletCard = {},
+                onUpdateWalletCard = { walletCardState ->
+                    walletViewModel.updateWalletCard(walletCardState)
+                },
+                onDeleteWalletCard = { walletCardState ->
+                    walletViewModel.deleteWalletCard(walletCardState)
+                },
                 onDismiss = { showAddOrEditWalletCardDialog = false }
             )
         }
@@ -205,5 +233,24 @@ fun WalletView(
 private fun WalletViewPreview() {
     WCSMFinanceiroTheme(dynamicColor = false) {
         WalletView()
+    }
+}
+
+private fun getIdealSuccesMessage(
+    operationType: WalletOperationType,
+) : String {
+    val message = if(operationType.walletType == WalletType.WALLET) "Carteira" else "Cartão"
+    val messageFinalLetter = if(operationType.walletType == WalletType.WALLET) "a" else "o"
+
+    return when(operationType) {
+        is WalletOperationType.Save -> {
+            "$message salv$messageFinalLetter!"
+        }
+        is WalletOperationType.Update -> {
+            "$message atualizad$messageFinalLetter!"
+        }
+        is WalletOperationType.Delete -> {
+            "$message removid$messageFinalLetter!"
+        }
     }
 }

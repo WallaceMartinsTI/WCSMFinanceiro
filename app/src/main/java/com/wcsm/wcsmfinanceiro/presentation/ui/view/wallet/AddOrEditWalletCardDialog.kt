@@ -2,12 +2,13 @@ package com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,10 +19,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -36,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -47,8 +54,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.data.entity.Wallet
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.model.WalletCardState
+import com.wcsm.wcsmfinanceiro.presentation.model.WalletOperationType
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.ErrorColor
+import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnSurfaceColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PoppinsFontFamily
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PrimaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.SurfaceColor
@@ -61,11 +71,12 @@ import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianReal
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddOrEditWalletCardDialog(
     walletsList: List<Wallet>,
     walletCardStateFlow: StateFlow<WalletCardState>,
-    uiStateFlow: StateFlow<UiState>,
+    uiStateFlow: StateFlow<UiState<WalletOperationType>>,
     onValueChange: (updatedValue: WalletCardState) -> Unit,
     onAddWalletCard: (walletCardState: WalletCardState) -> Unit,
     onUpdateWalletCard: (walletCardState: WalletCardState) -> Unit,
@@ -79,6 +90,8 @@ fun AddOrEditWalletCardDialog(
 
     var isModalLoading by remember { mutableStateOf(isWalletCardToEdit) }
 
+    var showConfirmWalletCardDeletionDialog by remember { mutableStateOf(false) }
+
     var monetaryValueLimit by remember { mutableStateOf("") }
     var monetaryValueSpent by remember { mutableStateOf("") }
 
@@ -87,6 +100,7 @@ fun AddOrEditWalletCardDialog(
     var availableAmount by remember { mutableDoubleStateOf(0.0) }
 
     LaunchedEffect(walletCardDialogState) {
+        Log.i("#-# TESTE #-#", "walletCardDialogState: $walletCardDialogState")
         if(isWalletCardToEdit) {
             monetaryValueLimit = walletCardDialogState.limit.toString().replace(".", "")
             monetaryValueSpent = walletCardDialogState.spent.toString().replace(".", "")
@@ -160,8 +174,7 @@ fun AddOrEditWalletCardDialog(
                 modifier = Modifier.fillMaxWidth(),//.padding(bottom = 8.dp),
             ) {
                 Text(
-                    //text = if (bill != null) "EDITAR CONTA" else "ADICIONAR CONTA",
-                    text = "ADICIONAR CARTÃO", // ou Editar
+                    text = if(isWalletCardToEdit) "EDITAR CARTÃO" else "ADICIONAR CARTÃO",
                     modifier = Modifier.align(Alignment.Center).padding(end = 16.dp),
                     color = PrimaryColor,
                     fontFamily = PoppinsFontFamily,
@@ -180,16 +193,18 @@ fun AddOrEditWalletCardDialog(
                 )
             }
 
-            WalletDropdownChooser(
-                wallets = walletsList,
-                isError = walletCardDialogState.walletIdErrorMessage.isNotEmpty(),
-                errorMessage = walletCardDialogState.walletIdErrorMessage
-            ) {  selectedWallet ->
-                onValueChange(
-                    walletCardDialogState.copy(
-                        walletId = selectedWallet.walletId
+            if(!isWalletCardToEdit) {
+                WalletDropdownChooser(
+                    wallets = walletsList,
+                    isError = walletCardDialogState.walletIdErrorMessage.isNotEmpty(),
+                    errorMessage = walletCardDialogState.walletIdErrorMessage
+                ) {  selectedWallet ->
+                    onValueChange(
+                        walletCardDialogState.copy(
+                            walletId = selectedWallet.walletId
+                        )
                     )
-                )
+                }
             }
 
             OutlinedTextField(
@@ -255,8 +270,10 @@ fun AddOrEditWalletCardDialog(
 
             OutlinedTextField(
                 value = monetaryValueLimit,
-                onValueChange = {
-                    monetaryValueLimit = it
+                onValueChange = { newValue ->
+                    if(newValue.all { it.isDigit() }) {
+                        monetaryValueLimit = newValue
+                    }
                 },
                 modifier = Modifier
                     .width(272.dp),
@@ -309,8 +326,10 @@ fun AddOrEditWalletCardDialog(
 
             OutlinedTextField(
                 value = monetaryValueSpent,
-                onValueChange = {
-                    monetaryValueSpent = it
+                onValueChange = { newValue ->
+                    if(newValue.all { it.isDigit() }) {
+                        monetaryValueSpent = newValue
+                    }
                 },
                 modifier = Modifier
                     .width(272.dp),
@@ -395,35 +414,142 @@ fun AddOrEditWalletCardDialog(
                 singleLine = true,
             )
 
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically
+            Spacer(Modifier.height(8.dp))
+
+            Button(
+                onClick = {
+                    Log.i("#-# TESTE #-#", "CLICOU BOTÃO")
+                    Log.i("#-# TESTE #-#", "isWalletCardToEdit: $isWalletCardToEdit")
+                    if(isWalletCardToEdit) {
+                        // UPDATE WALLET CARD
+                        onUpdateWalletCard(walletCardDialogState)
+                    } else {
+                        // NEW WALLET CARD
+                        onAddWalletCard(walletCardDialogState)
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
             ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (isWalletCardToEdit) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Ícone de editar."
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Save,
+                            contentDescription = "Ícone de salvar."
+                        )
+                    }
+                    Text(
+                        text = if(isWalletCardToEdit) "ATUALIZAR CARTÃO" else "SALVAR CARTÃO",
+                        color = Color.White,
+                        fontFamily = PoppinsFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+            }
+
+            if(isWalletCardToEdit) {
                 Button(
-                    onClick = { onDismiss() },
+                    onClick = {
+                        showConfirmWalletCardDeletionDialog = true
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = ErrorColor
                     )
                 ) {
-                    Text(
-                        text = "CANCELAR"
-                    )
-                }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Cancel,
+                            contentDescription = "Ícone de cancelar."
+                        )
 
-                Button(
-                    onClick = {
-                        if(isWalletCardToEdit) {
-                            // UPDATE WALLET CARD
-                        } else {
-                            // NEW WALLET CARD
-                            onAddWalletCard(walletCardDialogState)
-                        }
+                        Text(
+                            text = "EXCLUIR CARTÃO",
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
                     }
+                }
+            }
+        }
+
+        if(isModalLoading) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(500.dp)
+                    .background(SurfaceColor),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                AppLoader(modifier = Modifier.size(80.dp))
+            }
+        }
+
+        if(showConfirmWalletCardDeletionDialog) {
+            BasicAlertDialog(
+                onDismissRequest = { showConfirmWalletCardDeletionDialog = false },
+                modifier = Modifier
+                    .clip(RoundedCornerShape(15.dp))
+                    .border(1.dp, OnSurfaceColor, RoundedCornerShape(15.dp))
+                    .background(SurfaceColor)
+                    .padding(8.dp)
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "ADICIONAR"
+                        text = "EXCLUIR CARTÃO",
+                        color = PrimaryColor,
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.bodyMedium
                     )
+
+                    Text(
+                        text = "Tem certeza que deseja excluir o cartão: ${walletCardDialogState.title}",
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Button(
+                            onClick = {
+                                onDeleteWalletCard(walletCardDialogState)
+                            },
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = ErrorColor
+                            )
+                        ) {
+                            Text("EXCLUIR")
+                        }
+
+                        Button(
+                            onClick = { showConfirmWalletCardDeletionDialog = false },
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        ) {
+                            Text("CANCELAR")
+                        }
+                    }
                 }
             }
         }

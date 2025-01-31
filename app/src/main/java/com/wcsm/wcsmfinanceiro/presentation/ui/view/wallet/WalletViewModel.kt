@@ -1,18 +1,24 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wcsm.wcsmfinanceiro.data.entity.Wallet
 import com.wcsm.wcsmfinanceiro.data.entity.WalletCard
 import com.wcsm.wcsmfinanceiro.data.entity.relation.WalletWithCards
 import com.wcsm.wcsmfinanceiro.domain.model.Response
+import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.DeleteWalletCardUseCase
+import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.DeleteWalletUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.GetWalletWithCardsUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.SaveWalletCardUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.SaveWalletUseCase
-import com.wcsm.wcsmfinanceiro.presentation.model.OperationType
+import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.UpdateWalletCardUseCase
+import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.UpdateWalletUseCase
+import com.wcsm.wcsmfinanceiro.presentation.model.WalletOperationType
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.model.WalletCardState
 import com.wcsm.wcsmfinanceiro.presentation.model.WalletState
+import com.wcsm.wcsmfinanceiro.presentation.model.WalletType
 import com.wcsm.wcsmfinanceiro.presentation.util.toWallet
 import com.wcsm.wcsmfinanceiro.presentation.util.toWalletCard
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,7 +32,11 @@ import javax.inject.Inject
 class WalletViewModel @Inject constructor(
     private val getWalletWithCardsUseCase: GetWalletWithCardsUseCase,
     private val saveWalletUseCase: SaveWalletUseCase,
-    private val saveWalletCardUseCase: SaveWalletCardUseCase
+    private val updateWalletUseCase: UpdateWalletUseCase,
+    private val deleteWalletUseCase: DeleteWalletUseCase,
+    private val saveWalletCardUseCase: SaveWalletCardUseCase,
+    private val updateWalletCardUseCase: UpdateWalletCardUseCase,
+    private val deleteWalletCardUseCase: DeleteWalletCardUseCase
 ) : ViewModel() {
     private val accountsLists = listOf(
         WalletWithCards(
@@ -149,7 +159,7 @@ class WalletViewModel @Inject constructor(
         )
     )
 
-    private val _uiState = MutableStateFlow(UiState())
+    private val _uiState = MutableStateFlow(UiState<WalletOperationType>())
     val uiState = _uiState.asStateFlow()
 
     private val _walletStateFlow = MutableStateFlow(WalletState())
@@ -185,7 +195,7 @@ class WalletViewModel @Inject constructor(
         _uiState.value = UiState()
     }
 
-    private fun getWalletWithCards() {
+    fun getWalletWithCards() {
         viewModelScope.launch(Dispatchers.IO) {
             getWalletWithCardsUseCase().collect { result ->
                 when(result) {
@@ -219,12 +229,92 @@ class WalletViewModel @Inject constructor(
 
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = uiState.value.copy(
-                operationType = OperationType.SAVE
+                operationType = WalletOperationType.Save(WalletType.WALLET)
             )
 
             if(isWalletStateValid()) {
                 val wallet = walletState.toWallet()
                 saveWalletUseCase(wallet).collect { result ->
+                    when(result) {
+                        is Response.Loading -> {
+                            _uiState.value = uiState.value.copy(
+                                isLoading = false,
+                            )
+                        }
+                        is Response.Error -> {
+                            // SHOW ERROR MESSAGE result.message
+                            _uiState.value = uiState.value.copy(
+                                isLoading = false,
+                                error = result.message
+                            )
+                        }
+                        is Response.Success -> {
+                            _walletStateFlow.value = WalletState()
+
+                            _uiState.value = uiState.value.copy(
+                                isLoading = false,
+                                success = true
+                            )
+
+                            getWalletWithCards()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun updateWallet(walletState: WalletState) {
+        resetWalletStateErrorMessages()
+
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.value = uiState.value.copy(
+                operationType = WalletOperationType.Update(WalletType.WALLET)
+            )
+
+            if(isWalletStateValid()) {
+                val wallet = walletState.toWallet()
+                updateWalletUseCase(wallet).collect { result ->
+                    when(result) {
+                        is Response.Loading -> {
+                            _uiState.value = uiState.value.copy(
+                                isLoading = false,
+                            )
+                        }
+                        is Response.Error -> {
+                            // SHOW ERROR MESSAGE result.message
+                            _uiState.value = uiState.value.copy(
+                                isLoading = false,
+                                error = result.message
+                            )
+                        }
+                        is Response.Success -> {
+                            _walletStateFlow.value = WalletState()
+
+                            _uiState.value = uiState.value.copy(
+                                isLoading = false,
+                                success = true
+                            )
+
+                            getWalletWithCards()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun deleteWallet(walletState: WalletState) {
+        resetWalletStateErrorMessages()
+
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.value = uiState.value.copy(
+                operationType = WalletOperationType.Delete(WalletType.WALLET)
+            )
+
+            if(isWalletStateValid()) {
+                val wallet = walletState.toWallet()
+                deleteWalletUseCase(wallet).collect { result ->
                     when(result) {
                         is Response.Loading -> {
                             _uiState.value = uiState.value.copy(
@@ -262,8 +352,6 @@ class WalletViewModel @Inject constructor(
             )
         )
     }
-
-
 
     private fun isWalletStateValid(): Boolean {
         val isTitleValid = validateWalletTitle(walletStateFlow.value.title)
@@ -305,12 +393,96 @@ class WalletViewModel @Inject constructor(
 
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = uiState.value.copy(
-                operationType = OperationType.SAVE
+                operationType = WalletOperationType.Save(WalletType.WALLET_CARD)
             )
 
             if(isWalletCardStateValid()) {
                 val walletCard = walletCardState.toWalletCard()
                 saveWalletCardUseCase(walletCard).collect { result ->
+                    when(result) {
+                        is Response.Loading -> {
+                            _uiState.value = uiState.value.copy(
+                                isLoading = false,
+                            )
+                        }
+                        is Response.Error -> {
+                            // SHOW ERROR MESSAGE result.message
+                            _uiState.value = uiState.value.copy(
+                                isLoading = false,
+                                error = result.message
+                            )
+                        }
+                        is Response.Success -> {
+                            _walletCardStateFlow.value = WalletCardState()
+
+                            _uiState.value = uiState.value.copy(
+                                isLoading = false,
+                                success = true
+                            )
+
+                            getWalletWithCards()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun updateWalletCard(walletCardState: WalletCardState) {
+        resetWalletCardStateErrorMessages()
+
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.value = uiState.value.copy(
+                operationType = WalletOperationType.Update(WalletType.WALLET_CARD)
+            )
+
+            if(isWalletCardStateValid()) {
+                val walletCard = walletCardState.toWalletCard()
+                updateWalletCardUseCase(walletCard).collect { result ->
+                    when(result) {
+                        is Response.Loading -> {
+                            _uiState.value = uiState.value.copy(
+                                isLoading = false,
+                            )
+                        }
+                        is Response.Error -> {
+                            // SHOW ERROR MESSAGE result.message
+                            _uiState.value = uiState.value.copy(
+                                isLoading = false,
+                                error = result.message
+                            )
+                        }
+                        is Response.Success -> {
+                            _walletCardStateFlow.value = WalletCardState()
+
+                            _uiState.value = uiState.value.copy(
+                                isLoading = false,
+                                success = true
+                            )
+
+                            getWalletWithCards()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun deleteWalletCard(walletCardState: WalletCardState) {
+        resetWalletCardStateErrorMessages()
+
+        Log.i("#-# TESTE #-#", "Chamou VIEWMODEL deleteWalletCard")
+        Log.i("#-# TESTE #-#", "walletCardState: $walletCardState")
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.value = uiState.value.copy(
+                operationType = WalletOperationType.Delete(WalletType.WALLET_CARD)
+            )
+
+            if(isWalletCardStateValid()) {
+                val walletCard = walletCardState.toWalletCard()
+                Log.i("#-# TESTE #-#", "isValid e walletCard: $walletCard")
+                deleteWalletCardUseCase(walletCard).collect { result ->
+                    Log.i("#-# TESTE #-#", "result: $result")
                     when(result) {
                         is Response.Loading -> {
                             _uiState.value = uiState.value.copy(
