@@ -388,6 +388,14 @@ class WalletViewModel @Inject constructor(
     }
 
     // WALLET CARD SECTION
+    fun getWalletCardsByWallet(walletId: Long) : List<WalletCard> {
+        val wallets = walletsWithCards.value?.filter {
+            it.wallet.walletId == walletId
+        }
+
+        return wallets?.get(0)?.walletCards ?: emptyList()
+    }
+
     fun saveWalletCard(walletCardState: WalletCardState) {
         resetWalletCardStateErrorMessages()
 

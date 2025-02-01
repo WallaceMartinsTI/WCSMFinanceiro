@@ -1,6 +1,7 @@
 package com.wcsm.wcsmfinanceiro.presentation.util
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import com.wcsm.wcsmfinanceiro.data.model.BillType
 import com.wcsm.wcsmfinanceiro.data.model.PaymentType
@@ -19,6 +20,21 @@ fun getFormattedTags(tagsDividedByComma: String) : List<String> {
 
 fun showToastMessage(context: Context, message: String) {
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+}
+
+fun fixMonetaryValueByExistentOwner(value: String) : String {
+    var result = value
+    return try {
+        val decimalBalance = result.split(".")
+
+        if(decimalBalance[1].length != 2) {
+            result = "${result}0"
+        }
+        result
+    } catch (e: Exception) {
+        e.printStackTrace()
+        result
+    }
 }
 
 fun getDoubleForStringPrice(price: String) : Double {

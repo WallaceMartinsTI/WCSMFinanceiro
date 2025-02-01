@@ -1,6 +1,5 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -72,9 +71,6 @@ fun WalletView(
             it.wallet
         } ?: emptyList()
     }
-
-    //CARTÃO NAO ESTA SENDO EXCLUIDO MESMO MOSTRANDO MENSAGEM DE "CARTAO EXCLUIDO"
-    //OLHAR ISSO
 
     LaunchedEffect(uiState) {
         isLoading = uiState.isLoading
@@ -169,10 +165,6 @@ fun WalletView(
             )
         }
 
-        Log.i("#-# TESTE #-#", "####################################################")
-        Log.i("#-# TESTE #-#", "WALLET VIEW - walletCards: $walletCards")
-        Log.i("#-# TESTE #-#", "####################################################")
-
         if(showAddOrEditWalletDialog) {
             AddOrEditWalletDialog(
                 walletStateFlow = walletViewModel.walletStateFlow,
@@ -193,6 +185,9 @@ fun WalletView(
                 onWalletCardClick = { walletCard ->
                     walletViewModel.updateWalletCardState(walletCard.toWalletCardState())
                     showAddOrEditWalletCardDialog = true
+                },
+                onUpdateOrDeleteWalletCard = { walletId ->
+                    walletCards = walletViewModel.getWalletCardsByWallet(walletId)
                 },
                 onDismiss = {
                     walletViewModel.resetWalletState()

@@ -68,8 +68,8 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
 import com.wcsm.wcsmfinanceiro.presentation.util.CurrencyVisualTransformation
 import com.wcsm.wcsmfinanceiro.presentation.util.getDoubleForStringPrice
+import com.wcsm.wcsmfinanceiro.presentation.util.fixMonetaryValueByExistentOwner
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,6 +83,7 @@ fun AddOrEditWalletDialog(
     onUpdateWallet: (walletState: WalletState) -> Unit,
     onDeleteWallet: (walletState: WalletState) -> Unit,
     onWalletCardClick: (card: WalletCard) -> Unit,
+    onUpdateOrDeleteWalletCard: (walletId: Long) -> Unit,
     onDismiss: () -> Unit
 ) {
     val uiState by uiStateFlow.collectAsStateWithLifecycle()
@@ -98,29 +99,52 @@ fun AddOrEditWalletDialog(
 
     var walletHasCards: Boolean? by remember { mutableStateOf(null) }
 
-    Log.i("#-# TESTE #-#", "####################################################")
-    Log.i("#-# TESTE #-#", "ADD OR EDIT WALLET DIALOG - walletCards: $walletCards")
-    Log.i("#-# TESTE #-#", "####################################################")
-
-    var cardsByWallet by remember { mutableStateOf(walletCards) }
-
     LaunchedEffect(Unit) {
         walletHasCards = walletCards.isNotEmpty()
-    }
 
-    LaunchedEffect(walletDialogState) {
         if(isWalletToEdit) {
-            monetaryValue = walletDialogState.balance.toString().replace(".", "")
+            Log.i("#-# TESTE #-#", "ANTES - monetaryValue: $monetaryValue") // 1500.0
+            //monetaryValue = walletDialogState.balance.toString().replace(".", "")
+
+            // NO BANCO 100.0 - 9999999.99
+            monetaryValue = walletDialogState.balance.toString() // "100.0" -> [100, 0]
+
+            //REPLICAR LINHA ABAIXO PARA TODAS AS TELAS QUE USAM MONETARY VALUE
+            monetaryValue = fixMonetaryValueByExistentOwner(monetaryValue).replace(".", "")
+
+            Log.i("#-# TESTE #-#", "DEPOIS - monetaryValue: $monetaryValue") // 15000
 
             delay(1500)
-
             isModalLoading = false
         }
     }
 
-    LaunchedEffect(cardsByWallet) {
-        Log.i("#-# TESTE #-#", "_________________________________________")
-        Log.i("#-# TESTE #-#", "cardsByWallet: $cardsByWallet")
+    LaunchedEffect(walletDialogState) {
+        /*if(isWalletToEdit) {// && !valuesToEditAlreadySetted) {
+            Log.i("#-# TESTE #-#", "ANTES - monetaryValue: $monetaryValue") // 1500.0
+            monetaryValue = walletDialogState.balance.toString().replace(".", "")
+            Log.i("#-# TESTE #-#", "DEPOIS - monetaryValue: $monetaryValue") // 15000
+            delay(1500)
+
+            isModalLoading = false
+
+            //valuesToEditAlreadySetted = true
+        }*/
+
+        Log.i("#-# TESTE #-#", "walletDialogState: $walletDialogState")
+    }
+
+    LaunchedEffect(monetaryValue) {
+        Log.i("#-# TESTE #-#", "monetaryValue: $monetaryValue")
+
+        if(monetaryValue.isNotBlank()) {
+            Log.i("#-# TESTE #-#", "Vai chamar OnChangeNoBalance")
+            onValueChange(
+                walletDialogState.copy(
+                    balance = getDoubleForStringPrice(monetaryValue)
+                )
+            )
+        }
     }
 
     LaunchedEffect(uiState) {
@@ -135,18 +159,8 @@ fun AddOrEditWalletDialog(
                 (walletOperationType is WalletOperationType.Delete ||
                 walletOperationType is WalletOperationType.Update)
             ) {
-                Log.i("#-# TESTE #-#", "++++++++++ ENTROOOU +++++++++++")
+                onUpdateOrDeleteWalletCard(walletDialogState.walletId)
             }
-        }
-    }
-
-    LaunchedEffect(monetaryValue) {
-        if(monetaryValue.isNotBlank()) {
-            onValueChange(
-                walletDialogState.copy(
-                    balance = getDoubleForStringPrice(monetaryValue)
-                )
-            )
         }
     }
 
@@ -341,7 +355,7 @@ fun AddOrEditWalletDialog(
                                         onCardClick = { onWalletCardClick(walletCard) }
                                     )
                                 }*/
-                                items(cardsByWallet) { walletCard ->
+                                items(walletCards) { walletCard ->
                                     WalletCardContainer(
                                         modifier = Modifier.scale(0.9f),
                                         card = walletCard,
@@ -509,6 +523,7 @@ private fun AddOrEditWalletDialogPreview() {
                 onUpdateWallet = {},
                 onDeleteWallet = {},
                 onWalletCardClick = {},
+                onUpdateOrDeleteWalletCard = {},
                 onDismiss = {}
             )
         }
