@@ -1,7 +1,6 @@
 package com.wcsm.wcsmfinanceiro.presentation.util
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import com.wcsm.wcsmfinanceiro.data.model.BillType
 import com.wcsm.wcsmfinanceiro.data.model.PaymentType
@@ -22,8 +21,8 @@ fun showToastMessage(context: Context, message: String) {
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }
 
-fun fixMonetaryValueByExistentOwner(value: String) : String {
-    var result = value
+fun formatMonetaryValue(monetaryValue: String) : String {
+    var result = monetaryValue
     return try {
         val decimalBalance = result.split(".")
 

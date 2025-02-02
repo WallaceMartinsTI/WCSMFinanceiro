@@ -58,6 +58,7 @@ import com.wcsm.wcsmfinanceiro.presentation.model.WalletOperationType
 import com.wcsm.wcsmfinanceiro.presentation.model.WalletState
 import com.wcsm.wcsmfinanceiro.presentation.model.WalletType
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.MonetaryInputField
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.ErrorColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnSurfaceColor
@@ -68,7 +69,7 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
 import com.wcsm.wcsmfinanceiro.presentation.util.CurrencyVisualTransformation
 import com.wcsm.wcsmfinanceiro.presentation.util.getDoubleForStringPrice
-import com.wcsm.wcsmfinanceiro.presentation.util.fixMonetaryValueByExistentOwner
+import com.wcsm.wcsmfinanceiro.presentation.util.formatMonetaryValue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 
@@ -93,8 +94,6 @@ fun AddOrEditWalletDialog(
 
     var isModalLoading by remember { mutableStateOf(isWalletToEdit) }
 
-    var monetaryValue by remember { mutableStateOf("") }
-
     var showConfirmWalletDeletionDialog by remember { mutableStateOf(false) }
 
     var walletHasCards: Boolean? by remember { mutableStateOf(null) }
@@ -103,47 +102,8 @@ fun AddOrEditWalletDialog(
         walletHasCards = walletCards.isNotEmpty()
 
         if(isWalletToEdit) {
-            Log.i("#-# TESTE #-#", "ANTES - monetaryValue: $monetaryValue") // 1500.0
-            //monetaryValue = walletDialogState.balance.toString().replace(".", "")
-
-            // NO BANCO 100.0 - 9999999.99
-            monetaryValue = walletDialogState.balance.toString() // "100.0" -> [100, 0]
-
-            //REPLICAR LINHA ABAIXO PARA TODAS AS TELAS QUE USAM MONETARY VALUE
-            monetaryValue = fixMonetaryValueByExistentOwner(monetaryValue).replace(".", "")
-
-            Log.i("#-# TESTE #-#", "DEPOIS - monetaryValue: $monetaryValue") // 15000
-
             delay(1500)
             isModalLoading = false
-        }
-    }
-
-    LaunchedEffect(walletDialogState) {
-        /*if(isWalletToEdit) {// && !valuesToEditAlreadySetted) {
-            Log.i("#-# TESTE #-#", "ANTES - monetaryValue: $monetaryValue") // 1500.0
-            monetaryValue = walletDialogState.balance.toString().replace(".", "")
-            Log.i("#-# TESTE #-#", "DEPOIS - monetaryValue: $monetaryValue") // 15000
-            delay(1500)
-
-            isModalLoading = false
-
-            //valuesToEditAlreadySetted = true
-        }*/
-
-        Log.i("#-# TESTE #-#", "walletDialogState: $walletDialogState")
-    }
-
-    LaunchedEffect(monetaryValue) {
-        Log.i("#-# TESTE #-#", "monetaryValue: $monetaryValue")
-
-        if(monetaryValue.isNotBlank()) {
-            Log.i("#-# TESTE #-#", "Vai chamar OnChangeNoBalance")
-            onValueChange(
-                walletDialogState.copy(
-                    balance = getDoubleForStringPrice(monetaryValue)
-                )
-            )
         }
     }
 
@@ -267,65 +227,20 @@ fun AddOrEditWalletDialog(
                         ),
                     )
 
-                    OutlinedTextField(
-                        value = monetaryValue,
-                        onValueChange = { newValue ->
-                            if(newValue.all { it.isDigit() }) {
-                                monetaryValue = newValue
-                            }
-                        },
-                        modifier = Modifier
-                            .width(280.dp),
-                        //.focusRequester(focusRequester[0]),
-                        label = {
-                            Text(
-                                text = "Saldo*",
-                                style = MaterialTheme.typography.labelMedium
-                            )
-                        },
-                        placeholder = {
-                            Text(
-                                text = "Digite o valor que você tem nesta carteira"
-                            )
-                        },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.AttachMoney,
-                                contentDescription = "Ícone de dinheiro",
-                                tint = White06Color
-                            )
-                        },
-                        trailingIcon = {
-                            /*if (billModalState.origin.isNotEmpty()) {
-                                Icon(
-                                    imageVector = Icons.Default.Clear,
-                                    contentDescription = "Ícone de x",
-                                    modifier = Modifier
-                                        .clickable {
-                                            billModalState = billModalState.copy(
-                                                origin = ""
-                                            )
-                                            focusRequester[0].requestFocus()
-                                        },
-                                    tint = White06Color
-                                )
-                            }*/
-                        },
-                        singleLine = true,
+                    MonetaryInputField(
+                        label = "Saldo*",
+                        alreadyExistsDoubleValue = isWalletToEdit,
+                        alreadyDoubleValue = walletDialogState.balance,
                         isError = walletDialogState.balanceErrorMessage.isNotEmpty(),
-                        supportingText = {
-                            if(walletDialogState.balanceErrorMessage.isNotEmpty()) {
-                                Text(
-                                    text = walletDialogState.balanceErrorMessage,
-                                    fontFamily = PoppinsFontFamily
+                        errorMessage = walletDialogState.balanceErrorMessage,
+                        onMonetaryValueChange = { doubleMonetaryValue ->
+                            onValueChange(
+                                walletDialogState.copy(
+                                    balance = doubleMonetaryValue
                                 )
-                            }
+                            )
                         },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Done,
-                        ),
-                        visualTransformation = CurrencyVisualTransformation()
+                        modifier = Modifier.width(280.dp)
                     )
 
                     if(walletHasCards == true) {

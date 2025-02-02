@@ -39,7 +39,7 @@ class HelpersTest {
         )
 
         valuesToTest.forEach { values ->
-            val fixedValue = fixMonetaryValueByExistentOwner(values.first)
+            val fixedValue = formatMonetaryValue(values.first)
             assertEquals(values.second, fixedValue)
         }
     }

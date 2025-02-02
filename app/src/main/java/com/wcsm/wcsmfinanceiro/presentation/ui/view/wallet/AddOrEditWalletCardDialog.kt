@@ -56,6 +56,7 @@ import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.model.WalletCardState
 import com.wcsm.wcsmfinanceiro.presentation.model.WalletOperationType
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.MonetaryInputField
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.ErrorColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnSurfaceColor
@@ -66,6 +67,7 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.bills.WalletDropdownChooser
 import com.wcsm.wcsmfinanceiro.presentation.util.CurrencyVisualTransformation
+import com.wcsm.wcsmfinanceiro.presentation.util.formatMonetaryValue
 import com.wcsm.wcsmfinanceiro.presentation.util.getDoubleForStringPrice
 import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianReal
 import kotlinx.coroutines.delay
@@ -92,18 +94,10 @@ fun AddOrEditWalletCardDialog(
 
     var showConfirmWalletCardDeletionDialog by remember { mutableStateOf(false) }
 
-    var monetaryValueLimit by remember { mutableStateOf("") }
-    var monetaryValueSpent by remember { mutableStateOf("") }
-
-    var limit by remember { mutableDoubleStateOf(0.0) }
-    var spent by remember { mutableDoubleStateOf(0.0) }
     var availableAmount by remember { mutableDoubleStateOf(0.0) }
 
-    LaunchedEffect(walletCardDialogState) {
-        Log.i("#-# TESTE #-#", "walletCardDialogState: $walletCardDialogState")
+    LaunchedEffect(Unit) {
         if(isWalletCardToEdit) {
-            monetaryValueLimit = walletCardDialogState.limit.toString().replace(".", "")
-            monetaryValueSpent = walletCardDialogState.spent.toString().replace(".", "")
             availableAmount = walletCardDialogState.available
 
             delay(1500)
@@ -112,51 +106,25 @@ fun AddOrEditWalletCardDialog(
         }
     }
 
+    LaunchedEffect(walletCardDialogState.limit, walletCardDialogState.spent) {
+        val limit = walletCardDialogState.limit
+        val spent = walletCardDialogState.spent
+        availableAmount = limit - spent
+    }
+
+    LaunchedEffect(availableAmount) {
+        onValueChange(
+            walletCardDialogState.copy(
+                available = availableAmount
+            )
+        )
+    }
+
     LaunchedEffect(uiState) {
         uiState.operationType?.let {
             if(uiState.success) {
                 onDismiss()
             }
-        }
-    }
-
-    LaunchedEffect(monetaryValueLimit) {
-        if(monetaryValueLimit.isNotBlank()) {
-            onValueChange(
-                walletCardDialogState.copy(
-                    limit = getDoubleForStringPrice(monetaryValueLimit),
-                )
-            )
-        }
-    }
-
-    LaunchedEffect(monetaryValueSpent) {
-        if(monetaryValueSpent.isNotBlank()) {
-            onValueChange(
-                walletCardDialogState.copy(
-                    spent = getDoubleForStringPrice(monetaryValueSpent),
-                )
-            )
-        }
-    }
-
-    // COMENTAR ESSE LAUNCHED E TESTAR NOVAMENTE
-    LaunchedEffect(monetaryValueLimit, monetaryValueSpent) {
-        limit = getDoubleForStringPrice(monetaryValueLimit)
-        spent = getDoubleForStringPrice(monetaryValueSpent)
-
-        availableAmount = limit - spent
-    }
-
-    LaunchedEffect(limit, spent) {
-        availableAmount = limit - spent
-
-        if(monetaryValueLimit.isNotBlank() && monetaryValueSpent.isNotBlank()) {
-            onValueChange(
-                walletCardDialogState.copy(
-                    available = availableAmount
-                )
-            )
         }
     }
 
@@ -268,121 +236,36 @@ fun AddOrEditWalletCardDialog(
                 ),
             )
 
-            OutlinedTextField(
-                value = monetaryValueLimit,
-                onValueChange = { newValue ->
-                    if(newValue.all { it.isDigit() }) {
-                        monetaryValueLimit = newValue
-                    }
-                },
-                modifier = Modifier
-                    .width(272.dp),
-                //.focusRequester(focusRequester[0]),
-                label = {
-                    Text(
-                        text = "Limite do Cartão*",
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.AttachMoney,
-                        contentDescription = "Ícone de dinheiro",
-                        tint = White06Color
-                    )
-                },
-                trailingIcon = {
-                    /*if (billModalState.origin.isNotEmpty()) {
-                        Icon(
-                            imageVector = Icons.Default.Clear,
-                            contentDescription = "Ícone de x",
-                            modifier = Modifier
-                                .clickable {
-                                    billModalState = billModalState.copy(
-                                        origin = ""
-                                    )
-                                    focusRequester[0].requestFocus()
-                                },
-                            tint = White06Color
-                        )
-                    }*/
-                },
-                singleLine = true,
+            MonetaryInputField(
+                label = "Limite do Cartão*",
+                alreadyExistsDoubleValue = isWalletCardToEdit,
+                alreadyDoubleValue = walletCardDialogState.limit,
                 isError = walletCardDialogState.limitErrorMessage.isNotEmpty(),
-                supportingText = {
-                    if(walletCardDialogState.limitErrorMessage.isNotEmpty()) {
-                        Text(
-                            text = walletCardDialogState.limitErrorMessage,
-                            fontFamily = PoppinsFontFamily
+                errorMessage = walletCardDialogState.limitErrorMessage,
+                onMonetaryValueChange = { doubleMonetaryValue ->
+                    onValueChange(
+                        walletCardDialogState.copy(
+                            limit = doubleMonetaryValue
                         )
-                    }
+                    )
                 },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Next
-                ),
-                visualTransformation = CurrencyVisualTransformation()
+                modifier = Modifier.width(272.dp)
             )
 
-            OutlinedTextField(
-                value = monetaryValueSpent,
-                onValueChange = { newValue ->
-                    if(newValue.all { it.isDigit() }) {
-                        monetaryValueSpent = newValue
-                    }
-                },
-                modifier = Modifier
-                    .width(272.dp),
-                //.focusRequester(focusRequester[0]),
-                label = {
-                    Text(
-                        text = "Gasto*",
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                },
-                placeholder = {
-                    Text(
-                        text = "Digite o título da carteiraa"
-                    )
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.AttachMoney,
-                        contentDescription = "Ícone de dinheiro",
-                        tint = White06Color
-                    )
-                },
-                trailingIcon = {
-                    /*if (billModalState.origin.isNotEmpty()) {
-                        Icon(
-                            imageVector = Icons.Default.Clear,
-                            contentDescription = "Ícone de x",
-                            modifier = Modifier
-                                .clickable {
-                                    billModalState = billModalState.copy(
-                                        origin = ""
-                                    )
-                                    focusRequester[0].requestFocus()
-                                },
-                            tint = White06Color
-                        )
-                    }*/
-                },
-                singleLine = true,
+            MonetaryInputField(
+                label = "Gasto*",
+                alreadyExistsDoubleValue = isWalletCardToEdit,
+                alreadyDoubleValue = walletCardDialogState.spent,
                 isError = walletCardDialogState.spentErrorMessage.isNotEmpty(),
-                supportingText = {
-                    if(walletCardDialogState.spentErrorMessage.isNotEmpty()) {
-                        Text(
-                            text = walletCardDialogState.spentErrorMessage,
-                            fontFamily = PoppinsFontFamily
+                errorMessage = walletCardDialogState.spentErrorMessage,
+                onMonetaryValueChange = { doubleMonetaryValue ->
+                    onValueChange(
+                        walletCardDialogState.copy(
+                            spent = doubleMonetaryValue
                         )
-                    }
+                    )
                 },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done
-                ),
-                visualTransformation = CurrencyVisualTransformation()
+                modifier = Modifier.width(272.dp)
             )
 
             OutlinedTextField(

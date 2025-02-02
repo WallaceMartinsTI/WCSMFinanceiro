@@ -85,6 +85,7 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
 import com.wcsm.wcsmfinanceiro.presentation.util.CurrencyVisualTransformation
 import com.wcsm.wcsmfinanceiro.presentation.util.brazilianDateToTimeInMillis
+import com.wcsm.wcsmfinanceiro.presentation.util.formatMonetaryValue
 import com.wcsm.wcsmfinanceiro.presentation.util.getBillTypeFromString
 import com.wcsm.wcsmfinanceiro.presentation.util.getDoubleForStringPrice
 import com.wcsm.wcsmfinanceiro.presentation.util.getFormattedTags
@@ -135,19 +136,20 @@ fun AddOrEditBillDialog(
 
     LaunchedEffect(Unit) {
         billHasTag = billDialogState.tags.isNotEmpty()
-    }
 
-    LaunchedEffect(billDialogState) {
         if (isBillToEdit) {
             selectedDate = billDialogState.date.toBrazilianDateString()
             selectedDueDate = billDialogState.dueDate.toBrazilianDateString()
 
-            monetaryValue = billDialogState.value.toString().replace(".", "")
+            monetaryValue = billDialogState.value.toString()
+            monetaryValue = formatMonetaryValue(monetaryValue).replace(".", "")
 
             delay(1500)
             isModalLoading = false
         }
+    }
 
+    LaunchedEffect(billDialogState) {
         if(billDialogState.tags.isEmpty()) {
             billHasTag = false
         }
