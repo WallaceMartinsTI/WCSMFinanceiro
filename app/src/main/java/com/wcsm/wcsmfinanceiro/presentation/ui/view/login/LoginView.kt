@@ -95,7 +95,7 @@ fun LoginView(
         OutlinedTextField(
             value = email,
             onValueChange = {
-                if(email.length < 255) email = it
+                if(email.length < 200) email = it
             },
             modifier = Modifier.width(280.dp),
             label = {

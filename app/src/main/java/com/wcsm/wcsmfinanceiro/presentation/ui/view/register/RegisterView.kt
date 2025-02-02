@@ -45,6 +45,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.R
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnBackgroundColor
@@ -59,17 +61,13 @@ fun RegisterView(
     onAlreadyHasAccount: () -> Unit,
     onRegister: () -> Unit
 ) {
+    val registerViewModel: RegisterViewModel = hiltViewModel()
+
+    val registerState by registerViewModel.registerStateFlow.collectAsStateWithLifecycle()
+
     val nameFocusRequester = remember { FocusRequester() }
     val emailFocusRequester = remember { FocusRequester() }
 
-    var name by remember { mutableStateOf("") }
-    var nameErrorMessage by remember { mutableStateOf("") }
-
-    var email by remember { mutableStateOf("") }
-    var emailErrorMessage by remember { mutableStateOf("") }
-
-    var password by remember { mutableStateOf("") }
-    var passwordErrorMessage by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
 
     Column(
@@ -92,9 +90,13 @@ fun RegisterView(
         )
 
         OutlinedTextField(
-            value = name,
+            value = registerState.name,
             onValueChange = {
-                if(name.length < 50) name = it
+                registerViewModel.updateRegisterState(
+                    registerState.copy(
+                        name = it
+                    )
+                )
             },
             modifier = Modifier
                 .width(280.dp)
@@ -118,13 +120,17 @@ fun RegisterView(
                 )
             },
             trailingIcon = {
-                if(name.isNotEmpty()) {
+                if(registerState.name.isNotEmpty()) {
                     Icon(
                         imageVector = Icons.Default.Clear,
                         contentDescription = "Ícone de x",
                         modifier = Modifier
                             .clickable {
-                                name = ""
+                                registerViewModel.updateRegisterState(
+                                    registerState.copy(
+                                        name = ""
+                                    )
+                                )
                                 nameFocusRequester.requestFocus()
                             },
                         tint = White06Color
@@ -132,11 +138,11 @@ fun RegisterView(
                 }
             },
             singleLine = true,
-            isError = nameErrorMessage.isNotBlank(),
+            isError = registerState.nameErrorMessage.isNotBlank(),
             supportingText = {
-                if(nameErrorMessage.isNotBlank()) {
+                if(registerState.nameErrorMessage.isNotBlank()) {
                     Text(
-                        text = nameErrorMessage
+                        text = registerState.nameErrorMessage
                     )
                 }
             },
@@ -146,9 +152,13 @@ fun RegisterView(
         )
 
         OutlinedTextField(
-            value = email,
+            value = registerState.email,
             onValueChange = {
-                if(email.length < 255) email = it
+                registerViewModel.updateRegisterState(
+                    registerState.copy(
+                        email = it
+                    )
+                )
             },
             modifier = Modifier
                 .width(280.dp)
@@ -172,13 +182,17 @@ fun RegisterView(
                 )
             },
             trailingIcon = {
-                if(email.isNotEmpty()) {
+                if(registerState.email.isNotEmpty()) {
                     Icon(
                         imageVector = Icons.Default.Clear,
                         contentDescription = "Ícone de x",
                         modifier = Modifier
                             .clickable {
-                                email = ""
+                                registerViewModel.updateRegisterState(
+                                    registerState.copy(
+                                        email = ""
+                                    )
+                                )
                                 emailFocusRequester.requestFocus()
                             },
                         tint = White06Color
@@ -186,11 +200,11 @@ fun RegisterView(
                 }
             },
             singleLine = true,
-            isError = emailErrorMessage.isNotBlank(),
+            isError = registerState.emailErrorMessage.isNotBlank(),
             supportingText = {
-                if(emailErrorMessage.isNotBlank()) {
+                if(registerState.emailErrorMessage.isNotBlank()) {
                     Text(
-                        text = emailErrorMessage
+                        text = registerState.emailErrorMessage
                     )
                 }
             },
@@ -200,9 +214,13 @@ fun RegisterView(
         )
 
         OutlinedTextField(
-            value = password,
+            value = registerState.password,
             onValueChange = {
-                password = it
+                registerViewModel.updateRegisterState(
+                    registerState.copy(
+                        password = it
+                    )
+                )
             },
             label = {
                 Text(
@@ -240,11 +258,11 @@ fun RegisterView(
                 }
             },
             singleLine = true,
-            isError = passwordErrorMessage.isNotBlank(),
+            isError = registerState.passwordErrorMessage.isNotBlank(),
             supportingText = {
-                if(passwordErrorMessage.isNotBlank()) {
+                if(registerState.passwordErrorMessage.isNotBlank()) {
                     Text(
-                        text = passwordErrorMessage
+                        text = registerState.passwordErrorMessage
                     )
                 }
             },
