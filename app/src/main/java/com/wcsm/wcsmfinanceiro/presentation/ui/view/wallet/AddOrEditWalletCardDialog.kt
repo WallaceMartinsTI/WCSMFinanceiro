@@ -164,7 +164,7 @@ fun AddOrEditWalletCardDialog(
             if(!isWalletCardToEdit) {
                 WalletDropdownChooser(
                     wallets = walletsList,
-                    isError = walletCardDialogState.walletIdErrorMessage.isNotEmpty(),
+                    isError = walletCardDialogState.walletIdErrorMessage.isNotBlank(),
                     errorMessage = walletCardDialogState.walletIdErrorMessage
                 ) {  selectedWallet ->
                     onValueChange(
@@ -217,9 +217,9 @@ fun AddOrEditWalletCardDialog(
                     }*/
                 },
                 singleLine = true,
-                isError = walletCardDialogState.titleErrorMessage.isNotEmpty(),
+                isError = walletCardDialogState.titleErrorMessage.isNotBlank(),
                 supportingText = {
-                    if(walletCardDialogState.titleErrorMessage.isNotEmpty()) {
+                    if(walletCardDialogState.titleErrorMessage.isNotBlank()) {
                         Text(
                             text = walletCardDialogState.titleErrorMessage,
                             fontFamily = PoppinsFontFamily
@@ -240,7 +240,7 @@ fun AddOrEditWalletCardDialog(
                 label = "Limite do Cartão*",
                 alreadyExistsDoubleValue = isWalletCardToEdit,
                 alreadyDoubleValue = walletCardDialogState.limit,
-                isError = walletCardDialogState.limitErrorMessage.isNotEmpty(),
+                isError = walletCardDialogState.limitErrorMessage.isNotBlank(),
                 errorMessage = walletCardDialogState.limitErrorMessage,
                 onMonetaryValueChange = { doubleMonetaryValue ->
                     onValueChange(
@@ -256,7 +256,7 @@ fun AddOrEditWalletCardDialog(
                 label = "Gasto*",
                 alreadyExistsDoubleValue = isWalletCardToEdit,
                 alreadyDoubleValue = walletCardDialogState.spent,
-                isError = walletCardDialogState.spentErrorMessage.isNotEmpty(),
+                isError = walletCardDialogState.spentErrorMessage.isNotBlank(),
                 errorMessage = walletCardDialogState.spentErrorMessage,
                 onMonetaryValueChange = { doubleMonetaryValue ->
                     onValueChange(

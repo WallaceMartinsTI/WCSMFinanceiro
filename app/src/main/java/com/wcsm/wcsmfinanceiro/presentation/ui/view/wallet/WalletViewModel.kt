@@ -372,7 +372,9 @@ class WalletViewModel @Inject constructor(
             Pair(false, "O título não pode ser vazio")
         } else if(title.length < 3) {
             Pair(false, "O título é muito curto (min. 3 caracteres)")
-        } else {
+        } else if(title.length > 20) {
+            Pair(false, "O título é muito grande (max. 20 caracteres)")
+        }else {
             Pair(true, "")
         }
     }
@@ -573,6 +575,8 @@ class WalletViewModel @Inject constructor(
             Pair(false, "O título não pode ser vazio.")
         } else if(title.length < 3) {
             Pair(false, "O título é muito curto (min. 3 caracteres).")
+        } else if(title.length > 25) {
+            Pair(false, "O título é muito curto (max. 25 caracteres).")
         } else {
             Pair(true, "")
         }

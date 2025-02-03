@@ -73,6 +73,7 @@ import com.wcsm.wcsmfinanceiro.presentation.model.BillState
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppDatePicker
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.MonetaryInputField
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.RadioButtonChooser
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.ErrorColor
@@ -287,7 +288,7 @@ fun AddOrEditBillDialog(
                             )
                         },
                         trailingIcon = {
-                            if (billDialogState.origin.isNotEmpty()) {
+                            if (billDialogState.origin.isNotBlank()) {
                                 Icon(
                                     imageVector = Icons.Default.Clear,
                                     contentDescription = "Ícone de x",
@@ -344,7 +345,7 @@ fun AddOrEditBillDialog(
                             )
                         },
                         trailingIcon = {
-                            if (billDialogState.title.isNotEmpty()) {
+                            if (billDialogState.title.isNotBlank()) {
                                 Icon(
                                     imageVector = Icons.Default.Clear,
                                     contentDescription = "Ícone de x",
@@ -362,9 +363,9 @@ fun AddOrEditBillDialog(
                             }
                         },
                         singleLine = true,
-                        isError = billDialogState.titleErrorMessage.isNotEmpty(),
+                        isError = billDialogState.titleErrorMessage.isNotBlank(),
                         supportingText = {
-                            if (billDialogState.titleErrorMessage.isNotEmpty()) {
+                            if (billDialogState.titleErrorMessage.isNotBlank()) {
                                 Text(
                                     text = billDialogState.titleErrorMessage,
                                     fontFamily = PoppinsFontFamily
@@ -394,14 +395,14 @@ fun AddOrEditBillDialog(
                             )
                         },
                         supportingText = {
-                            if (billDialogState.dateErrorMessage.isNotEmpty()) {
+                            if (billDialogState.dateErrorMessage.isNotBlank()) {
                                 Text(
                                     text = billDialogState.dateErrorMessage,
                                     style = MaterialTheme.typography.bodySmall
                                 )
                             }
                         },
-                        isError = billDialogState.dateErrorMessage.isNotEmpty(),
+                        isError = billDialogState.dateErrorMessage.isNotBlank(),
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.CalendarMonth,
@@ -440,10 +441,25 @@ fun AddOrEditBillDialog(
                         }
                     }
 
+                    MonetaryInputField(
+                        label = "Valor*",
+                        alreadyExistsDoubleValue = isBillToEdit,
+                        alreadyDoubleValue = billDialogState.value,
+                        isError = billDialogState.valueErrorMessage.isNotBlank(),
+                        errorMessage = billDialogState.valueErrorMessage,
+                        onMonetaryValueChange = { doubleMonetaryValue ->
+                            onValueChange(
+                                billDialogState.copy(
+                                    value = doubleMonetaryValue
+                                )
+                            )
+                        }
+                    )
+
                     OutlinedTextField(
                         value = billDialogState.description,
                         onValueChange = {
-                            if (billDialogState.description.length < 100) {
+                            if (billDialogState.description.length < 150) {
                                 onValueChange(
                                     billDialogState.copy(
                                         description = it
@@ -473,7 +489,7 @@ fun AddOrEditBillDialog(
                             )
                         },
                         trailingIcon = {
-                            if (billDialogState.description.isNotEmpty()) {
+                            if (billDialogState.description.isNotBlank()) {
                                 Icon(
                                     imageVector = Icons.Default.Clear,
                                     contentDescription = "Ícone de x",
@@ -495,66 +511,6 @@ fun AddOrEditBillDialog(
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Next
                         ),
-                    )
-
-                    OutlinedTextField(
-                        value = monetaryValue,
-                        onValueChange = { newValue ->
-                            if(newValue.all { it.isDigit() }) {
-                                monetaryValue = newValue
-                            }
-                        },
-                        modifier = Modifier
-                            .width(280.dp)
-                            .focusRequester(focusRequester[4]),
-                        label = {
-                            Text(
-                                text = "Valor*",
-                                style = MaterialTheme.typography.labelMedium
-                            )
-                        },
-                        placeholder = {
-                            Text(
-                                text = "Digite o valor"
-                            )
-                        },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.AttachMoney,
-                                contentDescription = "Ícone de dinheiro",
-                                tint = White06Color
-                            )
-                        },
-                        trailingIcon = {
-                            if (billDialogState.value != 0.0) {
-                                Icon(
-                                    imageVector = Icons.Default.Clear,
-                                    contentDescription = "Ícone de x",
-                                    modifier = Modifier
-                                        .clickable {
-                                            /*billDialogState = billDialogState.copy(
-                                                value = 0.0
-                                            )
-                                            focusRequester[4].requestFocus()*/
-                                        },
-                                    tint = White06Color
-                                )
-                            }
-                        },
-                        singleLine = true,
-                        isError = billDialogState.valueErrorMessage.isNotEmpty(),
-                        supportingText = {
-                            if (billDialogState.valueErrorMessage.isNotEmpty()) {
-                                Text(
-                                    text = billDialogState.valueErrorMessage
-                                )
-                            }
-                        },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Next
-                        ),
-                        visualTransformation = CurrencyVisualTransformation()
                     )
 
                     OutlinedTextField(
@@ -645,6 +601,8 @@ fun AddOrEditBillDialog(
 
                     BillCategoriesDropdown(
                         inputtedOption = if (isBillToEdit) billDialogState.category else null,
+                        isError = billDialogState.categoryErrorMessage.isNotBlank(),
+                        errorMessage = billDialogState.categoryErrorMessage,
                         modifier = Modifier.padding(bottom = 8.dp),
                         onValueSelected = { selectedCategory ->
                             onValueChange(

@@ -16,6 +16,7 @@ data class BillState(
     var valueErrorMessage: String = "",
     var paymentType: PaymentType = PaymentType.MONEY,
     var category: String = "",
+    var categoryErrorMessage: String = "",
     var paid: Boolean = false,
     var dueDate: Long = 0L,
     var expired: Boolean = false,

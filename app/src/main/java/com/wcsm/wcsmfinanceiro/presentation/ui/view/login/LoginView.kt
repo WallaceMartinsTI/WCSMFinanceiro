@@ -29,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +49,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.R
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnBackgroundColor
@@ -62,16 +65,23 @@ fun LoginView(
     onCreateAccount: () -> Unit,
     onLogin: () -> Unit
 ) {
+    val loginViewModel: LoginViewModel = hiltViewModel()
+
+    val loginState by loginViewModel.loginStateFlow.collectAsStateWithLifecycle()
+    val uiState by loginViewModel.uiState.collectAsStateWithLifecycle()
+
     val focusRequester = remember { FocusRequester() }
 
-    var email by remember { mutableStateOf("") }
-    var emailErrorMessage by remember { mutableStateOf("") }
-
-    var password by remember { mutableStateOf("") }
-    var passwordErrorMessage by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
 
     var keepLogin by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState) {
+        if(uiState.success) {
+            onLogin()
+            loginViewModel.resetUiState()
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxSize().background(BackgroundColor),
@@ -80,7 +90,7 @@ fun LoginView(
         Image(
             painter = painterResource(R.drawable.wcsm_financeiro_logo),
             contentDescription = "WCSM Financeiro logo",
-            modifier = Modifier.size(250.dp)
+            modifier = Modifier.size(width = 250.dp, height = 150.dp)
         )
         
         Text(
@@ -93,9 +103,13 @@ fun LoginView(
         )
 
         OutlinedTextField(
-            value = email,
+            value = loginState.email,
             onValueChange = {
-                if(email.length < 200) email = it
+                loginViewModel.updateLoginState(
+                    loginState.copy(
+                        email = it
+                    )
+                )
             },
             modifier = Modifier.width(280.dp),
             label = {
@@ -117,14 +131,18 @@ fun LoginView(
                 )
             },
             trailingIcon = {
-                if(email.isNotEmpty()) {
+                if(loginState.email.isNotEmpty()) {
                     Icon(
                         imageVector = Icons.Default.Clear,
                         contentDescription = "Ícone de x",
                         modifier = Modifier
                             .focusRequester(focusRequester)
                             .clickable {
-                                email = ""
+                                loginViewModel.updateLoginState(
+                                    loginState.copy(
+                                        email = ""
+                                    )
+                                )
                                 focusRequester.requestFocus()
                             },
                         tint = White06Color
@@ -132,11 +150,11 @@ fun LoginView(
                 }
             },
             singleLine = true,
-            isError = emailErrorMessage.isNotBlank(),
+            isError = loginState.emailErrorMessage.isNotBlank(),
             supportingText = {
-                if(emailErrorMessage.isNotBlank()) {
+                if(loginState.emailErrorMessage.isNotBlank()) {
                     Text(
-                        text = emailErrorMessage
+                        text = loginState.emailErrorMessage
                     )
                 }
             },
@@ -146,9 +164,13 @@ fun LoginView(
         )
 
         OutlinedTextField(
-            value = password,
+            value = loginState.password,
             onValueChange = {
-                password = it
+                loginViewModel.updateLoginState(
+                    loginState.copy(
+                        password = it
+                    )
+                )
             },
             label = {
                 Text(
@@ -186,11 +208,11 @@ fun LoginView(
                 }
             },
             singleLine = true,
-            isError = passwordErrorMessage.isNotBlank(),
+            isError = loginState.passwordErrorMessage.isNotBlank(),
             supportingText = {
-                if(passwordErrorMessage.isNotBlank()) {
+                if(loginState.passwordErrorMessage.isNotBlank()) {
                     Text(
-                        text = passwordErrorMessage
+                        text = loginState.passwordErrorMessage
                     )
                 }
             },
@@ -242,10 +264,12 @@ fun LoginView(
             )
         }
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { onLogin() },
+            onClick = {
+                loginViewModel.loginUser(loginState)
+            },
             modifier = Modifier
                 .background(BackgroundColor)
                 .padding(top = 8.dp, bottom = 16.dp)

@@ -208,9 +208,9 @@ fun AddOrEditWalletDialog(
                             }*/
                         },
                         singleLine = true,
-                        isError = walletDialogState.titleErrorMessage.isNotEmpty(),
+                        isError = walletDialogState.titleErrorMessage.isNotBlank(),
                         supportingText = {
-                            if(walletDialogState.titleErrorMessage.isNotEmpty()) {
+                            if(walletDialogState.titleErrorMessage.isNotBlank()) {
                                 Text(
                                     text = walletDialogState.titleErrorMessage,
                                     fontFamily = PoppinsFontFamily
@@ -227,11 +227,14 @@ fun AddOrEditWalletDialog(
                         ),
                     )
 
+                    Log.i("#-# TESTE #-#", "walletDialogState.balanceErrorMessage.isNotBlank(): ${walletDialogState.balanceErrorMessage.isNotBlank()}")
+                    Log.i("#-# TESTE #-#", "walletDialogState.balanceErrorMessage: ${walletDialogState.balanceErrorMessage}")
+
                     MonetaryInputField(
                         label = "Saldo*",
                         alreadyExistsDoubleValue = isWalletToEdit,
                         alreadyDoubleValue = walletDialogState.balance,
-                        isError = walletDialogState.balanceErrorMessage.isNotEmpty(),
+                        isError = walletDialogState.balanceErrorMessage.isNotBlank(),
                         errorMessage = walletDialogState.balanceErrorMessage,
                         onMonetaryValueChange = { doubleMonetaryValue ->
                             onValueChange(

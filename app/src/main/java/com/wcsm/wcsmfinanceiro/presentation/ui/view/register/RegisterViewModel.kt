@@ -2,9 +2,13 @@ package com.wcsm.wcsmfinanceiro.presentation.ui.view.register
 
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.wcsm.wcsmfinanceiro.presentation.model.RegisterState
+import com.wcsm.wcsmfinanceiro.presentation.model.UiState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import java.util.UUID
 
 class RegisterViewModel : ViewModel() {
@@ -12,11 +16,42 @@ class RegisterViewModel : ViewModel() {
     private val _registerStateFlow = MutableStateFlow(RegisterState())
     val registerStateFlow = _registerStateFlow.asStateFlow()
 
+    private val _uiState = MutableStateFlow(UiState<Nothing>())
+    val uiState = _uiState.asStateFlow()
+
     fun updateRegisterState(updatedState: RegisterState) {
         _registerStateFlow.value = updatedState
     }
 
-    fun isRegisterStateValid(): Boolean {
+    fun resetUiState() {
+        _uiState.value = UiState()
+    }
+
+    fun registerUser(registerState: RegisterState) { // TEMP FOR TEST
+        resetErrorMessages()
+
+        viewModelScope.launch(Dispatchers.IO) {
+            // HANDLE UI STATE
+            if(isRegisterStateValid()) {
+                _uiState.value = uiState.value.copy(
+                    isLoading = false,
+                    success = true
+                )
+            }
+        }
+    }
+
+    private fun resetErrorMessages() {
+        updateRegisterState(
+            registerStateFlow.value.copy(
+                nameErrorMessage = "",
+                emailErrorMessage = "",
+                passwordErrorMessage = ""
+            )
+        )
+    }
+
+    private fun isRegisterStateValid(): Boolean {
         val isNameValid = validateName(registerStateFlow.value.name)
         val isEmailValid = validateEmail(registerStateFlow.value.email)
         val isPasswordValid = validatePassword(registerStateFlow.value.password)
@@ -47,11 +82,11 @@ class RegisterViewModel : ViewModel() {
     private fun validateEmail(email: String): Pair<Boolean, String> {
         return if(email.isBlank()) {
             Pair(false, "Você deve informar um e-mail.")
-        } else if(email.length < 5) {
+        } else if(email.length < 10) {
             Pair(false, "E-mail muito curto (mín. 10 caracteres).")
-        } else if(email.length > 50) {
+        } else if(email.length > 200) {
             Pair(false, "E-mail muito grande (max. 200 caracteres).")
-        } else if(Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+        } else if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
             Pair(false, "E-mail inválido, tente outro.")
         } else {
             Pair(true, "")

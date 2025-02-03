@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -28,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,11 +66,19 @@ fun RegisterView(
     val registerViewModel: RegisterViewModel = hiltViewModel()
 
     val registerState by registerViewModel.registerStateFlow.collectAsStateWithLifecycle()
+    val uiState by registerViewModel.uiState.collectAsStateWithLifecycle()
 
     val nameFocusRequester = remember { FocusRequester() }
     val emailFocusRequester = remember { FocusRequester() }
 
     var showPassword by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState) {
+        if(uiState.success) {
+            onRegister()
+            registerViewModel.resetUiState()
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxSize().background(BackgroundColor),
@@ -77,7 +87,7 @@ fun RegisterView(
         Image(
             painter = painterResource(R.drawable.wcsm_financeiro_logo),
             contentDescription = "WCSM Financeiro logo",
-            modifier = Modifier.size(250.dp)
+            modifier = Modifier.size(width = 250.dp, height = 150.dp)
         )
 
         Text(
@@ -297,10 +307,12 @@ fun RegisterView(
             )
         }
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { onRegister() },
+            onClick = {
+                registerViewModel.registerUser(registerState)
+            },
             modifier = Modifier
                 .background(BackgroundColor)
                 .padding(top = 8.dp, bottom = 16.dp)

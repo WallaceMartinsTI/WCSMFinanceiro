@@ -1,9 +1,9 @@
-package com.wcsm.wcsmfinanceiro.data.model
+package com.wcsm.wcsmfinanceiro.presentation.model
 
 import androidx.compose.ui.graphics.vector.ImageVector
 
 data class Category(
     val id: Long,
     val title: String,
-    val icon: ImageVector? = null
+    val icon: ImageVector
 )

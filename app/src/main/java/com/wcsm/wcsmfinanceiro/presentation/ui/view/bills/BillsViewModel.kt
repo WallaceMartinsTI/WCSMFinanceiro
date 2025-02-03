@@ -546,27 +546,28 @@ class BillsViewModel @Inject constructor(
             billStateFlow.value.copy(
                 titleErrorMessage = "",
                 dateErrorMessage = "",
-                valueErrorMessage = ""
+                valueErrorMessage = "",
+                categoryErrorMessage = ""
             )
         )
     }
 
     private fun isBillStateValid() : Boolean {
-        //val currentState = _billStateFlow.value
-
         val isTitleValid = validateTitle(billStateFlow.value.title)
         val isDateValid = validateDate(billStateFlow.value.date)
         val isValueValid = validateValue(billStateFlow.value.value)
+        val isCategoryValid = validateCategory(billStateFlow.value.category)
 
         updateBillState(
             billStateFlow.value.copy(
                 titleErrorMessage = isTitleValid.second,
                 dateErrorMessage = isDateValid.second,
-                valueErrorMessage = isValueValid.second
+                valueErrorMessage = isValueValid.second,
+                categoryErrorMessage = isCategoryValid.second
             )
         )
 
-        return isTitleValid.first && isDateValid.first && isValueValid.first
+        return isTitleValid.first && isDateValid.first && isValueValid.first && isCategoryValid.first
     }
 
     private fun validateTitle(title: String) : Pair<Boolean, String> {
@@ -574,6 +575,8 @@ class BillsViewModel @Inject constructor(
             Pair(false, "O título não pode ser vazio.")
         } else if(title.length < 3) {
             Pair(false, "O título é muito curto (min. 3 caracteres).")
+        } else if(title.length > 50) {
+            Pair(false, "O título é muito grande (max. 50 caracteres).")
         } else {
             Pair(true, "")
         }
@@ -594,6 +597,14 @@ class BillsViewModel @Inject constructor(
             Pair(false, "Você deve informar um valor maior que 0.")
         } else if(value < 0) {
             Pair(false, "Valor inválido.")
+        } else {
+            Pair(true, "")
+        }
+    }
+
+    private fun validateCategory(category: String) : Pair<Boolean, String> {
+        return if(category.isBlank() || category == "Selecione uma categoria") {
+            Pair(false, "Você deve selecionar uma categoria.")
         } else {
             Pair(true, "")
         }

@@ -19,8 +19,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             WCSMFinanceiroTheme(dynamicColor = false) {
-                AuthenticationNavigation()
-                //MainNavigation()
+                //AuthenticationNavigation()
+                MainNavigation()
             }
         }
     }
