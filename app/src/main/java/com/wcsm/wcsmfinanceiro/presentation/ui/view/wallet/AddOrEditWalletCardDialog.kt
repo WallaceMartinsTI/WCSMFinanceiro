@@ -232,7 +232,8 @@ fun AddOrEditWalletCardDialog(
                     } else {
                         Text(
                             text = "Ex.: Cartão de Crédito",
-                            color = White06Color
+                            color = White06Color,
+                            fontFamily = PoppinsFontFamily
                         )
                     }
                 },
@@ -286,7 +287,8 @@ fun AddOrEditWalletCardDialog(
                 },
                 placeholder = {
                     Text(
-                        text = "Digite o título da carteiraa"
+                        text = "Digite o título da carteira",
+                        fontFamily = PoppinsFontFamily
                     )
                 },
                 leadingIcon = {
@@ -319,12 +321,12 @@ fun AddOrEditWalletCardDialog(
                 Text(
                     text = "Erro: ${walletCardDialogState.responseErrorMessage}",
                     color = ErrorColor,
+                    fontFamily = PoppinsFontFamily,
                     modifier = Modifier.width(280.dp).padding(horizontal = 16.dp)
                 )
             }
 
             Spacer(Modifier.height(16.dp))
-
 
             Button(
                 onClick = {
@@ -388,6 +390,7 @@ fun AddOrEditWalletCardDialog(
 
                         Text(
                             text = "EXCLUIR CARTÃO",
+                            fontFamily = PoppinsFontFamily,
                             modifier = Modifier.padding(start = 8.dp)
                         )
                     }
@@ -430,6 +433,7 @@ fun AddOrEditWalletCardDialog(
 
                     Text(
                         text = "Tem certeza que deseja excluir o cartão: ${walletCardDialogState.title}",
+                        fontFamily = PoppinsFontFamily,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
@@ -446,14 +450,20 @@ fun AddOrEditWalletCardDialog(
                                 containerColor = ErrorColor
                             )
                         ) {
-                            Text("EXCLUIR")
+                            Text(
+                                text = "EXCLUIR",
+                                fontFamily = PoppinsFontFamily
+                            )
                         }
 
                         Button(
                             onClick = { showConfirmWalletCardDeletionDialog = false },
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                         ) {
-                            Text("CANCELAR")
+                            Text(
+                                text = "CANCELAR",
+                                fontFamily = PoppinsFontFamily
+                            )
                         }
                     }
                 }

@@ -48,7 +48,8 @@ fun WalletContainer(
                     text = walletsWithCards.wallet.title,
                     color = SecondaryColor,
                     fontSize = 24.sp,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = PoppinsFontFamily
                 )
 
                 Text(

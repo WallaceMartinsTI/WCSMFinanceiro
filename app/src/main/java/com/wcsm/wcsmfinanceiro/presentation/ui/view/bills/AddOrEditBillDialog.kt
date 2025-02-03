@@ -290,7 +290,8 @@ fun AddOrEditBillDialog(
                         },
                         placeholder = {
                             Text(
-                                text = "Digite a origem da compra"
+                                text = "Digite a origem da compra",
+                                fontFamily = PoppinsFontFamily
                             )
                         },
                         leadingIcon = {
@@ -341,7 +342,8 @@ fun AddOrEditBillDialog(
                         },
                         placeholder = {
                             Text(
-                                text = "Digite o título da conta"
+                                text = "Digite o título da conta",
+                                fontFamily = PoppinsFontFamily
                             )
                         },
                         leadingIcon = {
@@ -475,7 +477,8 @@ fun AddOrEditBillDialog(
                         },
                         placeholder = {
                             Text(
-                                text = "Descreva a conta"
+                                text = "Descreva a conta",
+                                fontFamily = PoppinsFontFamily
                             )
                         },
                         leadingIcon = {
@@ -629,12 +632,14 @@ fun AddOrEditBillDialog(
                             },
                             placeholder = {
                                 Text(
-                                    text = "Digite as tags separadas por ,"
+                                    text = "Digite as tags separadas por ,",
+                                    fontFamily = PoppinsFontFamily
                                 )
                             },
                             supportingText = {
                                 Text(
-                                    text = "Exemplo: entrada, trabalho, bonificação, 2025"
+                                    text = "Exemplo: entrada, trabalho, bonificação, 2025",
+                                    fontFamily = PoppinsFontFamily
                                 )
                             },
                             leadingIcon = {
@@ -665,6 +670,7 @@ fun AddOrEditBillDialog(
                         Text(
                             text = "Erro: ${billDialogState.responseErrorMessage}",
                             color = ErrorColor,
+                            fontFamily = PoppinsFontFamily,
                             modifier = Modifier.width(280.dp).padding(horizontal = 16.dp)
                         )
                         Spacer(Modifier.height(16.dp))
@@ -731,7 +737,8 @@ fun AddOrEditBillDialog(
                                 )
 
                                 Text(
-                                    text = "EXCLUIR CONTA"
+                                    text = "EXCLUIR CONTA",
+                                    fontFamily = PoppinsFontFamily
                                 )
                             }
 
@@ -773,6 +780,7 @@ fun AddOrEditBillDialog(
 
                             Text(
                                 text = "Tem certeza que deseja excluir a conta: ${billDialogState.title}",
+                                fontFamily = PoppinsFontFamily,
                                 fontWeight = FontWeight.SemiBold,
                                 modifier = Modifier.padding(horizontal = 16.dp)
                             )
@@ -789,14 +797,20 @@ fun AddOrEditBillDialog(
                                         containerColor = ErrorColor
                                     )
                                 ) {
-                                    Text("EXCLUIR")
+                                    Text(
+                                        text = "EXCLUIR",
+                                        fontFamily = PoppinsFontFamily
+                                    )
                                 }
 
                                 Button(
                                     onClick = { showConfirmBillDeletionDialog = false },
                                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                                 ) {
-                                    Text("CANCELAR")
+                                    Text(
+                                        text = "CANCELAR",
+                                        fontFamily = PoppinsFontFamily
+                                    )
                                 }
                             }
                         }

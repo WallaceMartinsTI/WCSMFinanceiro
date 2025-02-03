@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnSurfaceColor
+import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PoppinsFontFamily
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PrimaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.SecondaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.TertiaryColor
@@ -119,7 +120,8 @@ fun AppDateRangePicker(
                 }
             ) {
                 Text(
-                    text = "CONFIRMAR"
+                    text = "CONFIRMAR",
+                    fontFamily = PoppinsFontFamily
                 )
             }
         }

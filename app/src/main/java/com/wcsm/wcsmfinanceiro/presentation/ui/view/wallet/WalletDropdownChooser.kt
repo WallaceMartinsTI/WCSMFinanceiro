@@ -118,7 +118,10 @@ fun WalletDropdownChooser(
                 wallets.forEach { selectedWallet ->
                     DropdownMenuItem(
                         text = {
-                            Text(text = selectedWallet.title)
+                            Text(
+                                text = selectedWallet.title,
+                                fontFamily = PoppinsFontFamily
+                            )
                         },
                         onClick = {
                             wallet = selectedWallet.title

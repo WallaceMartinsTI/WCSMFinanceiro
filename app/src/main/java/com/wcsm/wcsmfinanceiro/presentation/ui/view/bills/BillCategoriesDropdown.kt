@@ -146,7 +146,10 @@ fun BillCategoriesDropdown(
                 categoriesDrowpdownOptions.forEach { selectedCategory ->
                     DropdownMenuItem(
                         text = {
-                            Text(text = selectedCategory.title)
+                            Text(
+                                text = selectedCategory.title,
+                                fontFamily = PoppinsFontFamily
+                            )
                         },
                         leadingIcon = {
                             Icon(

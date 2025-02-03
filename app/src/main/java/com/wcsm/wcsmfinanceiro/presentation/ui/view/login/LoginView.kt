@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.R
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.ClearTrailingIcon
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.CustomCheckbox
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnBackgroundColor
@@ -116,7 +117,8 @@ fun LoginView(
             },
             placeholder = {
                 Text(
-                    text = "Digite seu e-mail"
+                    text = "Digite seu e-mail",
+                    fontFamily = PoppinsFontFamily
                 )
             },
             leadingIcon = {
@@ -128,21 +130,14 @@ fun LoginView(
             },
             trailingIcon = {
                 if(loginState.email.isNotEmpty()) {
-                    Icon(
-                        imageVector = Icons.Default.Clear,
-                        contentDescription = "Ícone de x",
-                        modifier = Modifier
-                            .focusRequester(focusRequester)
-                            .clickable {
-                                loginViewModel.updateLoginState(
-                                    loginState.copy(
-                                        email = ""
-                                    )
-                                )
-                                focusRequester.requestFocus()
-                            },
-                        tint = White06Color
-                    )
+                    ClearTrailingIcon {
+                        loginViewModel.updateLoginState(
+                            loginState.copy(
+                                email = ""
+                            )
+                        )
+                        focusRequester.requestFocus()
+                    }
                 }
             },
             singleLine = true,
@@ -150,7 +145,8 @@ fun LoginView(
             supportingText = {
                 if(loginState.emailErrorMessage.isNotBlank()) {
                     Text(
-                        text = loginState.emailErrorMessage
+                        text = loginState.emailErrorMessage,
+                        fontFamily = PoppinsFontFamily
                     )
                 }
             },
@@ -176,7 +172,8 @@ fun LoginView(
             },
             placeholder = {
                 Text(
-                    text = "Digite sua senha"
+                    text = "Digite sua senha",
+                    fontFamily = PoppinsFontFamily
                 )
             },
             leadingIcon = {

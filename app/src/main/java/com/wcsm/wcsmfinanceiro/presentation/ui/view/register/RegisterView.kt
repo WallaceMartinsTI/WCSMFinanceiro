@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.R
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.ClearTrailingIcon
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnBackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PoppinsFontFamily
@@ -117,7 +118,8 @@ fun RegisterView(
             },
             placeholder = {
                 Text(
-                    text = "Digite seu nome"
+                    text = "Digite seu nome",
+                    fontFamily = PoppinsFontFamily
                 )
             },
             leadingIcon = {
@@ -129,20 +131,14 @@ fun RegisterView(
             },
             trailingIcon = {
                 if(registerState.name.isNotEmpty()) {
-                    Icon(
-                        imageVector = Icons.Default.Clear,
-                        contentDescription = "Ícone de x",
-                        modifier = Modifier
-                            .clickable {
-                                registerViewModel.updateRegisterState(
-                                    registerState.copy(
-                                        name = ""
-                                    )
-                                )
-                                nameFocusRequester.requestFocus()
-                            },
-                        tint = White06Color
-                    )
+                    ClearTrailingIcon {
+                        registerViewModel.updateRegisterState(
+                            registerState.copy(
+                                name = ""
+                            )
+                        )
+                        nameFocusRequester.requestFocus()
+                    }
                 }
             },
             singleLine = true,
@@ -150,7 +146,8 @@ fun RegisterView(
             supportingText = {
                 if(registerState.nameErrorMessage.isNotBlank()) {
                     Text(
-                        text = registerState.nameErrorMessage
+                        text = registerState.nameErrorMessage,
+                        fontFamily = PoppinsFontFamily
                     )
                 }
             },
@@ -179,7 +176,8 @@ fun RegisterView(
             },
             placeholder = {
                 Text(
-                    text = "Digite seu e-mail"
+                    text = "Digite seu e-mail",
+                    fontFamily = PoppinsFontFamily
                 )
             },
             leadingIcon = {
@@ -191,20 +189,14 @@ fun RegisterView(
             },
             trailingIcon = {
                 if(registerState.email.isNotEmpty()) {
-                    Icon(
-                        imageVector = Icons.Default.Clear,
-                        contentDescription = "Ícone de x",
-                        modifier = Modifier
-                            .clickable {
-                                registerViewModel.updateRegisterState(
-                                    registerState.copy(
-                                        email = ""
-                                    )
-                                )
-                                emailFocusRequester.requestFocus()
-                            },
-                        tint = White06Color
-                    )
+                    ClearTrailingIcon {
+                        registerViewModel.updateRegisterState(
+                            registerState.copy(
+                                email = ""
+                            )
+                        )
+                        emailFocusRequester.requestFocus()
+                    }
                 }
             },
             singleLine = true,
@@ -212,7 +204,8 @@ fun RegisterView(
             supportingText = {
                 if(registerState.emailErrorMessage.isNotBlank()) {
                     Text(
-                        text = registerState.emailErrorMessage
+                        text = registerState.emailErrorMessage,
+                        fontFamily = PoppinsFontFamily
                     )
                 }
             },
@@ -238,7 +231,8 @@ fun RegisterView(
             },
             placeholder = {
                 Text(
-                    text = "Digite sua senha"
+                    text = "Digite sua senha",
+                    fontFamily = PoppinsFontFamily
                 )
             },
             leadingIcon = {
@@ -270,7 +264,8 @@ fun RegisterView(
             supportingText = {
                 if(registerState.passwordErrorMessage.isNotBlank()) {
                     Text(
-                        text = registerState.passwordErrorMessage
+                        text = registerState.passwordErrorMessage,
+                        fontFamily = PoppinsFontFamily
                     )
                 }
             },

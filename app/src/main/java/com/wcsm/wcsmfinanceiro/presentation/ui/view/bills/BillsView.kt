@@ -167,7 +167,8 @@ fun BillsView() {
                 .padding(horizontal = 16.dp),
             placeholder = {
                 Text(
-                    text = "Digite para filtrar"
+                    text = "Digite para filtrar",
+                    fontFamily = PoppinsFontFamily
                 )
             },
             leadingIcon = {

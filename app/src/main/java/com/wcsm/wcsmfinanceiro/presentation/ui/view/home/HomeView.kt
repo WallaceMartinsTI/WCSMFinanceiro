@@ -155,6 +155,7 @@ fun HomeView(
             Text(
                 text = "GRÁFICO",
                 color = OnSecondaryColor,
+                fontFamily = PoppinsFontFamily,
                 fontSize = 40.sp,
             )
         }

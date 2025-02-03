@@ -183,7 +183,8 @@ fun AddOrEditWalletDialog(
                         },
                         placeholder = {
                             Text(
-                                text = "Digite o título da carteira"
+                                text = "Digite o título da carteira",
+                                fontFamily = PoppinsFontFamily
                             )
                         },
                         leadingIcon = {
@@ -216,7 +217,8 @@ fun AddOrEditWalletDialog(
                             } else {
                                 Text(
                                     text = "Ex.: Nubank",
-                                    color = White06Color
+                                    color = White06Color,
+                                    fontFamily = PoppinsFontFamily
                                 )
                             }
                         },
@@ -245,6 +247,7 @@ fun AddOrEditWalletDialog(
                         Text(
                             text = "Erro: ${walletDialogState.responseErrorMessage}",
                             color = ErrorColor,
+                            fontFamily = PoppinsFontFamily,
                             modifier = Modifier.width(280.dp).padding(horizontal = 16.dp)
                         )
                         Spacer(Modifier.height(16.dp))
@@ -344,7 +347,8 @@ fun AddOrEditWalletDialog(
                                 )
 
                                 Text(
-                                    text = "EXCLUIR CARTEIRA"
+                                    text = "EXCLUIR CARTEIRA",
+                                    fontFamily = PoppinsFontFamily
                                 )
                             }
 
@@ -388,6 +392,7 @@ fun AddOrEditWalletDialog(
                             Text(
                                 text = "Tem certeza que deseja excluir a carteira: ${walletDialogState.title}",
                                 fontWeight = FontWeight.SemiBold,
+                                fontFamily = PoppinsFontFamily,
                                 modifier = Modifier.padding(horizontal = 16.dp)
                             )
 
@@ -403,14 +408,20 @@ fun AddOrEditWalletDialog(
                                         containerColor = ErrorColor
                                     )
                                 ) {
-                                    Text("EXCLUIR")
+                                    Text(
+                                        text = "EXCLUIR",
+                                        fontFamily = PoppinsFontFamily
+                                    )
                                 }
 
                                 Button(
                                     onClick = { showConfirmWalletDeletionDialog = false },
                                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                                 ) {
-                                    Text("CANCELAR")
+                                    Text(
+                                        text = "CANCELAR",
+                                        fontFamily = PoppinsFontFamily
+                                    )
                                 }
                             }
                         }

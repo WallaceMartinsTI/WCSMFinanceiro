@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -31,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.wcsm.wcsmfinanceiro.presentation.model.BottomBarItem
 import com.wcsm.wcsmfinanceiro.presentation.model.Screen
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnBackgroundColor
+import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PoppinsFontFamily
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PrimaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 
@@ -109,7 +111,9 @@ fun BottomBar(
 
                     Text(
                         text = bottomBarItem.title,
-                        color = if(selected) PrimaryColor else OnBackgroundColor
+                        color = if(selected) PrimaryColor else OnBackgroundColor,
+                        fontFamily = PoppinsFontFamily,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
