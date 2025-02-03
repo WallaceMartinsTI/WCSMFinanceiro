@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -27,6 +28,7 @@ import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -42,7 +44,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -56,6 +61,8 @@ import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.model.WalletCardState
 import com.wcsm.wcsmfinanceiro.presentation.model.WalletOperationType
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.ClearTrailingIcon
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.CustomCheckbox
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.MonetaryInputField
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.ErrorColor
@@ -87,6 +94,8 @@ fun AddOrEditWalletCardDialog(
 ) {
     val uiState by uiStateFlow.collectAsStateWithLifecycle()
     val walletCardDialogState by walletCardStateFlow.collectAsStateWithLifecycle()
+
+    val focusRequester = remember { FocusRequester() }
 
     val isWalletCardToEdit by remember { mutableStateOf(walletCardDialogState.walletCardId != 0L) }
 
@@ -139,7 +148,7 @@ fun AddOrEditWalletCardDialog(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
-                modifier = Modifier.fillMaxWidth(),//.padding(bottom = 8.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
                     text = if(isWalletCardToEdit) "EDITAR CARTÃO" else "ADICIONAR CARTÃO",
@@ -185,8 +194,8 @@ fun AddOrEditWalletCardDialog(
                     )
                 },
                 modifier = Modifier
-                    .width(272.dp),
-                //.focusRequester(focusRequester[0]),
+                    .width(272.dp)
+                    .focusRequester(focusRequester),
                 label = {
                     Text(
                         text = "Título do Cartão*",
@@ -201,20 +210,16 @@ fun AddOrEditWalletCardDialog(
                     )
                 },
                 trailingIcon = {
-                    /*if (billModalState.origin.isNotEmpty()) {
-                        Icon(
-                            imageVector = Icons.Default.Clear,
-                            contentDescription = "Ícone de x",
-                            modifier = Modifier
-                                .clickable {
-                                    billModalState = billModalState.copy(
-                                        origin = ""
-                                    )
-                                    focusRequester[0].requestFocus()
-                                },
-                            tint = White06Color
-                        )
-                    }*/
+                    if(walletCardDialogState.title.isNotEmpty()) {
+                        ClearTrailingIcon {
+                            onValueChange(
+                                walletCardDialogState.copy(
+                                    title = ""
+                                )
+                            )
+                            focusRequester.requestFocus()
+                        }
+                    }
                 },
                 singleLine = true,
                 isError = walletCardDialogState.titleErrorMessage.isNotBlank(),
@@ -273,7 +278,6 @@ fun AddOrEditWalletCardDialog(
                 onValueChange = {},
                 modifier = Modifier
                     .width(272.dp),
-                //.focusRequester(focusRequester[0]),
                 label = {
                     Text(
                         text = "Livre",
@@ -292,31 +296,41 @@ fun AddOrEditWalletCardDialog(
                         tint = White06Color
                     )
                 },
+                supportingText = {},
                 enabled = false,
                 readOnly = true,
                 singleLine = true,
             )
 
-            Spacer(Modifier.height(16.dp))
+            CustomCheckbox(
+                checkboxText = "Bloqueado?",
+                alreadyChecked = walletCardDialogState.blocked
+            ) { isChecked ->
+                onValueChange(
+                    walletCardDialogState.copy(
+                        blocked = isChecked
+                    )
+                )
+            }
 
             if(walletCardDialogState.responseErrorMessage.isNotBlank()) {
+                Spacer(Modifier.height(16.dp))
+
                 Text(
                     text = "Erro: ${walletCardDialogState.responseErrorMessage}",
                     color = ErrorColor,
                     modifier = Modifier.width(280.dp).padding(horizontal = 16.dp)
                 )
-                Spacer(Modifier.height(16.dp))
             }
+
+            Spacer(Modifier.height(16.dp))
+
 
             Button(
                 onClick = {
-                    Log.i("#-# TESTE #-#", "CLICOU BOTÃO")
-                    Log.i("#-# TESTE #-#", "isWalletCardToEdit: $isWalletCardToEdit")
                     if(isWalletCardToEdit) {
-                        // UPDATE WALLET CARD
                         onUpdateWalletCard(walletCardDialogState)
                     } else {
-                        // NEW WALLET CARD
                         onAddWalletCard(walletCardDialogState)
                     }
                 },

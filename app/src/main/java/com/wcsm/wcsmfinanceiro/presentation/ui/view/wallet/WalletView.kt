@@ -54,6 +54,8 @@ fun WalletView(
     val walletsWithCards by walletViewModel.walletsWithCards.collectAsStateWithLifecycle()
     val uiState by walletViewModel.uiState.collectAsStateWithLifecycle()
 
+    val walletsWithCardsList = remember(walletsWithCards) { walletsWithCards ?: emptyList() }
+
     var showWalletAddChooserDialog by remember { mutableStateOf(false) }
     var showAddOrEditWalletDialog by remember { mutableStateOf(false) }
     var showAddOrEditWalletCardDialog by remember { mutableStateOf(false) }
@@ -63,8 +65,6 @@ fun WalletView(
     var walletCards: List<WalletCard> by remember { mutableStateOf(emptyList()) }
 
     var walletsList: List<Wallet> by remember { mutableStateOf(emptyList()) }
-
-    val walletsWithCardsList = remember(walletsWithCards) { walletsWithCards ?: emptyList() }
 
     LaunchedEffect(walletsWithCards) {
         walletsList = walletsWithCards?.map {
@@ -94,7 +94,6 @@ fun WalletView(
                     }
                 }
             }
-            //showToastMessage(context, errorMessage)
         }
 
         if(uiState.success) {

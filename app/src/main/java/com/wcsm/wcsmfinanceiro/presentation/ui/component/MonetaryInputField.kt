@@ -1,6 +1,5 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.component
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,7 +26,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
@@ -59,8 +57,6 @@ fun MonetaryInputField(
     }
 
     LaunchedEffect(monetaryValue) {
-        Log.i("#-# TESTE #-#", "monetaryValue: $monetaryValue")
-        Log.i("#-# TESTE #-#", "monetaryValue.length: ${monetaryValue.length}")
         if(monetaryValue == "0") {
             monetaryValue = ""
         }
@@ -95,16 +91,10 @@ fun MonetaryInputField(
         },
         trailingIcon = {
             if(monetaryValue.isNotBlank()) {
-                Icon(
-                    imageVector = Icons.Default.Clear,
-                    contentDescription = "Ícone de x",
-                    modifier = Modifier
-                        .clickable {
-                            monetaryValue = ""
-                            monetaryFocusRequester.requestFocus()
-                        },
-                    tint = White06Color
-                )
+                ClearTrailingIcon {
+                    monetaryValue = ""
+                    monetaryFocusRequester.requestFocus()
+                }
             }
         },
         singleLine = true,

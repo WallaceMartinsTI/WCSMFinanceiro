@@ -74,6 +74,8 @@ import com.wcsm.wcsmfinanceiro.presentation.model.BillState
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppDatePicker
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.ClearTrailingIcon
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.CustomCheckbox
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.MonetaryInputField
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.RadioButtonChooser
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
@@ -109,13 +111,16 @@ fun AddOrEditBillDialog(
     onDeleteBill: (billState: BillState) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val billDialogState by billStateFlow.collectAsStateWithLifecycle()
+    val uiState by uiStateFlow.collectAsStateWithLifecycle()
+
     val paymentTypeRadioChooserOptions =
         listOf(PaymentType.MONEY.displayName, PaymentType.CARD.displayName)
 
     val billTypeRadioChooserOptions =
         listOf(BillType.INCOME.displayName, BillType.EXPENSE.displayName)
 
-    val focusRequester = remember { List(9) { FocusRequester() } }
+    val focusRequester = remember { List(7) { FocusRequester() } }
 
     var selectedDate by remember { mutableStateOf("") }
     var showDatePickerDialog by remember { mutableStateOf(false) }
@@ -125,9 +130,6 @@ fun AddOrEditBillDialog(
 
     var tagsToAdd by remember { mutableStateOf("") }
     var monetaryValue by remember { mutableStateOf("") }
-
-    val billDialogState by billStateFlow.collectAsStateWithLifecycle()
-    val uiState by uiStateFlow.collectAsStateWithLifecycle()
 
     val isBillToEdit by remember { mutableStateOf(billDialogState.billId != 0L) }
     var isModalLoading by remember { mutableStateOf(isBillToEdit) }
@@ -216,15 +218,11 @@ fun AddOrEditBillDialog(
                     style = MaterialTheme.typography.bodyMedium
                 )
 
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Ícone de fechar",
-                    tint = White06Color,
-                    modifier = Modifier
-                        .clickable { onDismiss() }
-                        .align(Alignment.TopEnd)
-                        .size(40.dp)
-                )
+                ClearTrailingIcon(
+                    modifier = Modifier.align(Alignment.CenterEnd).size(40.dp)
+                ) {
+                    onDismiss()
+                }
             }
 
             HorizontalDivider(
@@ -304,20 +302,14 @@ fun AddOrEditBillDialog(
                         },
                         trailingIcon = {
                             if (billDialogState.origin.isNotBlank()) {
-                                Icon(
-                                    imageVector = Icons.Default.Clear,
-                                    contentDescription = "Ícone de x",
-                                    modifier = Modifier
-                                        .clickable {
-                                            onValueChange(
-                                                billDialogState.copy(
-                                                    origin = ""
-                                                )
-                                            )
-                                            focusRequester[0].requestFocus()
-                                        },
-                                    tint = White06Color
-                                )
+                                ClearTrailingIcon {
+                                    onValueChange(
+                                        billDialogState.copy(
+                                            origin = ""
+                                        )
+                                    )
+                                    focusRequester[0].requestFocus()
+                                }
                             }
                         },
                         singleLine = true,
@@ -361,20 +353,14 @@ fun AddOrEditBillDialog(
                         },
                         trailingIcon = {
                             if (billDialogState.title.isNotBlank()) {
-                                Icon(
-                                    imageVector = Icons.Default.Clear,
-                                    contentDescription = "Ícone de x",
-                                    modifier = Modifier
-                                        .clickable {
-                                            onValueChange(
-                                                billDialogState.copy(
-                                                    title = ""
-                                                )
-                                            )
-                                            focusRequester[1].requestFocus()
-                                        },
-                                    tint = White06Color
-                                )
+                                ClearTrailingIcon {
+                                    onValueChange(
+                                        billDialogState.copy(
+                                            title = ""
+                                        )
+                                    )
+                                    focusRequester[1].requestFocus()
+                                }
                             }
                         },
                         singleLine = true,
@@ -428,16 +414,10 @@ fun AddOrEditBillDialog(
                         },
                         trailingIcon = {
                             if (selectedDate != "") {
-                                Icon(
-                                    imageVector = Icons.Default.Clear,
-                                    contentDescription = "Ícone de x",
-                                    modifier = Modifier
-                                        .clickable {
-                                            selectedDate = ""
-                                            focusRequester[2].requestFocus()
-                                        },
-                                    tint = White06Color
-                                )
+                                ClearTrailingIcon {
+                                    selectedDate = ""
+                                    focusRequester[2].requestFocus()
+                                }
                             }
                         },
                         readOnly = true
@@ -507,20 +487,14 @@ fun AddOrEditBillDialog(
                         },
                         trailingIcon = {
                             if (billDialogState.description.isNotBlank()) {
-                                Icon(
-                                    imageVector = Icons.Default.Clear,
-                                    contentDescription = "Ícone de x",
-                                    modifier = Modifier
-                                        .clickable {
-                                            onValueChange(
-                                                billDialogState.copy(
-                                                    description = ""
-                                                )
-                                            )
-                                            focusRequester[3].requestFocus()
-                                        },
-                                    tint = White06Color
-                                )
+                                ClearTrailingIcon {
+                                    onValueChange(
+                                        billDialogState.copy(
+                                            description = ""
+                                        )
+                                    )
+                                    focusRequester[3].requestFocus()
+                                }
                             }
                         },
                         singleLine = true,
@@ -558,21 +532,15 @@ fun AddOrEditBillDialog(
                         },
                         trailingIcon = {
                             if (selectedDueDate != "") {
-                                Icon(
-                                    imageVector = Icons.Default.Clear,
-                                    contentDescription = "Ícone de x",
-                                    modifier = Modifier
-                                        .clickable {
-                                            selectedDueDate = ""
-                                            onValueChange(
-                                                billDialogState.copy(
-                                                    dueDate = 0L
-                                                )
-                                            )
-                                            focusRequester[5].requestFocus()
-                                        },
-                                    tint = White06Color
-                                )
+                                ClearTrailingIcon {
+                                    selectedDueDate = ""
+                                    onValueChange(
+                                        billDialogState.copy(
+                                            dueDate = 0L
+                                        )
+                                    )
+                                    focusRequester[5].requestFocus()
+                                }
                             }
                         },
                         readOnly = true
@@ -629,40 +597,14 @@ fun AddOrEditBillDialog(
                         )
                     }
 
-                    Row(
-                        modifier = Modifier
-                            .padding(vertical = 8.dp)
-                            .clip(RoundedCornerShape(15.dp))
-                            .border(1.dp, White06Color, RoundedCornerShape(15.dp))
-                            .width(280.dp)
-                            .selectable(
-                                selected = billDialogState.paid,
-                                onClick = {
-                                    onValueChange(
-                                        billDialogState.copy(
-                                            paid = !billDialogState.paid
-                                        )
-                                    )
-                                },
-                                role = Role.Checkbox
-                            ),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Checkbox(
-                            checked = billDialogState.paid,
-                            onCheckedChange = {
-                                onValueChange(
-                                    billDialogState.copy(
-                                        paid = !billDialogState.paid
-                                    )
-                                )
-                            },
-                        )
-
-                        Text(
-                            text = "Paga?",
-                            fontFamily = PoppinsFontFamily,
-                            color = if (billDialogState.paid) PrimaryColor else White06Color,
+                    CustomCheckbox(
+                        checkboxText = "Paga?",
+                        alreadyChecked = billDialogState.paid
+                    ) { isChecked ->
+                        onValueChange(
+                            billDialogState.copy(
+                                paid = isChecked
+                            )
                         )
                     }
 
@@ -704,16 +646,10 @@ fun AddOrEditBillDialog(
                             },
                             trailingIcon = {
                                 if (tagsToAdd.isNotEmpty()) {
-                                    Icon(
-                                        imageVector = Icons.Default.Clear,
-                                        contentDescription = "Ícone de x",
-                                        modifier = Modifier
-                                            .clickable {
-                                                tagsToAdd = ""
-                                                focusRequester[6].requestFocus()
-                                            },
-                                        tint = White06Color
-                                    )
+                                    ClearTrailingIcon {
+                                        tagsToAdd = ""
+                                        focusRequester[6].requestFocus()
+                                    }
                                 }
                             },
                             maxLines = 3,
@@ -737,10 +673,8 @@ fun AddOrEditBillDialog(
                     Button(
                         onClick = {
                             if (isBillToEdit) {
-                                // UPDATE BILL
                                 onUpdateBill(billDialogState)
                             } else {
-                                // NEW BILL
                                 onAddBill(billDialogState)
                             }
                         },
@@ -884,7 +818,9 @@ private fun AddOrEditBillDialogPreview() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(BackgroundColor)
+                .background(BackgroundColor),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             AddOrEditBillDialog(
                 billStateFlow = billsViewModel.billStateFlow,

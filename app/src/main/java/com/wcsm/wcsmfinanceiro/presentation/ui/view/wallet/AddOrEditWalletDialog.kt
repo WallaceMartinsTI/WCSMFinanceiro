@@ -1,6 +1,5 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -44,6 +43,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -59,6 +60,7 @@ import com.wcsm.wcsmfinanceiro.presentation.model.WalletOperationType
 import com.wcsm.wcsmfinanceiro.presentation.model.WalletState
 import com.wcsm.wcsmfinanceiro.presentation.model.WalletType
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.ClearTrailingIcon
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.MonetaryInputField
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.ErrorColor
@@ -89,6 +91,8 @@ fun AddOrEditWalletDialog(
     onUpdateOrDeleteWalletCard: (walletId: Long) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val focusRequester = remember { FocusRequester() }
+
     val uiState by uiStateFlow.collectAsStateWithLifecycle()
     val walletDialogState by walletStateFlow.collectAsStateWithLifecycle()
 
@@ -148,15 +152,11 @@ fun AddOrEditWalletDialog(
                     style = MaterialTheme.typography.bodyMedium
                 )
 
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Ícone de fechar",
-                    tint = White06Color,
-                    modifier = Modifier
-                        .clickable { onDismiss() }
-                        .align(Alignment.TopEnd)
-                        .size(40.dp)
-                )
+                ClearTrailingIcon(
+                    modifier = Modifier.align(Alignment.CenterEnd).size(40.dp)
+                ) {
+                    onDismiss()
+                }
             }
 
             Box(
@@ -173,8 +173,8 @@ fun AddOrEditWalletDialog(
                             )
                         },
                         modifier = Modifier
-                            .width(280.dp),
-                        //.focusRequester(focusRequester[0]),
+                            .width(280.dp)
+                            .focusRequester(focusRequester),
                         label = {
                             Text(
                                 text = "Título*",
@@ -194,20 +194,16 @@ fun AddOrEditWalletDialog(
                             )
                         },
                         trailingIcon = {
-                            /*if (billModalState.origin.isNotEmpty()) {
-                                Icon(
-                                    imageVector = Icons.Default.Clear,
-                                    contentDescription = "Ícone de x",
-                                    modifier = Modifier
-                                        .clickable {
-                                            billModalState = billModalState.copy(
-                                                origin = ""
-                                            )
-                                            focusRequester[0].requestFocus()
-                                        },
-                                    tint = White06Color
-                                )
-                            }*/
+                            if(walletDialogState.title.isNotEmpty()) {
+                                ClearTrailingIcon {
+                                    onValueChange(
+                                        walletDialogState.copy(
+                                            title = ""
+                                        )
+                                    )
+                                    focusRequester.requestFocus()
+                                }
+                            }
                         },
                         singleLine = true,
                         isError = walletDialogState.titleErrorMessage.isNotBlank(),
@@ -229,9 +225,6 @@ fun AddOrEditWalletDialog(
                         ),
                     )
 
-                    Log.i("#-# TESTE #-#", "walletDialogState.balanceErrorMessage.isNotBlank(): ${walletDialogState.balanceErrorMessage.isNotBlank()}")
-                    Log.i("#-# TESTE #-#", "walletDialogState.balanceErrorMessage: ${walletDialogState.balanceErrorMessage}")
-
                     MonetaryInputField(
                         label = "Saldo*",
                         alreadyExistsDoubleValue = isWalletToEdit,
@@ -247,8 +240,6 @@ fun AddOrEditWalletDialog(
                         },
                         modifier = Modifier.width(280.dp)
                     )
-
-                    //Spacer(Modifier.height(16.dp))
 
                     if(walletDialogState.responseErrorMessage.isNotBlank()) {
                         Text(
@@ -279,14 +270,10 @@ fun AddOrEditWalletDialog(
                                     .border(1.dp, White06Color, RoundedCornerShape(10.dp))
                                     .padding(8.dp)
                             ) {
-                                /*items(walletCards) { walletCard ->
-                                    WalletCardContainer(
-                                        modifier = Modifier.scale(0.9f),
-                                        card = walletCard,
-                                        onCardClick = { onWalletCardClick(walletCard) }
-                                    )
-                                }*/
-                                items(walletCards) { walletCard ->
+                                items(
+                                    items = walletCards,
+                                    key = { it.walletCardId }
+                                ) { walletCard ->
                                     WalletCardContainer(
                                         modifier = Modifier.scale(0.9f),
                                         card = walletCard,
@@ -300,10 +287,8 @@ fun AddOrEditWalletDialog(
                     Button(
                         onClick = {
                             if(isWalletToEdit) {
-                                // UPDATE WALLET
                                 onUpdateWallet(walletDialogState)
                             } else {
-                                // NEW WALLET
                                 onAddWallet(walletDialogState)
                             }
                         },

@@ -86,17 +86,11 @@ fun DateRangeFilter(
             },
             trailingIcon = {
                 if(selectedFilterDate != "Selecione uma data") {
-                    Icon(
-                        imageVector = Icons.Default.Clear,
-                        contentDescription = "Ícone de x",
-                        modifier = Modifier
-                            .clickable {
-                                onClearFilter()
-                                alreadyFiltered = false
-                                selectedFilterDate = "Selecione uma data"
-                            },
-                        tint = White06Color
-                    )
+                    ClearTrailingIcon {
+                        onClearFilter()
+                        alreadyFiltered = false
+                        selectedFilterDate = "Selecione uma data"
+                    }
                 }
             },
             singleLine = true,

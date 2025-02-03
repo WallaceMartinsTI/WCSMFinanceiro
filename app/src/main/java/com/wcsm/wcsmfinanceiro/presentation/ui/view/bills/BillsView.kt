@@ -1,7 +1,6 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +15,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -45,8 +43,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.R
 import com.wcsm.wcsmfinanceiro.presentation.model.BillOperationType
-import com.wcsm.wcsmfinanceiro.presentation.model.WalletOperationType
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.ClearTrailingIcon
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.DateRangeFilter
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnBackgroundColor
@@ -66,7 +64,7 @@ fun BillsView() {
     val focusManager = LocalFocusManager.current
     val configuration = LocalConfiguration.current
 
-    var textFilter by remember { mutableStateOf("") }
+    val deviceScreenHeight = configuration.screenHeightDp.dp
 
     val bills by billsViewModel.bills.collectAsStateWithLifecycle()
     val uiState by billsViewModel.uiState.collectAsStateWithLifecycle()
@@ -74,9 +72,9 @@ fun BillsView() {
 
     var showAddOrEditBillDialog by remember { mutableStateOf(false) }
 
-    val deviceScreenHeight = configuration.screenHeightDp.dp
-
     var isLoading by remember { mutableStateOf(uiState.isLoading) }
+
+    var textFilter by remember { mutableStateOf("") }
 
     LaunchedEffect(textFilter) {
         if(filterSelectedDateRange != null && textFilter.isNotBlank()) {
@@ -181,16 +179,10 @@ fun BillsView() {
             },
             trailingIcon = {
                 if(textFilter.isNotBlank()) {
-                    Icon(
-                        imageVector = Icons.Default.Clear,
-                        contentDescription = "Ícone de x",
-                        modifier = Modifier
-                            .clickable {
-                                textFilter = ""
-                                billsViewModel.clearFilter()
-                            },
-                        tint = White06Color
-                    )
+                    ClearTrailingIcon {
+                        textFilter = ""
+                        billsViewModel.clearFilter()
+                    }
                 }
             },
             singleLine = true,
