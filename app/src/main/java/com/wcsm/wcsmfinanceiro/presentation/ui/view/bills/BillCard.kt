@@ -1,15 +1,18 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Expand
@@ -20,7 +23,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -40,12 +45,13 @@ import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianReal
 @Composable
 fun BillCard(
     bill: Bill,
+    modifier: Modifier = Modifier,
     onExpandBillCard: () -> Unit
 ) {
     val titleAndPriceColor = if (bill.billType == BillType.INCOME) MoneyGreenColor else RedColor
 
     ElevatedCard(
-        modifier = Modifier
+        modifier = modifier
             .clip(RoundedCornerShape(15.dp))
             .clickable { onExpandBillCard() }
     ) {
@@ -83,7 +89,7 @@ fun BillCard(
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.Top
                 ) {
                     Text(
                         text = bill.value.toBrazilianReal(),
@@ -94,8 +100,10 @@ fun BillCard(
 
                     Text(
                         text = bill.category,
+                        textAlign = TextAlign.End,
                         color = TertiaryColor,
-                        fontFamily = PoppinsFontFamily
+                        fontFamily = PoppinsFontFamily,
+                        modifier = Modifier.width(120.dp)
                     )
                 }
             }
@@ -146,13 +154,22 @@ private fun BillCardPreview() {
         )
 
         Column(
-            modifier = Modifier
-                .size(width = 400.dp, height = 250.dp)
-                .background(BackgroundColor),
+            modifier = Modifier.fillMaxSize().background(BackgroundColor),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            BillCard(bill = incomeBill) {}
+            BillCard(bill = incomeBill.copy(category = "Freelancer/Autônomo")) {}
+
+            Spacer(Modifier.height(16.dp))
+
+            BillCard(bill = expenseBill, modifier = Modifier.padding(horizontal = 16.dp)) {}
+
+            Spacer(Modifier.height(16.dp))
+
+            BillCard(
+                bill = incomeBill.copy(value = 9999999.99,category = "Freelancer/Autônomo"),
+                modifier = Modifier.padding(horizontal = 16.dp)
+            ) {}
 
             Spacer(Modifier.height(16.dp))
 

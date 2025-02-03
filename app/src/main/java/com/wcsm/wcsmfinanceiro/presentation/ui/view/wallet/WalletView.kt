@@ -76,7 +76,25 @@ fun WalletView(
         isLoading = uiState.isLoading
 
         uiState.error?.let { errorMessage ->
-            showToastMessage(context, errorMessage)
+            if(errorMessage.isNotBlank() && uiState.operationType != null) {
+                when(uiState.operationType!!.walletType) {
+                    WalletType.WALLET -> {
+                        walletViewModel.updateWalletState(
+                            walletViewModel.walletStateFlow.value.copy(
+                                responseErrorMessage = errorMessage
+                            )
+                        )
+                    }
+                    WalletType.WALLET_CARD -> {
+                        walletViewModel.updateWalletCardState(
+                            walletViewModel.walletCardStateFlow.value.copy(
+                                responseErrorMessage = errorMessage
+                            )
+                        )
+                    }
+                }
+            }
+            //showToastMessage(context, errorMessage)
         }
 
         if(uiState.success) {

@@ -11,5 +11,6 @@ data class WalletCardState(
     var spent: Double = 0.0,
     var spentErrorMessage: String = "",
     var available: Double = 0.0,
-    var blocked: Boolean = false
+    var blocked: Boolean = false,
+    var responseErrorMessage: String = ""
 )

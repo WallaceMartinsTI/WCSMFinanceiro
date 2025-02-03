@@ -85,10 +85,15 @@ fun BillsView() {
     }
 
     LaunchedEffect(uiState) {
+
         isLoading = uiState.isLoading
 
-        uiState.error?.let { errorMessage ->
-            showToastMessage(context, errorMessage)
+        uiState.error?.let { responseErrorMessage ->
+            billsViewModel.updateBillState(
+                billsViewModel.billStateFlow.value.copy(
+                    responseErrorMessage = responseErrorMessage
+                )
+            )
         }
 
         if(uiState.success) {

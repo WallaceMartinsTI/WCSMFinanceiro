@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -70,6 +71,7 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
 import com.wcsm.wcsmfinanceiro.presentation.util.CurrencyVisualTransformation
 import com.wcsm.wcsmfinanceiro.presentation.util.getDoubleForStringPrice
 import com.wcsm.wcsmfinanceiro.presentation.util.formatMonetaryValue
+import com.wcsm.wcsmfinanceiro.presentation.util.showToastMessage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 
@@ -245,6 +247,17 @@ fun AddOrEditWalletDialog(
                         },
                         modifier = Modifier.width(280.dp)
                     )
+
+                    //Spacer(Modifier.height(16.dp))
+
+                    if(walletDialogState.responseErrorMessage.isNotBlank()) {
+                        Text(
+                            text = "Erro: ${walletDialogState.responseErrorMessage}",
+                            color = ErrorColor,
+                            modifier = Modifier.width(280.dp).padding(horizontal = 16.dp)
+                        )
+                        Spacer(Modifier.height(16.dp))
+                    }
 
                     if(walletHasCards == true) {
                         Column(

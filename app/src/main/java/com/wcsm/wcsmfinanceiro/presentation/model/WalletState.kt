@@ -6,5 +6,6 @@ data class WalletState(
     var titleErrorMessage: String = "",
     var balance: Double = 0.0,
     var balanceErrorMessage: String = "",
-    var blocked: Boolean = false
+    var blocked: Boolean = false,
+    var responseErrorMessage: String = ""
 )

@@ -297,7 +297,16 @@ fun AddOrEditWalletCardDialog(
                 singleLine = true,
             )
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(16.dp))
+
+            if(walletCardDialogState.responseErrorMessage.isNotBlank()) {
+                Text(
+                    text = "Erro: ${walletCardDialogState.responseErrorMessage}",
+                    color = ErrorColor,
+                    modifier = Modifier.width(280.dp).padding(horizontal = 16.dp)
+                )
+                Spacer(Modifier.height(16.dp))
+            }
 
             Button(
                 onClick = {

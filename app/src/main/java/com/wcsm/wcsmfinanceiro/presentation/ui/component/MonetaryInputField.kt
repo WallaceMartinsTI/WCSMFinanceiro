@@ -51,44 +51,19 @@ fun MonetaryInputField(
     val monetaryFocusRequester = remember { FocusRequester() }
     var monetaryValue by remember { mutableStateOf("") }
 
-    var error by remember { mutableStateOf(false) }
-    var monetaryValueErrorMessage by remember { mutableStateOf("") }
-
     LaunchedEffect(Unit) {
         if(alreadyExistsDoubleValue) {
             monetaryValue = alreadyDoubleValue.toString()
             monetaryValue = formatMonetaryValue(monetaryValue).replace(".", "")
         }
-
-        error = isError
-        monetaryValueErrorMessage = errorMessage
-        Log.i("#-# TESTE #-#", "monetaryValue: $monetaryValue")
-        Log.i("#-# TESTE #-#", "error: $error")
-        Log.i("#-# TESTE #-#", "monetaryValueErrorMessage: $monetaryValueErrorMessage")
     }
 
     LaunchedEffect(monetaryValue) {
-        Log.i("#-# TESTE #-#", "monetaryValue $monetaryValue")
+        Log.i("#-# TESTE #-#", "monetaryValue: $monetaryValue")
         Log.i("#-# TESTE #-#", "monetaryValue.length: ${monetaryValue.length}")
-
         if(monetaryValue == "0") {
             monetaryValue = ""
         }
-
-        if(!error && monetaryValue.length > 9) {
-            Log.i("#-# TESTE #-#", "ENTROU IF")
-            error = true
-            monetaryValueErrorMessage = "Valor muito grande."
-        } else {
-            error = isError
-            monetaryValueErrorMessage = errorMessage
-        }
-
-        Log.i("#-# TESTE #-#", "DEPOIS IF")
-        Log.i("#-# TESTE #-#", "monetaryValue: $monetaryValue")
-        Log.i("#-# TESTE #-#", "error: $error")
-        Log.i("#-# TESTE #-#", "monetaryValueErrorMessage: $monetaryValueErrorMessage")
-
 
         if(monetaryValue.isNotBlank()) {
             onMonetaryValueChange(getDoubleForStringPrice(monetaryValue))
@@ -100,7 +75,7 @@ fun MonetaryInputField(
     OutlinedTextField(
         value = monetaryValue,
         onValueChange = { newValue ->
-            if(newValue.all { it.isDigit() }) {
+            if(newValue.length <= 12 && newValue.all { it.isDigit() }) {
                 monetaryValue = newValue
             }
         },
@@ -133,11 +108,11 @@ fun MonetaryInputField(
             }
         },
         singleLine = true,
-        isError = error,
+        isError = isError,
         supportingText = {
-            if(error) {
+            if(isError) {
                 Text(
-                    text = monetaryValueErrorMessage,
+                    text = errorMessage,
                     fontFamily = PoppinsFontFamily
                 )
             }

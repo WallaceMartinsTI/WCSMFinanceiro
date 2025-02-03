@@ -20,5 +20,6 @@ data class BillState(
     var paid: Boolean = false,
     var dueDate: Long = 0L,
     var expired: Boolean = false,
-    var tags: List<String> = emptyList()
+    var tags: List<String> = emptyList(),
+    var responseErrorMessage: String = ""
 )

@@ -369,20 +369,18 @@ class WalletViewModel @Inject constructor(
 
     private fun validateWalletTitle(title: String): Pair<Boolean, String> {
         return if(title.isBlank()) {
-            Pair(false, "O título não pode ser vazio")
+            Pair(false, "O título não pode ser vazio.")
         } else if(title.length < 3) {
-            Pair(false, "O título é muito curto (min. 3 caracteres)")
+            Pair(false, "O título é muito curto (min. 3 caracteres).")
         } else if(title.length > 20) {
-            Pair(false, "O título é muito grande (max. 20 caracteres)")
+            Pair(false, "O título é muito grande (max. 20 caracteres).")
         }else {
             Pair(true, "")
         }
     }
 
     private fun validateWalletBalance(balance: Double): Pair<Boolean, String> {
-        return if(balance == 0.0) {
-            Pair(false, "Você deve informar um valor maior que 0.")
-        } else if(balance < 0) {
+        return if(balance < 0) {
             Pair(false, "Valor inválido.")
         } else {
             Pair(true, "")

@@ -595,7 +595,13 @@ class BillsViewModel @Inject constructor(
     private fun validateValue(value: Double) : Pair<Boolean, String> {
         return if(value == 0.0) {
             Pair(false, "Você deve informar um valor maior que 0.")
-        } else if(value < 0) {
+        }
+
+       /* else if(value > 9999999.99) {
+            Pair(false, "Valor muito alto (max. R$9.999.999,99).")
+        } */
+
+        else if(value < 0) {
             Pair(false, "Valor inválido.")
         } else {
             Pair(true, "")

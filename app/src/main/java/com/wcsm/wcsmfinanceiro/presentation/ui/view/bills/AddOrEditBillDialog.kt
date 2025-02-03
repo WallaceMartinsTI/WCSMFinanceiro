@@ -60,6 +60,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -255,6 +256,20 @@ fun AddOrEditBillDialog(
                         )
                     }
 
+                    BillCategoriesDropdown(
+                        inputtedOption = if (isBillToEdit) billDialogState.category else null,
+                        isError = billDialogState.categoryErrorMessage.isNotBlank(),
+                        errorMessage = billDialogState.categoryErrorMessage,
+                        modifier = Modifier.padding(bottom = 8.dp),
+                        onValueSelected = { selectedCategory ->
+                            onValueChange(
+                                billDialogState.copy(
+                                    category = selectedCategory
+                                )
+                            )
+                        }
+                    )
+
                     OutlinedTextField(
                         value = billDialogState.origin,
                         onValueChange = {
@@ -381,6 +396,7 @@ fun AddOrEditBillDialog(
                         value = selectedDate,
                         onValueChange = {},
                         modifier = Modifier
+                            .width(280.dp)
                             .focusRequester(focusRequester[2])
                             .onFocusEvent {
                                 if (it.isFocused) {
@@ -453,7 +469,8 @@ fun AddOrEditBillDialog(
                                     value = doubleMonetaryValue
                                 )
                             )
-                        }
+                        },
+                        modifier = Modifier.width(280.dp)
                     )
 
                     OutlinedTextField(
@@ -517,6 +534,7 @@ fun AddOrEditBillDialog(
                         value = selectedDueDate,
                         onValueChange = {},
                         modifier = Modifier
+                            .width(280.dp)
                             .focusRequester(focusRequester[5])
                             .onFocusEvent {
                                 if (it.isFocused) {
@@ -598,20 +616,6 @@ fun AddOrEditBillDialog(
                             color = if (billDialogState.expired) PrimaryColor else White06Color
                         )
                     }
-
-                    BillCategoriesDropdown(
-                        inputtedOption = if (isBillToEdit) billDialogState.category else null,
-                        isError = billDialogState.categoryErrorMessage.isNotBlank(),
-                        errorMessage = billDialogState.categoryErrorMessage,
-                        modifier = Modifier.padding(bottom = 8.dp),
-                        onValueSelected = { selectedCategory ->
-                            onValueChange(
-                                billDialogState.copy(
-                                    category = selectedCategory
-                                )
-                            )
-                        }
-                    )
 
                     RadioButtonChooser(
                         inputedOption = if (isBillToEdit) billDialogState.paymentType.displayName else null,
@@ -720,6 +724,15 @@ fun AddOrEditBillDialog(
                     }
 
                     Spacer(Modifier.height(16.dp))
+
+                    if(billDialogState.responseErrorMessage.isNotBlank()) {
+                        Text(
+                            text = "Erro: ${billDialogState.responseErrorMessage}",
+                            color = ErrorColor,
+                            modifier = Modifier.width(280.dp).padding(horizontal = 16.dp)
+                        )
+                        Spacer(Modifier.height(16.dp))
+                    }
 
                     Button(
                         onClick = {

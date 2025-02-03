@@ -5,12 +5,19 @@ import com.wcsm.wcsmfinanceiro.data.entity.relation.WalletWithCards
 import com.wcsm.wcsmfinanceiro.domain.model.Response
 import com.wcsm.wcsmfinanceiro.domain.repository.WalletRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class SaveWalletUseCase @Inject constructor(
     private val walletRepository: WalletRepository
 ) {
     suspend operator fun invoke(wallet: Wallet) : Flow<Response<Long>> {
+        if(wallet.balance > 9999999.99) {
+            return flow {
+                emit(Response.Error("Valor muito alto (max. R$9.999.999,99)."))
+            }
+        }
+
         return walletRepository.saveWallet(wallet)
     }
 }
