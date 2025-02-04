@@ -154,7 +154,12 @@ private fun WalletDropdownChooserPreview() {
                 walletId = 3999999,
                 title = "Caixa",
                 balance = 1725.74
-            )
+            ),
+            Wallet(
+                walletId = 3999999,
+                title = "NomeMuitoGrandeLim20",
+                balance = 1725.74
+            ),
         )
 
         Column(

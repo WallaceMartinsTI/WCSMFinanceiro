@@ -2,7 +2,6 @@ package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,16 +14,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Edit
@@ -56,11 +51,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -74,7 +66,7 @@ import com.wcsm.wcsmfinanceiro.presentation.model.BillState
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppDatePicker
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
-import com.wcsm.wcsmfinanceiro.presentation.ui.component.ClearTrailingIcon
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.XIcon
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.CustomCheckbox
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.MonetaryInputField
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.RadioButtonChooser
@@ -87,7 +79,6 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PrimaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.SurfaceColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
-import com.wcsm.wcsmfinanceiro.presentation.util.CurrencyVisualTransformation
 import com.wcsm.wcsmfinanceiro.presentation.util.brazilianDateToTimeInMillis
 import com.wcsm.wcsmfinanceiro.presentation.util.formatMonetaryValue
 import com.wcsm.wcsmfinanceiro.presentation.util.getBillTypeFromString
@@ -218,7 +209,7 @@ fun AddOrEditBillDialog(
                     style = MaterialTheme.typography.bodyMedium
                 )
 
-                ClearTrailingIcon(
+                XIcon(
                     modifier = Modifier.align(Alignment.CenterEnd).size(40.dp)
                 ) {
                     onDismiss()
@@ -270,11 +261,11 @@ fun AddOrEditBillDialog(
 
                     OutlinedTextField(
                         value = billDialogState.origin,
-                        onValueChange = {
-                            if (billDialogState.origin.length < 50) {
+                        onValueChange = { newValue ->
+                            if(newValue.length <= 30) {
                                 onValueChange(
                                     billDialogState.copy(
-                                        origin = it
+                                        origin = newValue
                                     )
                                 )
                             }
@@ -303,7 +294,7 @@ fun AddOrEditBillDialog(
                         },
                         trailingIcon = {
                             if (billDialogState.origin.isNotBlank()) {
-                                ClearTrailingIcon {
+                                XIcon {
                                     onValueChange(
                                         billDialogState.copy(
                                             origin = ""
@@ -322,11 +313,11 @@ fun AddOrEditBillDialog(
 
                     OutlinedTextField(
                         value = billDialogState.title,
-                        onValueChange = {
-                            if (billDialogState.title.length < 50) {
+                        onValueChange = { newValue ->
+                            if (newValue.length <= 50) {
                                 onValueChange(
                                     billDialogState.copy(
-                                        title = it
+                                        title = newValue
                                     )
                                 )
                             }
@@ -355,7 +346,7 @@ fun AddOrEditBillDialog(
                         },
                         trailingIcon = {
                             if (billDialogState.title.isNotBlank()) {
-                                ClearTrailingIcon {
+                                XIcon {
                                     onValueChange(
                                         billDialogState.copy(
                                             title = ""
@@ -371,7 +362,7 @@ fun AddOrEditBillDialog(
                             if (billDialogState.titleErrorMessage.isNotBlank()) {
                                 Text(
                                     text = billDialogState.titleErrorMessage,
-                                    fontFamily = PoppinsFontFamily
+                                    fontFamily = PoppinsFontFamily,
                                 )
                             }
                         },
@@ -416,7 +407,7 @@ fun AddOrEditBillDialog(
                         },
                         trailingIcon = {
                             if (selectedDate != "") {
-                                ClearTrailingIcon {
+                                XIcon {
                                     selectedDate = ""
                                     focusRequester[2].requestFocus()
                                 }
@@ -457,11 +448,11 @@ fun AddOrEditBillDialog(
 
                     OutlinedTextField(
                         value = billDialogState.description,
-                        onValueChange = {
-                            if (billDialogState.description.length < 150) {
+                        onValueChange = { newValue ->
+                            if(newValue.length <= 150) {
                                 onValueChange(
                                     billDialogState.copy(
-                                        description = it
+                                        description = newValue
                                     )
                                 )
                             }
@@ -490,7 +481,7 @@ fun AddOrEditBillDialog(
                         },
                         trailingIcon = {
                             if (billDialogState.description.isNotBlank()) {
-                                ClearTrailingIcon {
+                                XIcon {
                                     onValueChange(
                                         billDialogState.copy(
                                             description = ""
@@ -500,7 +491,7 @@ fun AddOrEditBillDialog(
                                 }
                             }
                         },
-                        singleLine = true,
+                        maxLines = 8,
                         supportingText = {},
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Next
@@ -535,7 +526,7 @@ fun AddOrEditBillDialog(
                         },
                         trailingIcon = {
                             if (selectedDueDate != "") {
-                                ClearTrailingIcon {
+                                XIcon {
                                     selectedDueDate = ""
                                     onValueChange(
                                         billDialogState.copy(
@@ -618,8 +609,10 @@ fun AddOrEditBillDialog(
                     } else {
                         OutlinedTextField(
                             value = tagsToAdd,
-                            onValueChange = {
-                                tagsToAdd = it
+                            onValueChange = { newValue ->
+                                if(newValue.length <= 60) {
+                                    tagsToAdd = newValue
+                                }
                             },
                             modifier = Modifier
                                 .width(280.dp)
@@ -651,7 +644,7 @@ fun AddOrEditBillDialog(
                             },
                             trailingIcon = {
                                 if (tagsToAdd.isNotEmpty()) {
-                                    ClearTrailingIcon {
+                                    XIcon {
                                         tagsToAdd = ""
                                         focusRequester[6].requestFocus()
                                     }

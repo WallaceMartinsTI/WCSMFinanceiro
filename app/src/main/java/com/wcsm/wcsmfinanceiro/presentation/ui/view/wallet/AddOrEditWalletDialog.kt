@@ -2,7 +2,6 @@ package com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,8 +18,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AttachMoney
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Save
@@ -48,7 +45,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -60,7 +56,7 @@ import com.wcsm.wcsmfinanceiro.presentation.model.WalletOperationType
 import com.wcsm.wcsmfinanceiro.presentation.model.WalletState
 import com.wcsm.wcsmfinanceiro.presentation.model.WalletType
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
-import com.wcsm.wcsmfinanceiro.presentation.ui.component.ClearTrailingIcon
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.XIcon
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.MonetaryInputField
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.ErrorColor
@@ -70,10 +66,6 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PrimaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.SurfaceColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
-import com.wcsm.wcsmfinanceiro.presentation.util.CurrencyVisualTransformation
-import com.wcsm.wcsmfinanceiro.presentation.util.getDoubleForStringPrice
-import com.wcsm.wcsmfinanceiro.presentation.util.formatMonetaryValue
-import com.wcsm.wcsmfinanceiro.presentation.util.showToastMessage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 
@@ -152,7 +144,7 @@ fun AddOrEditWalletDialog(
                     style = MaterialTheme.typography.bodyMedium
                 )
 
-                ClearTrailingIcon(
+                XIcon(
                     modifier = Modifier.align(Alignment.CenterEnd).size(40.dp)
                 ) {
                     onDismiss()
@@ -165,12 +157,14 @@ fun AddOrEditWalletDialog(
                 Column {
                     OutlinedTextField(
                         value = walletDialogState.title,
-                        onValueChange = {
-                            onValueChange(
-                                walletDialogState.copy(
-                                    title = it
+                        onValueChange = { newValue ->
+                            if(newValue.length <= 30) {
+                                onValueChange(
+                                    walletDialogState.copy(
+                                        title = newValue
+                                    )
                                 )
-                            )
+                            }
                         },
                         modifier = Modifier
                             .width(280.dp)
@@ -196,7 +190,7 @@ fun AddOrEditWalletDialog(
                         },
                         trailingIcon = {
                             if(walletDialogState.title.isNotEmpty()) {
-                                ClearTrailingIcon {
+                                XIcon {
                                     onValueChange(
                                         walletDialogState.copy(
                                             title = ""

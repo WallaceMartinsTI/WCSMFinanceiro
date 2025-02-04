@@ -12,7 +12,6 @@ import com.wcsm.wcsmfinanceiro.domain.usecase.bills.SaveBillUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.UpdateBillUseCase
 import com.wcsm.wcsmfinanceiro.presentation.model.BillOperationType
 import com.wcsm.wcsmfinanceiro.presentation.model.BillState
-import com.wcsm.wcsmfinanceiro.presentation.model.WalletOperationType
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.util.toBill
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -321,7 +320,6 @@ class BillsViewModel @Inject constructor(
                         )
                     }
                     is Response.Error -> {
-                        // SHOW ERROR MESSAGE result.message
                         _uiState.value = uiState.value.copy(
                             isLoading = false,
                             error = result.message
@@ -356,7 +354,6 @@ class BillsViewModel @Inject constructor(
                         )
                     }
                     is Response.Error -> {
-                        // SHOW ERROR MESSAGE result.message
                         _uiState.value = uiState.value.copy(
                             isLoading = false,
                             error = result.message
@@ -390,7 +387,6 @@ class BillsViewModel @Inject constructor(
                         )
                     }
                     is Response.Error -> {
-                        // SHOW ERROR MESSAGE result.message
                         _uiState.value = uiState.value.copy(
                             isLoading = false,
                             error = result.message
@@ -426,7 +422,6 @@ class BillsViewModel @Inject constructor(
                             )
                         }
                         is Response.Error -> {
-                            // SHOW ERROR MESSAGE result.message
                             _uiState.value = uiState.value.copy(
                                 isLoading = false,
                                 error = result.message
@@ -479,7 +474,6 @@ class BillsViewModel @Inject constructor(
                             )
                         }
                         is Response.Error -> {
-                            // SHOW ERROR MESSAGE result.message
                             _uiState.value = uiState.value.copy(
                                 isLoading = false,
                                 error = result.message
@@ -519,7 +513,6 @@ class BillsViewModel @Inject constructor(
                             )
                         }
                         is Response.Error -> {
-                            // SHOW ERROR MESSAGE result.message
                             _uiState.value = uiState.value.copy(
                                 isLoading = false,
                                 error = result.message
@@ -575,8 +568,8 @@ class BillsViewModel @Inject constructor(
             Pair(false, "O título não pode ser vazio.")
         } else if(title.length < 3) {
             Pair(false, "O título é muito curto (min. 3 caracteres).")
-        } else if(title.length > 50) {
-            Pair(false, "O título é muito grande (max. 50 caracteres).")
+        } else if(title.length > 30) {
+            Pair(false, "O título é muito grande (${title.length}/30 caracteres).")
         } else {
             Pair(true, "")
         }
@@ -595,13 +588,7 @@ class BillsViewModel @Inject constructor(
     private fun validateValue(value: Double) : Pair<Boolean, String> {
         return if(value == 0.0) {
             Pair(false, "Você deve informar um valor maior que 0.")
-        }
-
-       /* else if(value > 9999999.99) {
-            Pair(false, "Valor muito alto (max. R$9.999.999,99).")
-        } */
-
-        else if(value < 0) {
+        } else if(value < 0) {
             Pair(false, "Valor inválido.")
         } else {
             Pair(true, "")

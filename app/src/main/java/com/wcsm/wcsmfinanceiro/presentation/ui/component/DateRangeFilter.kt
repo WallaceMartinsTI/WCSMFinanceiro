@@ -1,6 +1,5 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.component
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,6 +33,7 @@ import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianDateString
 @Composable
 fun DateRangeFilter(
     filterSelectedDateRange: Pair<Long, Long>?,
+    modifier: Modifier = Modifier,
     onDateSelected: (startDate: Long, endDate: Long) -> Unit,
     onClearFilter: () -> Unit,
     onFilter: (startDate: Long, endDate: Long) -> Unit
@@ -60,7 +60,7 @@ fun DateRangeFilter(
     }
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceAround
@@ -86,7 +86,7 @@ fun DateRangeFilter(
             },
             trailingIcon = {
                 if(selectedFilterDate != "Selecione uma data") {
-                    ClearTrailingIcon {
+                    XIcon {
                         onClearFilter()
                         alreadyFiltered = false
                         selectedFilterDate = "Selecione uma data"

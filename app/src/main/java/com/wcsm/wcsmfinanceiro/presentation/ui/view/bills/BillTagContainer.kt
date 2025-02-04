@@ -48,11 +48,11 @@ fun BillTagsContainer(
 @Composable
 private fun BillTagsContainerPreview() {
     WCSMFinanceiroTheme(dynamicColor = false) {
-        val tags = listOf("Entrada", "Trabalho", "Bonificação", "2025")
+        val tags = listOf("Entrada", "Trabalhozando", "Bonificaçãotogodata", "2025")
 
         Column(
             modifier = Modifier
-                .size(350.dp, 100.dp)
+                .size(350.dp, 150.dp)
                 .background(BackgroundColor),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally

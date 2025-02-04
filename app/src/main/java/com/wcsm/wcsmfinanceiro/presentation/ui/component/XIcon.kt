@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
@@ -22,7 +21,7 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
 
 @Composable
-fun ClearTrailingIcon(
+fun XIcon(
     modifier: Modifier = Modifier,
     onClear: () -> Unit
 ) {
@@ -50,7 +49,7 @@ private fun ClearTrailingIconPreview() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            ClearTrailingIcon {}
+            XIcon {}
         }
     }
 }

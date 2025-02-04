@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircleOutline
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Person
@@ -48,7 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.R
-import com.wcsm.wcsmfinanceiro.presentation.ui.component.ClearTrailingIcon
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.XIcon
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnBackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PoppinsFontFamily
@@ -131,7 +130,7 @@ fun RegisterView(
             },
             trailingIcon = {
                 if(registerState.name.isNotEmpty()) {
-                    ClearTrailingIcon {
+                    XIcon {
                         registerViewModel.updateRegisterState(
                             registerState.copy(
                                 name = ""
@@ -189,7 +188,7 @@ fun RegisterView(
             },
             trailingIcon = {
                 if(registerState.email.isNotEmpty()) {
-                    ClearTrailingIcon {
+                    XIcon {
                         registerViewModel.updateRegisterState(
                             registerState.copy(
                                 email = ""

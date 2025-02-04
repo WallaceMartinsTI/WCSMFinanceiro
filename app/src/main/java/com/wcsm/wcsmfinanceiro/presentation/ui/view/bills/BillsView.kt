@@ -44,7 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.R
 import com.wcsm.wcsmfinanceiro.presentation.model.BillOperationType
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
-import com.wcsm.wcsmfinanceiro.presentation.ui.component.ClearTrailingIcon
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.XIcon
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.DateRangeFilter
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnBackgroundColor
@@ -180,7 +180,7 @@ fun BillsView() {
             },
             trailingIcon = {
                 if(textFilter.isNotBlank()) {
-                    ClearTrailingIcon {
+                    XIcon {
                         textFilter = ""
                         billsViewModel.clearFilter()
                     }

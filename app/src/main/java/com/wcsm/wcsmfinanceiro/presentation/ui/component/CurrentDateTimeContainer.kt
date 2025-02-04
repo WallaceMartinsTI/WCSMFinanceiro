@@ -31,7 +31,9 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun CurrentDateTimeContainer(modifier: Modifier = Modifier) {
+fun CurrentDateTimeContainer(
+    modifier: Modifier = Modifier
+) {
     val currentDate = remember { Date() }
 
     val dayOfTheWeekFormat = SimpleDateFormat("EEEE", Locale("pt", "BR"))

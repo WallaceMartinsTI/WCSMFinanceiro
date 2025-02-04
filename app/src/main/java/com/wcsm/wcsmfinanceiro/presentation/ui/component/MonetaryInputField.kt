@@ -1,7 +1,6 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachMoney
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -91,7 +89,7 @@ fun MonetaryInputField(
         },
         trailingIcon = {
             if(monetaryValue.isNotBlank()) {
-                ClearTrailingIcon {
+                XIcon {
                     monetaryValue = ""
                     monetaryFocusRequester.requestFocus()
                 }

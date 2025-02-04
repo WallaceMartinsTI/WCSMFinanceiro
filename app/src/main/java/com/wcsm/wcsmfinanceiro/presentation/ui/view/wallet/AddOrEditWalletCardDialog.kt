@@ -1,9 +1,7 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,20 +13,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Cancel
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -47,10 +42,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -61,7 +54,7 @@ import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.model.WalletCardState
 import com.wcsm.wcsmfinanceiro.presentation.model.WalletOperationType
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
-import com.wcsm.wcsmfinanceiro.presentation.ui.component.ClearTrailingIcon
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.XIcon
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.CustomCheckbox
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.MonetaryInputField
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
@@ -73,9 +66,6 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.SurfaceColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.bills.WalletDropdownChooser
-import com.wcsm.wcsmfinanceiro.presentation.util.CurrencyVisualTransformation
-import com.wcsm.wcsmfinanceiro.presentation.util.formatMonetaryValue
-import com.wcsm.wcsmfinanceiro.presentation.util.getDoubleForStringPrice
 import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianReal
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
@@ -159,15 +149,11 @@ fun AddOrEditWalletCardDialog(
                     style = MaterialTheme.typography.bodyMedium
                 )
 
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Ícone de fechar",
-                    tint = White06Color,
-                    modifier = Modifier
-                        .clickable { onDismiss() }
-                        .align(Alignment.TopEnd)
-                        .size(40.dp)
-                )
+                XIcon(
+                    modifier = Modifier.align(Alignment.CenterEnd).size(40.dp)
+                ) {
+                    onDismiss()
+                }
             }
 
             if(!isWalletCardToEdit) {
@@ -186,12 +172,14 @@ fun AddOrEditWalletCardDialog(
 
             OutlinedTextField(
                 value = walletCardDialogState.title,
-                onValueChange = {
-                    onValueChange(
-                        walletCardDialogState.copy(
-                            title = it
+                onValueChange = { newValue ->
+                    if(newValue.length <= 30) {
+                        onValueChange(
+                            walletCardDialogState.copy(
+                                title = newValue
+                            )
                         )
-                    )
+                    }
                 },
                 modifier = Modifier
                     .width(272.dp)
@@ -211,7 +199,7 @@ fun AddOrEditWalletCardDialog(
                 },
                 trailingIcon = {
                     if(walletCardDialogState.title.isNotEmpty()) {
-                        ClearTrailingIcon {
+                        XIcon {
                             onValueChange(
                                 walletCardDialogState.copy(
                                     title = ""

@@ -77,7 +77,7 @@ fun BillCard(
                         fontFamily = PoppinsFontFamily,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f).padding(end = 40.dp)
                     )
 
                     Text(

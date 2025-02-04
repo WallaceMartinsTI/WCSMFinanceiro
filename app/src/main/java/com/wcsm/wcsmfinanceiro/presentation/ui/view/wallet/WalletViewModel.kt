@@ -1,6 +1,5 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wcsm.wcsmfinanceiro.data.entity.Wallet
@@ -205,7 +204,6 @@ class WalletViewModel @Inject constructor(
                         )
                     }
                     is Response.Error -> {
-                        // SHOW ERROR MESSAGE result.message
                         _uiState.value = uiState.value.copy(
                             isLoading = false,
                             error = result.message
@@ -242,7 +240,6 @@ class WalletViewModel @Inject constructor(
                             )
                         }
                         is Response.Error -> {
-                            // SHOW ERROR MESSAGE result.message
                             _uiState.value = uiState.value.copy(
                                 isLoading = false,
                                 error = result.message
@@ -282,7 +279,6 @@ class WalletViewModel @Inject constructor(
                             )
                         }
                         is Response.Error -> {
-                            // SHOW ERROR MESSAGE result.message
                             _uiState.value = uiState.value.copy(
                                 isLoading = false,
                                 error = result.message
@@ -322,7 +318,6 @@ class WalletViewModel @Inject constructor(
                             )
                         }
                         is Response.Error -> {
-                            // SHOW ERROR MESSAGE result.message
                             _uiState.value = uiState.value.copy(
                                 isLoading = false,
                                 error = result.message
@@ -373,7 +368,7 @@ class WalletViewModel @Inject constructor(
         } else if(title.length < 3) {
             Pair(false, "O título é muito curto (min. 3 caracteres).")
         } else if(title.length > 20) {
-            Pair(false, "O título é muito grande (max. 20 caracteres).")
+            Pair(false, "O título é muito grande (${title.length}/20 caracteres).")
         }else {
             Pair(true, "")
         }
@@ -414,7 +409,6 @@ class WalletViewModel @Inject constructor(
                             )
                         }
                         is Response.Error -> {
-                            // SHOW ERROR MESSAGE result.message
                             _uiState.value = uiState.value.copy(
                                 isLoading = false,
                                 error = result.message
@@ -454,7 +448,6 @@ class WalletViewModel @Inject constructor(
                             )
                         }
                         is Response.Error -> {
-                            // SHOW ERROR MESSAGE result.message
                             _uiState.value = uiState.value.copy(
                                 isLoading = false,
                                 error = result.message
@@ -479,8 +472,6 @@ class WalletViewModel @Inject constructor(
     fun deleteWalletCard(walletCardState: WalletCardState) {
         resetWalletCardStateErrorMessages()
 
-        Log.i("#-# TESTE #-#", "Chamou VIEWMODEL deleteWalletCard")
-        Log.i("#-# TESTE #-#", "walletCardState: $walletCardState")
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = uiState.value.copy(
                 operationType = WalletOperationType.Delete(WalletType.WALLET_CARD)
@@ -488,9 +479,7 @@ class WalletViewModel @Inject constructor(
 
             if(isWalletCardStateValid()) {
                 val walletCard = walletCardState.toWalletCard()
-                Log.i("#-# TESTE #-#", "isValid e walletCard: $walletCard")
                 deleteWalletCardUseCase(walletCard).collect { result ->
-                    Log.i("#-# TESTE #-#", "result: $result")
                     when(result) {
                         is Response.Loading -> {
                             _uiState.value = uiState.value.copy(
@@ -498,7 +487,6 @@ class WalletViewModel @Inject constructor(
                             )
                         }
                         is Response.Error -> {
-                            // SHOW ERROR MESSAGE result.message
                             _uiState.value = uiState.value.copy(
                                 isLoading = false,
                                 error = result.message
@@ -573,8 +561,8 @@ class WalletViewModel @Inject constructor(
             Pair(false, "O título não pode ser vazio.")
         } else if(title.length < 3) {
             Pair(false, "O título é muito curto (min. 3 caracteres).")
-        } else if(title.length > 25) {
-            Pair(false, "O título é muito curto (max. 25 caracteres).")
+        } else if(title.length > 20) {
+            Pair(false, "O título é muito curto (${title.length}/20 caracteres).")
         } else {
             Pair(true, "")
         }
