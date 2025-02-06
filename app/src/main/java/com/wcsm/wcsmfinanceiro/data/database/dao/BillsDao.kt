@@ -11,13 +11,13 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface BillsDao {
     @Insert
-    fun saveBill(bill: Bill): Long // Long -> Item ID inserted
+    fun saveBill(bill: Bill): Long
 
     @Update
     fun updateBill(bill: Bill) : Int
 
     @Delete
-    fun deleteBill(bill: Bill): Int // Quantity of items deleted
+    fun deleteBill(bill: Bill): Int
 
     @Query("SELECT * FROM bills")
     fun selectAllBills() : Flow<List<Bill>>

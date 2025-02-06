@@ -203,9 +203,7 @@ fun BillsView() {
         )
 
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
+            modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
             if(isLoading) {
                 AppLoader(

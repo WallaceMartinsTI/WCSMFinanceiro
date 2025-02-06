@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCard
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -118,130 +120,141 @@ fun WalletView(
         }
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(BackgroundColor),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if(isLoading) {
-            AppLoader(
-                modifier = Modifier.size(80.dp).align(Alignment.Center)
-            )
-        } else {
-            Column(
-                modifier = Modifier.fillMaxSize().background(BackgroundColor),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "CARTEIRA",
-                    color = PrimaryColor,
-                    modifier = Modifier.padding(vertical = 8.dp),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 40.sp,
-                    fontFamily = PoppinsFontFamily
-                )
+        Text(
+            text = "CARTEIRAS",
+            color = PrimaryColor,
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp, start = 8.dp, end = 8.dp),
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            fontSize = 40.sp,
+            fontFamily = PoppinsFontFamily
+        )
 
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+        Box(
+            modifier = Modifier.fillMaxSize().padding(16.dp)
+        ) {
+            if(isLoading) {
+                AppLoader(
+                    modifier = Modifier.size(80.dp).align(Alignment.Center)
+                )
+            } else {
+                if(walletsWithCardsList.isEmpty()) {
+                    Text(
+                        text = "Sem carteiras no momento.",
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(
+                            items = walletsWithCardsList,
+                            key = { it.wallet.walletId }
+                        ) { walletsWithCards ->
+                            WalletContainer(
+                                walletsWithCards = walletsWithCards,
+                                onWalletClick = {
+                                    walletViewModel.updateWalletState(walletsWithCards.wallet.toWalletState())
+                                    walletCards = walletsWithCards.walletCards
+                                    showAddOrEditWalletDialog = true
+                                }
+                            )
+                        }
+
+                        item {
+                            Spacer(modifier = Modifier.height(60.dp))
+                        }
+                    }
+                }
+
+                FloatingActionButton(
+                    onClick = {
+                        showWalletAddChooserDialog = true
+                    },
+                    modifier = Modifier.align(Alignment.BottomEnd),
+                    containerColor = PrimaryColor,
+                    contentColor = OnSecondaryColor
                 ) {
-                    items(
-                        items = walletsWithCardsList,
-                        key = { it.wallet.walletId }
-                    ) { walletsWithCards ->
-                        WalletContainer(
-                            walletsWithCards = walletsWithCards,
-                            onWalletClick = {
-                                walletViewModel.updateWalletState(walletsWithCards.wallet.toWalletState())
-                                walletCards = walletsWithCards.walletCards
-                                showAddOrEditWalletDialog = true
-                            }
-                        )
-                    }
-
-                    item {
-                        Spacer(modifier = Modifier.height(60.dp))
-                    }
+                    Icon(
+                        imageVector = Icons.Default.AddCard,
+                        contentDescription = "Ícone de adicionar cartão",
+                    )
                 }
             }
 
-            FloatingActionButton(
-                onClick = {
-                    showWalletAddChooserDialog = true
-                },
-                modifier = Modifier.align(Alignment.BottomEnd),
-                containerColor = PrimaryColor,
-                contentColor = OnSecondaryColor
-            ) {
-                Icon(
-                    imageVector = Icons.Default.AddCard,
-                    contentDescription = "Ícone de adicionar cartão",
+            if(showWalletAddChooserDialog) {
+                WalletAddChooser(
+                    createCardAllowed = walletsList.isNotEmpty(),
+                    onAddWallet = { showAddOrEditWalletDialog = true },
+                    onAddCard = { showAddOrEditWalletCardDialog = true },
+                    onDismiss = { showWalletAddChooserDialog = false }
                 )
             }
-        }
 
-        if(showWalletAddChooserDialog) {
-            WalletAddChooser(
-                createCardAllowed = walletsList.isNotEmpty(),
-                onAddWallet = { showAddOrEditWalletDialog = true },
-                onAddCard = { showAddOrEditWalletCardDialog = true },
-                onDismiss = { showWalletAddChooserDialog = false }
-            )
-        }
+            if(showAddOrEditWalletDialog) {
+                AddOrEditWalletDialog(
+                    walletStateFlow = walletViewModel.walletStateFlow,
+                    walletCards = walletCards,
+                    uiStateFlow = walletViewModel.uiState,
+                    onValueChange = { updatedValue ->
+                        walletViewModel.updateWalletState(updatedValue)
+                    },
+                    onAddWallet = { walletState ->
+                        walletViewModel.saveWallet(walletState)
+                    },
+                    onUpdateWallet = { walletState ->
+                        walletViewModel.updateWallet(walletState)
+                    },
+                    onDeleteWallet = { walletState ->
+                        walletViewModel.deleteWallet(walletState)
+                    },
+                    onWalletCardClick = { walletCard ->
+                        walletViewModel.updateWalletCardState(walletCard.toWalletCardState())
+                        showAddOrEditWalletCardDialog = true
+                    },
+                    onUpdateOrDeleteWalletCard = { walletId ->
+                        walletCards = walletViewModel.getWalletCardsByWallet(walletId)
+                    },
+                    onDismiss = {
+                        walletViewModel.resetWalletState()
+                        walletViewModel.resetWalletCardState()
 
-        if(showAddOrEditWalletDialog) {
-            AddOrEditWalletDialog(
-                walletStateFlow = walletViewModel.walletStateFlow,
-                walletCards = walletCards,
-                uiStateFlow = walletViewModel.uiState,
-                onValueChange = { updatedValue ->
-                    walletViewModel.updateWalletState(updatedValue)
-                },
-                onAddWallet = { walletState ->
-                    walletViewModel.saveWallet(walletState)
-                },
-                onUpdateWallet = { walletState ->
-                    walletViewModel.updateWallet(walletState)
-                },
-                onDeleteWallet = { walletState ->
-                    walletViewModel.deleteWallet(walletState)
-                },
-                onWalletCardClick = { walletCard ->
-                    walletViewModel.updateWalletCardState(walletCard.toWalletCardState())
-                    showAddOrEditWalletCardDialog = true
-                },
-                onUpdateOrDeleteWalletCard = { walletId ->
-                    walletCards = walletViewModel.getWalletCardsByWallet(walletId)
-                },
-                onDismiss = {
-                    walletViewModel.resetWalletState()
-                    walletViewModel.resetWalletCardState()
+                        walletCards = emptyList()
 
-                    walletCards = emptyList()
+                        showAddOrEditWalletDialog = false
+                    }
+                )
+            }
 
-                    showAddOrEditWalletDialog = false
-                }
-            )
-        }
-
-        if(showAddOrEditWalletCardDialog) {
-            AddOrEditWalletCardDialog(
-                walletsList = walletsList,
-                walletCardStateFlow = walletViewModel.walletCardStateFlow,
-                uiStateFlow = walletViewModel.uiState,
-                onValueChange = { updatedValue ->
-                    walletViewModel.updateWalletCardState(updatedValue)
-                },
-                onAddWalletCard = { walletCardState ->
-                    walletViewModel.saveWalletCard(walletCardState)
-                },
-                onUpdateWalletCard = { walletCardState ->
-                    walletViewModel.updateWalletCard(walletCardState)
-                },
-                onDeleteWalletCard = { walletCardState ->
-                    walletViewModel.deleteWalletCard(walletCardState)
-                },
-                onDismiss = { showAddOrEditWalletCardDialog = false }
-            )
+            if(showAddOrEditWalletCardDialog) {
+                AddOrEditWalletCardDialog(
+                    walletsList = walletsList,
+                    walletCardStateFlow = walletViewModel.walletCardStateFlow,
+                    uiStateFlow = walletViewModel.uiState,
+                    onValueChange = { updatedValue ->
+                        walletViewModel.updateWalletCardState(updatedValue)
+                    },
+                    onAddWalletCard = { walletCardState ->
+                        walletViewModel.saveWalletCard(walletCardState)
+                    },
+                    onUpdateWalletCard = { walletCardState ->
+                        walletViewModel.updateWalletCard(walletCardState)
+                    },
+                    onDeleteWalletCard = { walletCardState ->
+                        walletViewModel.deleteWalletCard(walletCardState)
+                    },
+                    onDismiss = { showAddOrEditWalletCardDialog = false }
+                )
+            }
         }
     }
 }

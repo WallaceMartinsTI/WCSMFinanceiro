@@ -68,6 +68,7 @@ dependencies {
 
     // Room
     implementation(libs.androidx.room.runtime)
+    //noinspection KaptUsageInsteadOfKsp
     kapt(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 
@@ -90,13 +91,18 @@ dependencies {
 
     testImplementation(libs.junit)
 
-    // Room Test Helper
-    androidTestImplementation(libs.androidx.room.testing)
-
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+
+    // Room Test Helper
+    androidTestImplementation(libs.androidx.room.testing)
+    androidTestImplementation(libs.truth)
+
+    // Turbine for testing Flows
+    androidTestImplementation(libs.turbine)
+
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
