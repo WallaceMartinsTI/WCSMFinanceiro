@@ -406,6 +406,7 @@ class BillsDaoTest {
             tags = listOf("lazer", "casa", "construção")
         )
 
+        // Saving the bills in the database
         billsDao.saveBill(bill1)
         billsDao.saveBill(bill2)
 
@@ -416,6 +417,8 @@ class BillsDaoTest {
         // THEN: The database should be empty
         billsDao.selectAllBills().test {
             assertThat(awaitItem()).isEmpty()
+
+            // Important: Cancels the flow to prevent coroutine leaks
             cancelAndIgnoreRemainingEvents()
         }
     }
@@ -455,6 +458,7 @@ class BillsDaoTest {
             tags = listOf("lazer", "casa", "construção")
         )
 
+        // Saving the bills in the database
         billsDao.saveBill(bill1)
         billsDao.saveBill(bill2)
 
@@ -464,6 +468,8 @@ class BillsDaoTest {
         // THEN: Bill2 should still be in the database
         billsDao.selectAllBills().test {
             assertThat(awaitItem()).containsExactly(bill2)
+
+            // Important: Cancels the flow to prevent coroutine leaks
             cancelAndIgnoreRemainingEvents()
         }
     }
@@ -487,6 +493,7 @@ class BillsDaoTest {
             tags = listOf("lazer", "casa", "construção")
         )
 
+        // Saving the bill in the database
         billsDao.saveBill(bill)
 
         // WHEN: Deleting the bill twice
@@ -498,5 +505,442 @@ class BillsDaoTest {
 
         // AND: The second delete should return 0 since the bill is already deleted
         assertThat(secondDelete).isEqualTo(0)
+    }
+
+    @Test
+    fun selectAllBills_selectingAllBills_shouldReturnAListOfBills() = runTest {
+        // GIVEN: Multiple bills saved in the database
+        val bill1 = Bill(
+            billId = 1,
+            billType = BillType.INCOME,
+            origin = "Origem Teste",
+            title = "Conta Teste",
+            value = 2578.92,
+            description = "Descrição Teste",
+            date = 1737504000000,
+            paymentType = PaymentType.MONEY,
+            paid = true,
+            dueDate = 1737804000000,
+            expired = false,
+            category = "Lazer",
+            tags = listOf("lazer", "casa", "construção")
+        )
+
+        val bill2 = Bill(
+            billId = 2,
+            billType = BillType.INCOME,
+            origin = "Origem Teste 2",
+            title = "Conta Teste 2",
+            value = 2578.92,
+            description = "Descrição Teste 2",
+            date = 1737504000000,
+            paymentType = PaymentType.MONEY,
+            paid = true,
+            dueDate = 1737804000000,
+            expired = false,
+            category = "Lazer",
+            tags = listOf("lazer", "casa", "construção")
+        )
+
+        // Saving the bills in the database
+        billsDao.saveBill(bill1)
+        billsDao.saveBill(bill2)
+
+        // WHEN: Selecting all bills from the database
+        billsDao.selectAllBills().test {
+            // THEN: Should not return a empty list
+            val billsList = awaitItem()
+            assertThat(billsList).isNotEmpty()
+
+            // AND: Should match with size of 2 (2 bills saved in database)
+            assertThat(billsList.size).isEqualTo(2)
+
+            // Important: Cancels the flow to prevent coroutine leaks
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun selectAllBills_emptyDatabase_shouldReturnEmptyList() = runTest {
+        // GIVEN: No bills saved in the database
+
+        // WHEN: Selecting all bills
+        billsDao.selectAllBills().test {
+            // THEN: The list should be empty
+            assertThat(awaitItem()).isEmpty()
+
+            // Important: Cancels the flow to prevent coroutine leaks
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun selectAllBills_oneBillSaved_shouldReturnSingleBill() = runTest {
+        // GIVEN: A single bill saved in the database
+        val bill = Bill(
+            billId = 1,
+            billType = BillType.INCOME,
+            origin = "Origem Teste",
+            title = "Conta Teste",
+            value = 2578.92,
+            description = "Descrição Teste",
+            date = 1737504000000,
+            paymentType = PaymentType.MONEY,
+            paid = true,
+            dueDate = 1737804000000,
+            expired = false,
+            category = "Lazer",
+            tags = listOf("lazer", "casa", "construção")
+        )
+
+        // Saving the bill in the database
+        billsDao.saveBill(bill)
+
+        // WHEN: Selecting all bills
+        billsDao.selectAllBills().test {
+            // THEN: The list should contain exactly one bill
+            val billsList = awaitItem()
+            assertThat(billsList).containsExactly(bill)
+
+            // Important: Cancels the flow to prevent coroutine leaks
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun selectAllBills_deleteBill_shouldNotReturnDeletedBill() = runTest {
+        // GIVEN: A bill is saved and then deleted
+        val bill = Bill(
+            billId = 1,
+            billType = BillType.INCOME,
+            origin = "Origem Teste",
+            title = "Conta Teste",
+            value = 2578.92,
+            description = "Descrição Teste",
+            date = 1737504000000,
+            paymentType = PaymentType.MONEY,
+            paid = true,
+            dueDate = 1737804000000,
+            expired = false,
+            category = "Lazer",
+            tags = listOf("lazer", "casa", "construção")
+        )
+
+        // Saving the bills in the database
+        billsDao.saveBill(bill)
+        billsDao.deleteBill(bill)
+
+        // WHEN: Selecting all bills
+        billsDao.selectAllBills().test {
+            // THEN: The deleted bill should not be in the list
+            assertThat(awaitItem()).doesNotContain(bill)
+
+            // Important: Cancels the flow to prevent coroutine leaks
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun selectAllBills_multipleBills_shouldMaintainInsertionOrder() = runTest {
+        // GIVEN: Multiple bills inserted in a specific order
+        val bill1 = Bill(
+            billId = 1,
+            billType = BillType.INCOME,
+            origin = "Origem Teste",
+            title = "Conta Teste",
+            value = 2578.92,
+            description = "Descrição Teste",
+            date = 1737504000000,
+            paymentType = PaymentType.MONEY,
+            paid = true,
+            dueDate = 1737804000000,
+            expired = false,
+            category = "Lazer",
+            tags = listOf("lazer", "casa", "construção")
+        )
+
+        val bill2 = Bill(
+            billId = 2,
+            billType = BillType.INCOME,
+            origin = "Origem Teste 2",
+            title = "Conta Teste 2",
+            value = 2578.92,
+            description = "Descrição Teste 2",
+            date = 1737504000000,
+            paymentType = PaymentType.MONEY,
+            paid = true,
+            dueDate = 1737804000000,
+            expired = false,
+            category = "Lazer",
+            tags = listOf("lazer", "casa", "construção")
+        )
+
+        // Saving the bills in the database
+        billsDao.saveBill(bill1)
+        billsDao.saveBill(bill2)
+
+        // WHEN: Selecting all bills
+        billsDao.selectAllBills().test {
+            // THEN: The order should be the same as insertion order
+            val billsList = awaitItem()
+            assertThat(billsList).containsExactly(bill1, bill2).inOrder()
+
+            // Important: Cancels the flow to prevent coroutine leaks
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun selectBillsByDate_validRange_shouldReturnMatchingBills() = runTest {
+        // GIVEN: Multiple bills with different dates
+        val bill1 = Bill(
+            billId = 1,
+            billType = BillType.INCOME,
+            origin = "Origem Teste",
+            title = "Conta Teste",
+            value = 2578.92,
+            description = "Descrição Teste",
+            date = 1737504000000,
+            paymentType = PaymentType.MONEY,
+            paid = true,
+            dueDate = 1737804000000,
+            expired = false,
+            category = "Lazer",
+            tags = listOf("lazer", "casa", "construção")
+        )
+
+        val bill2 = Bill(
+            billId = 2,
+            billType = BillType.INCOME,
+            origin = "Origem Teste 2",
+            title = "Conta Teste 2",
+            value = 2578.92,
+            description = "Descrição Teste 2",
+            date = 1737604000000,
+            paymentType = PaymentType.MONEY,
+            paid = true,
+            dueDate = 1737804000000,
+            expired = false,
+            category = "Lazer",
+            tags = listOf("lazer", "casa", "construção")
+        )
+
+        val bill3 = Bill(
+            billId = 3,
+            billType = BillType.INCOME,
+            origin = "Origem Teste 3",
+            title = "Conta Teste 3",
+            value = 2578.92,
+            description = "Descrição Teste 3",
+            date = 1737704000000,
+            paymentType = PaymentType.MONEY,
+            paid = true,
+            dueDate = 1737804000000,
+            expired = false,
+            category = "Lazer",
+            tags = listOf("lazer", "casa", "construção")
+        )
+
+        // Saving the bills in the database
+        billsDao.saveBill(bill1)
+        billsDao.saveBill(bill2)
+        billsDao.saveBill(bill3)
+
+        // WHEN: Selecting bills in a specific date range
+        val startDate = 1737500000000
+        val endDate = 1737605000000
+
+        billsDao.selectBillsByDate(startDate, endDate).test {
+            // THEN: Should return only bills inside the date range
+            assertThat(awaitItem()).containsExactly(bill1, bill2).inOrder()
+
+            // Important: Cancels the flow to prevent coroutine leaks
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun selectBillsByDate_noMatchingBills_shouldReturnEmptyList() = runTest {
+        // GIVEN: A bill outside the search range
+        val bill = Bill(
+            billId = 1,
+            billType = BillType.INCOME,
+            origin = "Origem Teste",
+            title = "Conta Teste",
+            value = 2578.92,
+            description = "Descrição Teste",
+            date = 1738000000000,
+            paymentType = PaymentType.MONEY,
+            paid = true,
+            dueDate = 1738100000000,
+            expired = false,
+            category = "Lazer",
+            tags = listOf("lazer", "casa", "construção")
+        )
+
+        // Saving the bill in the database
+        billsDao.saveBill(bill)
+
+        // WHEN: Searching for bills within a date range that excludes the bill
+        val startDate = 1737500000000
+        val endDate = 1737600000000
+
+        billsDao.selectBillsByDate(startDate, endDate).test {
+            // THEN: Should return an empty list
+            assertThat(awaitItem()).isEmpty()
+
+            // Important: Cancels the flow to prevent coroutine leaks
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun selectBillsByDate_largeRange_shouldReturnAllBills() = runTest {
+        // GIVEN: Multiple bills with different dates
+        val bill1 = Bill(
+            billId = 1,
+            billType = BillType.INCOME,
+            origin = "Origem Teste",
+            title = "Conta Teste",
+            value = 2578.92,
+            description = "Descrição Teste",
+            date = 1737504000000,
+            paymentType = PaymentType.MONEY,
+            paid = true,
+            dueDate = 1737804000000,
+            expired = false,
+            category = "Lazer",
+            tags = listOf("lazer", "casa", "construção")
+        )
+
+        val bill2 = Bill(
+            billId = 2,
+            billType = BillType.INCOME,
+            origin = "Origem Teste 2",
+            title = "Conta Teste 2",
+            value = 2578.92,
+            description = "Descrição Teste 2",
+            date = 1737604000000,
+            paymentType = PaymentType.MONEY,
+            paid = true,
+            dueDate = 1737804000000,
+            expired = false,
+            category = "Lazer",
+            tags = listOf("lazer", "casa", "construção")
+        )
+
+        // Saving the bills in the database
+        billsDao.saveBill(bill1)
+        billsDao.saveBill(bill2)
+
+        // WHEN: Selecting bills with a very large date range
+        val startDate = 1737000000000
+        val endDate = 1739000000000
+
+        billsDao.selectBillsByDate(startDate, endDate).test {
+            // THEN: Should return all bills
+            assertThat(awaitItem()).containsExactly(bill1, bill2)
+
+            // Important: Cancels the flow to prevent coroutine leaks
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun selectBillsByText_matchingBills_shouldReturnCorrectResults() = runTest {
+        // GIVEN: Multiple bills with different fields containing the searched text
+        val bill1 = Bill(
+            billId = 1,
+            billType = BillType.INCOME,
+            origin = "Origem Teste",
+            title = "Conta 1",
+            value = 2578.92,
+            description = "Descrição 1",
+            date = 1737504000000,
+            paymentType = PaymentType.MONEY,
+            paid = true,
+            dueDate = 1737804000000,
+            expired = false,
+            category = "Lazer",
+            tags = listOf("lazer", "casa", "construção")
+        )
+
+        val bill2 = Bill(
+            billId = 2,
+            billType = BillType.INCOME,
+            origin = "Padaria",
+            title = "Café da Manhã",
+            value = 2578.92,
+            description = "Descrição Teste",
+            date = 1737604000000,
+            paymentType = PaymentType.MONEY,
+            paid = true,
+            dueDate = 1737804000000,
+            expired = false,
+            category = "Lazer",
+            tags = listOf("lazer", "casa", "construção")
+        )
+
+        // Saving the bills in the database
+        billsDao.saveBill(bill1)
+        billsDao.saveBill(bill2)
+
+        // WHEN: Searching for bills that contain "food"
+        billsDao.selectBillsByText("Padaria").test {
+            // THEN: Should return only the bill containing "food" in the description
+            assertThat(awaitItem()).containsExactly(bill2)
+
+            // Important: Cancels the flow to prevent coroutine leaks
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun selectBillsByText_noMatchingBills_shouldReturnEmptyList() = runTest {
+        // GIVEN: A bill that does not match the search query
+        val bill1 = Bill(
+            billId = 1,
+            billType = BillType.INCOME,
+            origin = "Origem Teste",
+            title = "Conta 1",
+            value = 2578.92,
+            description = "Descrição 1",
+            date = 1737504000000,
+            paymentType = PaymentType.MONEY,
+            paid = true,
+            dueDate = 1737804000000,
+            expired = false,
+            category = "Lazer",
+            tags = listOf("lazer", "casa", "construção")
+        )
+
+        val bill2 = Bill(
+            billId = 2,
+            billType = BillType.INCOME,
+            origin = "Padaria",
+            title = "Café da Manhã",
+            value = 2578.92,
+            description = "Descrição Teste",
+            date = 1737604000000,
+            paymentType = PaymentType.MONEY,
+            paid = true,
+            dueDate = 1737804000000,
+            expired = false,
+            category = "Lazer",
+            tags = listOf("lazer", "casa", "construção")
+        )
+
+        // Saving the bills in the database
+        billsDao.saveBill(bill1)
+        billsDao.saveBill(bill2)
+
+        // WHEN: Searching for a text that does not exist in any field
+        billsDao.selectBillsByText("Viagem").test {
+            // THEN: Should return an empty list
+            assertThat(awaitItem()).isEmpty()
+
+            // Important: Cancels the flow to prevent coroutine leaks
+            cancelAndIgnoreRemainingEvents()
+        }
     }
 }

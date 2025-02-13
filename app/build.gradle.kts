@@ -98,6 +98,8 @@ dependencies {
 
     // Room Test Helper
     androidTestImplementation(libs.androidx.room.testing)
+
+    // Truth
     androidTestImplementation(libs.truth)
 
     // Turbine for testing Flows
