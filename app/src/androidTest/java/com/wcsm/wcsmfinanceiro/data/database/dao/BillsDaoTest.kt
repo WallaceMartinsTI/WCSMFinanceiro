@@ -141,7 +141,6 @@ class BillsDaoTest {
         assertThat(exception).isInstanceOf(SQLiteConstraintException::class.java)
     }
 
-
     @Test
     fun updateBill_updateBillInRoomDB_returnsAffectedRowCount() = runTest {
         // GIVEN: A bill is created and saved in the database
