@@ -241,6 +241,9 @@ class BillsDaoTest {
             assertThat(billInDb?.title).isEqualTo("Updated Bill")
             assertThat(billInDb?.value).isEqualTo(3000.00)
             assertThat(billInDb?.paid).isFalse()
+
+            // Important: Cancels the flow to prevent coroutine leaks
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
@@ -274,6 +277,9 @@ class BillsDaoTest {
         billsDao.selectAllBills().test {
             val billInDb = awaitItem().find { it.billId == updatedBill.billId }
             assertThat(billInDb?.title).isEqualTo("Updated Bill")
+
+            // Important: Cancels the flow to prevent coroutine leaks
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
