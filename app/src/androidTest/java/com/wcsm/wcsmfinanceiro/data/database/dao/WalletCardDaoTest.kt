@@ -59,4 +59,24 @@ class WalletCardDaoTest {
         // THEN: The returned wallet ID should be grater than 0, indicating a successful save
         assertThat(walletCardId).isGreaterThan(0L)
     }
+
+    @Test
+    fun saveWalletCard_saveWalletInRoomDB_returnsValidId() {
+        // GIVEN: A wallet card is created
+        val walletCard = WalletCard(
+            walletId = 1,
+            walletCardId = 1,
+            title = "",
+            limit = 2000.0,
+            spent = 1000.0,
+            available = 1000.0,
+            blocked = false
+        )
+
+        // WHEN: The wallet card is saved in the Room database
+        val walletCardId = walletCardDao.saveWalletCard(walletCard)
+
+        // THEN: The returned wallet ID should be greater than 0, indicating a successful save
+        assertThat(walletCardId).isGreaterThan(0L)
+    }
 }

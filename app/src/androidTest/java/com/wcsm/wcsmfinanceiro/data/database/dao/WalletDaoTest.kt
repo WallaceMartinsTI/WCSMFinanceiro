@@ -54,7 +54,7 @@ class WalletDaoTest {
     }
 
     @Test
-    fun saveWallet_saveWalletInRoomDB_retursValidId() {
+    fun saveWallet_saveWalletInRoomDB_returnsValidId() {
         // GIVEN: A wallet is created
         val wallet = Wallet(
             walletId = 1,
