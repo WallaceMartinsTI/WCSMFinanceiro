@@ -91,6 +91,18 @@ dependencies {
 
     testImplementation(libs.junit)
 
+    // Truth (Unit Tests)
+    testImplementation(libs.truth)
+
+    // Turbine for testing Flows (Unit Tests)
+    testImplementation(libs.turbine)
+
+    // Mockito
+    testImplementation("org.mockito:mockito-core:5.5.0")
+
+    // Coroutine Test
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -99,10 +111,10 @@ dependencies {
     // Room Test Helper
     androidTestImplementation(libs.androidx.room.testing)
 
-    // Truth
+    // Truth (InstrumentedTests)
     androidTestImplementation(libs.truth)
 
-    // Turbine for testing Flows
+    // Turbine for testing Flows (Instrumented Tests)
     androidTestImplementation(libs.turbine)
 
     debugImplementation(libs.androidx.ui.tooling)

@@ -187,7 +187,7 @@ class WalletDaoTest {
 
         // WHEN: Multiple fields are updated
         val updatedWallet = wallet.copy(title = "Updated Wallet", balance = 25.31)
-        val rowsAffected = walletDao.updateWallet(updatedWallet)
+        walletDao.updateWallet(updatedWallet)
 
         walletDao.selectAllWalletWithCards().test {
             val walletInDb = awaitItem().find { it.wallet.walletId == updatedWallet.walletId }
@@ -231,13 +231,13 @@ class WalletDaoTest {
 
         // WHEN & THEN: The wallet list should contain the wallet before deletion, then be empty after deletion
         walletDao.selectAllWalletWithCards().test {
-            // The wallet should be present in the datanase
+            // The wallet should be present in the database
             assertThat(awaitItem()[0].wallet).isEqualTo(wallet)
 
             // Delete the wallet
             walletDao.deleteWallet(wallet)
 
-            // The datanase should be empty after deletion
+            // The database should be empty after deletion
             assertThat(awaitItem()).isEmpty()
 
             // Important: Cancels the flow to prevent coroutine leaks
@@ -343,7 +343,7 @@ class WalletDaoTest {
         // THEN: The first delete should affect at least one row
         assertThat(firstDelete).isGreaterThan(0)
 
-        // AND: The second delete should return - since the wallet is already deleted
+        // AND: The second delete should return 0 since the wallet is already deleted
         assertThat(secondDelete).isEqualTo(0)
     }
 
