@@ -1,5 +1,6 @@
 package com.wcsm.wcsmfinanceiro.data.database.dao
 
+import android.database.sqlite.SQLiteConstraintException
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -78,5 +79,43 @@ class WalletCardDaoTest {
 
         // THEN: The returned wallet ID should be greater than 0, indicating a successful save
         assertThat(walletCardId).isGreaterThan(0L)
+    }
+
+    @Test
+    fun saveWalletCard_saveDuplicatedWallet_shouldThrowSQLiteConstraintException() {
+        // GIVEN: Multiple wallet card saved in the database
+        val walletCard1 = WalletCard(
+            walletId = 1,
+            walletCardId = 1,
+            title = "",
+            limit = 2000.0,
+            spent = 1000.0,
+            available = 1000.0,
+            blocked = false
+        )
+
+        val walletCard2 = WalletCard(
+            walletId = 1, // Using the same ID to test unique key violation
+            walletCardId = 1,
+            title = "",
+            limit = 2000.0,
+            spent = 1000.0,
+            available = 1000.0,
+            blocked = false
+        )
+
+        // WHEN: Trying to save two wallets with the same ID
+        val exception = try {
+            walletCardDao.saveWalletCard(walletCard1)
+
+            // This should fail due to the unique key violation
+            walletCardDao.saveWalletCard(walletCard2)
+            null
+        } catch (e: Exception) {
+            e
+        }
+
+        // THEN: Check that an exception was thrown
+        assertThat(exception).isInstanceOf(SQLiteConstraintException::class.java)
     }
 }
