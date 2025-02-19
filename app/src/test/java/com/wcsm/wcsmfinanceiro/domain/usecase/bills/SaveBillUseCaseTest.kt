@@ -18,23 +18,23 @@ import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class DeleteBillUseCaseTest {
+class SaveBillUseCaseTest {
 
     @Mock
     private lateinit var billsRepository: BillsRepository
 
-    private lateinit var deleteBillUseCase: DeleteBillUseCase
+    private lateinit var saveBillUseCase: SaveBillUseCase
 
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
 
-        deleteBillUseCase = DeleteBillUseCase(billsRepository)
+        saveBillUseCase = SaveBillUseCase(billsRepository)
     }
 
     @Test
-    fun deleteBillUseCase_deleteBillUseCaseWithSuccess_shouldEmitSuccessResponse() = runTest {
-        // GIVEN: A bill to be deleted
+    fun saveBillUseCase_saveBillUseCaseWithSuccess_shouldEmitSuccessResponse() = runTest {
+        // GIVEN: A bill to be saved
         val bill = Bill(
             billId = 1,
             billType = BillType.INCOME,
@@ -51,21 +51,20 @@ class DeleteBillUseCaseTest {
             tags = listOf("lazer", "casa", "construção")
         )
 
-        Mockito.`when`(billsRepository.deleteBill(bill)).thenReturn(
+        Mockito.`when`(billsRepository.saveBill(bill)).thenReturn(
             flow {
                 emit(Response.Loading)
-                emit(Response.Success(1))
+                emit(Response.Success(bill.billId))
             }
         )
 
-        // WHEN: Trying to delete the bill
-        deleteBillUseCase(bill).test {
+        // WHEN: Trying to save the bill
+        saveBillUseCase(bill).test {
             // THEN: Use case should emit Loading at first
             assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit a success response
-            val rowsAffected = (awaitItem() as Response.Success).data
-            assertThat(rowsAffected).isEqualTo(1)
+            assertThat((awaitItem() as Response.Success).data).isEqualTo(bill.billId)
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()
@@ -73,8 +72,8 @@ class DeleteBillUseCaseTest {
     }
 
     @Test
-    fun deleteBillUseCase_deleteBillUseCaseNoRowsAffected_shouldEmitErrorResponse() = runTest {
-        // GIVEN: A bill to be deleted
+    fun saveBillUseCase_saveBillUseCaseNoRowsAffected_shouldEmitErrorResponse() = runTest {
+        // GIVEN: A bill to be saved
         val bill = Bill(
             billId = 1,
             billType = BillType.INCOME,
@@ -90,22 +89,51 @@ class DeleteBillUseCaseTest {
             category = "Lazer",
             tags = listOf("lazer", "casa", "construção")
         )
-        val errorMessage = "Erro ao deletar conta."
+        val errorMessage = "Erro ao salvar conta."
 
-        Mockito.`when`(billsRepository.deleteBill(bill)).thenReturn(
+        Mockito.`when`(billsRepository.saveBill(bill)).thenReturn(
             flow {
                 emit(Response.Loading)
                 emit(Response.Error(errorMessage))
             }
         )
 
-        // WHEN: Trying to delete the bill
-        deleteBillUseCase(bill).test {
+        // WHEN: Trying to save the bill
+        saveBillUseCase(bill).test {
             // THEN: Use case should emit Loading at first
             assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit an error response
             assertThat((awaitItem() as Response.Error).message).isEqualTo(errorMessage)
+
+            // Important: Cancels the flow to prevent coroutine leaks in the test
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun saveBillUseCase_saveBillUseCaseInvalidValue_shouldEmitErrorResponse() = runTest {
+        // GIVEN: A bill to be saved
+        val bill = Bill(
+            billId = 1,
+            billType = BillType.INCOME,
+            origin = "Origem Teste",
+            title = "Conta Teste",
+            value = 99999999.99,
+            description = "Descrição Teste",
+            date = 1737504000000,
+            paymentType = PaymentType.MONEY,
+            paid = true,
+            dueDate = 1737804000000,
+            expired = false,
+            category = "Lazer",
+            tags = listOf("lazer", "casa", "construção")
+        )
+
+        // WHEN: Trying to save the bill
+        saveBillUseCase(bill).test {
+            // THEN: It should emit an error response
+            assertThat((awaitItem() as Response.Error).message).isEqualTo("Valor muito alto (max. R$9.999.999,99).")
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()
