@@ -43,11 +43,11 @@ class WalletRepositoryImplTest {
             balance = 1000.0
         )
 
-        Mockito.`when`(walletDao.saveWallet(wallet)).thenReturn(1)
+        Mockito.`when`(walletDao.saveWallet(wallet)).thenReturn(wallet.walletId)
 
         // WHEN: Trying to save the wallet
         walletRepository.saveWallet(wallet).test {
-            // THEN: Repository should Loading at first
+            // THEN: Repository should emit Loading at first
             assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit a success response
@@ -71,7 +71,7 @@ class WalletRepositoryImplTest {
 
         // WHEN: Trying to save the wallet
         walletRepository.saveWallet(wallet).test {
-            // THEN: Repository should Loading at first
+            // THEN: Repository should emit Loading at first
             assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit a an error response
@@ -95,7 +95,7 @@ class WalletRepositoryImplTest {
 
         // WHEN: Trying to save the wallet
         walletRepository.saveWallet(wallet).test {
-            // THEN: Repository should Loading at first
+            // THEN: Repository should emit Loading at first
             assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit a an error response
@@ -108,7 +108,7 @@ class WalletRepositoryImplTest {
 
     @Test
     fun updateWallet_updateWalletWithSuccess_shouldEmitSuccessResponse() = runTest {
-        // GIVEN: A wallet to be saved
+        // GIVEN: A wallet to be updated
         val wallet = Wallet(
             walletId = 1,
             title = "Nubank",
@@ -119,7 +119,7 @@ class WalletRepositoryImplTest {
 
         // WHEN: Trying to update the wallet
         walletRepository.updateWallet(wallet).test {
-            // THEN: Repository should Loading at first
+            // THEN: Repository should emit Loading at first
             assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit a success response
@@ -133,7 +133,7 @@ class WalletRepositoryImplTest {
 
     @Test
     fun updateWallet_updateWalletNoRowsAffected_shouldEmitErrorResponse() = runTest {
-        // GIVEN: A wallet to be saved
+        // GIVEN: A wallet to be updated
         val wallet = Wallet(
             walletId = 1,
             title = "Nubank",
@@ -144,7 +144,7 @@ class WalletRepositoryImplTest {
 
         // WHEN: Trying to update the wallet
         walletRepository.updateWallet(wallet).test {
-            // THEN: Repository should Loading at first
+            // THEN: Repository should emit Loading at first
             assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit a an error response
@@ -168,7 +168,7 @@ class WalletRepositoryImplTest {
 
         // WHEN: Trying to delete the wallet
         walletRepository.deleteWallet(wallet).test {
-            // THEN: Repository should Loading at first
+            // THEN: Repository should emit Loading at first
             assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit a success response
@@ -193,7 +193,7 @@ class WalletRepositoryImplTest {
 
         // WHEN: Trying to delete the wallet
         walletRepository.deleteWallet(wallet).test {
-            // THEN: Repository should Loading at first
+            // THEN: Repository should emit Loading at first
             assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit an error response

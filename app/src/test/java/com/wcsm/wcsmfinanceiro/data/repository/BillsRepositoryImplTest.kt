@@ -60,7 +60,7 @@ class BillsRepositoryImplTest {
 
         // WHEN: Trying to save the bill
         billsRepository.saveBill(bill).test {
-            // THEN: Repository should Loading at first
+            // THEN: Repository should emit Loading at first
             assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit a success response
@@ -94,7 +94,7 @@ class BillsRepositoryImplTest {
 
         // WHEN: Trying to save the bill
         billsRepository.saveBill(bill).test {
-            // THEN: Repository should Loading at first
+            // THEN: Repository should emit Loading at first
             assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit an error response
@@ -128,7 +128,7 @@ class BillsRepositoryImplTest {
 
         // WHEN: Trying to save the bill
         billsRepository.saveBill(bill).test {
-            // THEN: Repository should Loading at first
+            // THEN: Repository should emit Loading at first
             assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit an error response
@@ -163,7 +163,7 @@ class BillsRepositoryImplTest {
 
         // WHEN: Trying to update the bill
         billsRepository.updateBill(bill).test {
-            // THEN: Repository should Loading at first
+            // THEN: Repository should emit Loading at first
             assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit a success response with rows affected
@@ -198,7 +198,7 @@ class BillsRepositoryImplTest {
 
         // WHEN: Trying to update the bill
         billsRepository.updateBill(bill).test {
-            // THEN: Repository should Loading at first
+            // THEN: Repository should emit Loading at first
             assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit an error response
@@ -232,7 +232,7 @@ class BillsRepositoryImplTest {
 
         // WHEN: Trying to update the bill
         billsRepository.deleteBill(bill).test {
-            // THEN: Repository should Loading at first
+            // THEN: Repository should emit Loading at first
             assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit a success response
@@ -266,7 +266,7 @@ class BillsRepositoryImplTest {
 
         // WHEN: Trying to update the bill
         billsRepository.deleteBill(bill).test {
-            // THEN: Repository should Loading at first
+            // THEN: Repository should emit Loading at first
             assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit an error response
@@ -319,7 +319,7 @@ class BillsRepositoryImplTest {
 
         // GIVEN & WHEN: A request to select all bills
         billsRepository.getBills().test {
-            // THEN: Repository should Loading at first
+            // THEN: Repository should emit Loading at first
             assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit a success response with the bills list
@@ -378,7 +378,7 @@ class BillsRepositoryImplTest {
 
         // GIVEN & WHEN: A request to select all bills by date
         billsRepository.getBillsByDate(1737504000000, 1737804000000).test {
-            // THEN: Repository should Loading at first
+            // THEN: Repository should emit Loading at first
             assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit a success response with the filtered bills list
@@ -437,7 +437,7 @@ class BillsRepositoryImplTest {
 
         // GIVEN & WHEN: A request to select all bills by date
         billsRepository.getBillsByText("Teste2").test {
-            // THEN: Repository should Loading at first
+            // THEN: Repository should emit Loading at first
             assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit a success response with the filtered bills list
