@@ -37,7 +37,7 @@ class BillsRepositoryImplTest {
     }
 
     @Test
-    fun saveBill_saveBillWithSuccess_shouldEmitSuccess() = runTest {
+    fun saveBill_saveBillWithSuccess_shouldEmitSuccessResponse() = runTest {
         // GIVEN: A bill to be saved
         val bill = Bill(
             billId = 5,
@@ -72,7 +72,7 @@ class BillsRepositoryImplTest {
     }
 
     @Test
-    fun saveBill_saveBillNoRowsAffected_shouldReturnResponseError() = runTest {
+    fun saveBill_saveBillNoRowsAffected_shouldEmitErrorResponse() = runTest {
         // GIVEN: A bill to be saved
         val bill = Bill(
             billId = 1,
@@ -106,7 +106,7 @@ class BillsRepositoryImplTest {
     }
 
     @Test
-    fun saveBill_saveBillTwice_shouldReturnResponseError() = runTest {
+    fun saveBill_saveBillTwice_shouldEmitErrorResponse() = runTest {
         // GIVEN: A bill to be saved
         val bill = Bill(
             billId = 1,
@@ -140,7 +140,7 @@ class BillsRepositoryImplTest {
     }
 
     @Test
-    fun updateBill_updateBillWithSuccess_shouldEmitSuccess() = runTest {
+    fun updateBill_updateBillWithSuccess_shouldEmitSuccessResponse() = runTest {
         // GIVEN: A bill to be updated
         val bill = Bill(
             billId = 1,
@@ -176,7 +176,7 @@ class BillsRepositoryImplTest {
     }
 
     @Test
-    fun updateBill_updateBillNoRowsAffected_shouldReturnResponseError() = runTest {
+    fun updateBill_updateBillNoRowsAffected_shouldEmitErrorResponse() = runTest {
         // GIVEN: A bill to be updated
         val bill = Bill(
             billId = 1,
@@ -209,9 +209,8 @@ class BillsRepositoryImplTest {
         }
     }
 
-
     @Test
-    fun deleteBill_deleteBillWithSuccess_shouldEmitSuccess() = runTest {
+    fun deleteBill_deleteBillWithSuccess_shouldEmitSuccessResponse() = runTest {
         // GIVEN: A bill to be deleted
         val bill = Bill(
             billId = 1,
@@ -245,7 +244,7 @@ class BillsRepositoryImplTest {
     }
 
     @Test
-    fun deleteBill_deleteBillNoRowsAffected_shouldReturnResponseError() = runTest {
+    fun deleteBill_deleteBillNoRowsAffected_shouldEmitErrorResponse() = runTest {
         // GIVEN: A bill to be deleted
         val bill = Bill(
             billId = 1,
@@ -279,7 +278,7 @@ class BillsRepositoryImplTest {
     }
 
     @Test
-    fun getBills_getBillsWithSuccess_shouldEmitSuccess() = runTest {
+    fun getBills_getBillsWithSuccess_shouldEmitSuccessResponse() = runTest {
         val expectedBills = listOf(
             Bill(
                 billId = 1,
@@ -332,7 +331,7 @@ class BillsRepositoryImplTest {
     }
 
     @Test
-    fun getBills_getBillsWithFailure_shouldEmitError() = runTest {
+    fun getBills_getBillsWithFailure_shouldEmitErrorResponse() = runTest {
         Mockito.`when`(billsDao.selectAllBills()).thenReturn(
             flow {
                 throw RuntimeException("Erro ao acessar banco de dados.")
@@ -353,7 +352,7 @@ class BillsRepositoryImplTest {
     }
 
     @Test
-    fun getBillsByDate_getBillsByDateWithSuccess_shouldEmitSuccess() = runTest {
+    fun getBillsByDate_getBillsByDateWithSuccess_shouldEmitSuccessResponse() = runTest {
         val expectedBills = listOf(
             Bill(
                 billId = 2,
@@ -391,7 +390,7 @@ class BillsRepositoryImplTest {
     }
 
     @Test
-    fun getBillsByDate_getBillsWithFailure_shouldEmitError() = runTest {
+    fun getBillsByDate_getBillsWithFailure_shouldEmitErrorResponse() = runTest {
         Mockito.`when`(billsDao.selectBillsByDate(anyLong(), anyLong())).thenReturn(
             flow {
                 throw RuntimeException("Erro ao acessar banco de dados.")
@@ -412,7 +411,7 @@ class BillsRepositoryImplTest {
     }
 
     @Test
-    fun getBillsByText_getBillsByTextWithSuccess_shouldEmitSuccess() = runTest {
+    fun getBillsByText_getBillsByTextWithSuccess_shouldEmitSuccessResponse() = runTest {
         val expectedBills = listOf(
             Bill(
                 billId = 2,
@@ -450,7 +449,7 @@ class BillsRepositoryImplTest {
     }
 
     @Test
-    fun getBillsByText_getBillsByTextWithFailure_shouldEmitError() = runTest {
+    fun getBillsByText_getBillsByTextWithFailure_shouldEmitErrorResponse() = runTest {
         Mockito.`when`(billsDao.selectBillsByText(anyString())).thenReturn(
             flow {
                 throw RuntimeException("Erro ao acessar banco de dados.")
