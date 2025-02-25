@@ -41,7 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.wcsm.wcsmfinanceiro.presentation.model.Category
+import com.wcsm.wcsmfinanceiro.presentation.model.BillCategory
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PoppinsFontFamily
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
@@ -59,20 +59,20 @@ fun BillCategoriesDropdown(
     var category by remember { mutableStateOf("Selecione uma categoria") }
 
     val categoriesDrowpdownOptions = listOf(
-        Category(1, "Moradia", Icons.Default.Home),
-        Category(2, "Alimentação", Icons.Default.SetMeal),
-        Category(3, "Transporte", Icons.Default.EmojiTransportation),
-        Category(4, "Saúde", Icons.Default.Healing),
-        Category(5, "Educação", Icons.Default.Book),
-        Category(6, "Lazer", Icons.Default.SportsEsports),
-        Category(7, "Assinaturas", Icons.AutoMirrored.Filled.Assignment),
-        Category(8, "Dívidas/Empréstimos", Icons.Default.MoneyOff),
-        Category(9, "Impostos/Taxas", Icons.Default.AssuredWorkload),
-        Category(10, "Salário", Icons.Default.AttachMoney),
-        Category(11, "Freelancer/Autônomo", Icons.Default.AttachMoney),
-        Category(12, "Investimentos", Icons.Default.Savings),
-        Category(13, "Reembolso", Icons.Default.ShoppingBag),
-        Category(14, "Outros", Icons.Default.Category)
+        BillCategory(1, "Moradia", Icons.Default.Home),
+        BillCategory(2, "Alimentação", Icons.Default.SetMeal),
+        BillCategory(3, "Transporte", Icons.Default.EmojiTransportation),
+        BillCategory(4, "Saúde", Icons.Default.Healing),
+        BillCategory(5, "Educação", Icons.Default.Book),
+        BillCategory(6, "Lazer", Icons.Default.SportsEsports),
+        BillCategory(7, "Assinaturas", Icons.AutoMirrored.Filled.Assignment),
+        BillCategory(8, "Dívidas/Empréstimos", Icons.Default.MoneyOff),
+        BillCategory(9, "Impostos/Taxas", Icons.Default.AssuredWorkload),
+        BillCategory(10, "Salário", Icons.Default.AttachMoney),
+        BillCategory(11, "Freelancer/Autônomo", Icons.Default.AttachMoney),
+        BillCategory(12, "Investimentos", Icons.Default.Savings),
+        BillCategory(13, "Reembolso", Icons.Default.ShoppingBag),
+        BillCategory(14, "Outros", Icons.Default.Category)
     )
     var showCategoriesDropdown by remember { mutableStateOf(false) }
 
