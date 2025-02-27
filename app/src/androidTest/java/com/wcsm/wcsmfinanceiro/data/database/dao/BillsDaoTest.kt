@@ -97,33 +97,33 @@ class BillsDaoTest {
         val bill1 = Bill(
             billId = 1,
             billType = BillType.INCOME,
-            origin = "Test Origin",
-            title = "Test Bill",
+            origin = "Origem Teste",
+            title = "Conta Teste",
             value = 2578.92,
-            description = "Test Description",
+            description = "Descrição Teste",
             date = 1737504000000,
             paymentType = PaymentType.MONEY,
             paid = true,
             dueDate = 1737804000000,
             expired = false,
-            category = "Leisure",
-            tags = listOf("leisure", "home", "construction")
+            category = "Lazer",
+            tags = listOf("lazer", "casa", "construção")
         )
 
         val bill2 = Bill(
             billId = 1,  // Using the same ID to test unique key violation
             billType = BillType.EXPENSE,
-            origin = "Test Origin",
-            title = "Test Bill",
+            origin = "Origem Teste",
+            title = "Conta Teste",
             value = 2578.92,
-            description = "Test Description",
+            description = "Descrição Teste",
             date = 1737504000000,
             paymentType = PaymentType.MONEY,
             paid = true,
             dueDate = 1737804000000,
             expired = false,
-            category = "Leisure",
-            tags = listOf("leisure", "home", "construction")
+            category = "Lazer",
+            tags = listOf("lazer", "casa", "construção")
         )
 
         // WHEN: Trying to save two bills with the same ID

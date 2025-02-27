@@ -13,11 +13,11 @@ import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.SaveWalletCardUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.SaveWalletUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.UpdateWalletCardUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.UpdateWalletUseCase
-import com.wcsm.wcsmfinanceiro.presentation.model.WalletOperationType
+import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletOperationType
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
-import com.wcsm.wcsmfinanceiro.presentation.model.WalletCardState
-import com.wcsm.wcsmfinanceiro.presentation.model.WalletState
-import com.wcsm.wcsmfinanceiro.presentation.model.WalletType
+import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletCardState
+import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletState
+import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletType
 import com.wcsm.wcsmfinanceiro.presentation.util.toWallet
 import com.wcsm.wcsmfinanceiro.presentation.util.toWalletCard
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -210,7 +210,7 @@ class WalletViewModel @Inject constructor(
                         )
                     }
                     is Response.Success -> {
-                        _walletsWithCards.value = result.data.reversed() + accountsLists
+                        _walletsWithCards.value = result.data.reversed()// + accountsLists // accoutsLists used for tests
 
                         _uiState.value = uiState.value.copy(
                             isLoading = false,

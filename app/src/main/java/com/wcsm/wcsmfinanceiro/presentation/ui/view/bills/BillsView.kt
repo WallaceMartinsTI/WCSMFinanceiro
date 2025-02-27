@@ -42,7 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.R
-import com.wcsm.wcsmfinanceiro.presentation.model.BillOperationType
+import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillOperationType
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.XIcon
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.DateRangeFilter
@@ -75,6 +75,10 @@ fun BillsView() {
     var isLoading by remember { mutableStateOf(uiState.isLoading) }
 
     var textFilter by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        billsViewModel.getBills()
+    }
 
     LaunchedEffect(textFilter) {
         if(filterSelectedDateRange != null && textFilter.isNotBlank()) {

@@ -4,9 +4,9 @@ import android.icu.util.Calendar
 import com.wcsm.wcsmfinanceiro.data.entity.Bill
 import com.wcsm.wcsmfinanceiro.data.entity.Wallet
 import com.wcsm.wcsmfinanceiro.data.entity.WalletCard
-import com.wcsm.wcsmfinanceiro.presentation.model.BillState
-import com.wcsm.wcsmfinanceiro.presentation.model.WalletCardState
-import com.wcsm.wcsmfinanceiro.presentation.model.WalletState
+import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillState
+import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletCardState
+import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletState
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Locale

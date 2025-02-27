@@ -1,4 +1,4 @@
-package com.wcsm.wcsmfinanceiro.presentation.model
+package com.wcsm.wcsmfinanceiro.presentation.model.bills
 
 import com.wcsm.wcsmfinanceiro.data.model.BillType
 import com.wcsm.wcsmfinanceiro.data.model.PaymentType

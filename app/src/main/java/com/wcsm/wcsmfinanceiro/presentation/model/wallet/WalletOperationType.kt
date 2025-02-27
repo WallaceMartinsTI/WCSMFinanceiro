@@ -1,4 +1,4 @@
-package com.wcsm.wcsmfinanceiro.presentation.model
+package com.wcsm.wcsmfinanceiro.presentation.model.wallet
 
 sealed class WalletOperationType(val walletType: WalletType) {
     class Save(walletType: WalletType) : WalletOperationType(walletType)

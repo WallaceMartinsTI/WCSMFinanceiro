@@ -10,8 +10,8 @@ import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsByTextUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.SaveBillUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.UpdateBillUseCase
-import com.wcsm.wcsmfinanceiro.presentation.model.BillOperationType
-import com.wcsm.wcsmfinanceiro.presentation.model.BillState
+import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillOperationType
+import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillState
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.util.toBill
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,249 +30,6 @@ class BillsViewModel @Inject constructor(
     private val getBillsByDateUseCase: GetBillsByDateUseCase,
     private val getBillsByTextUseCase: GetBillsByTextUseCase
 ) : ViewModel() {
-    // Temp for tests
-    /*private val billsList = listOf(
-        Bill(
-            id = 1,
-            billType = BillType.INCOME,
-            origin = "Trabalho",
-            title = "Salário",
-            value = 2624.72,
-            description = "Salário do mês de Janeiro",
-            date = 1736208000000, // Mon Jan 06 2025 21:00:00.000
-            category = Category(1, "Trabalho"),
-            dueDate = 1739588400000, // Sat Feb 15 2025 00:00:00.000
-            expired = false,
-            paid = true,
-            paymentType = PaymentType.MONEY,
-            tags = listOf("Salario", "Trabalho")
-        ),
-        Bill(
-            id = 2,
-            billType = BillType.EXPENSE,
-            origin = "Mercado",
-            title = "Compra do Mês Data",
-            value = 975.35,
-            description = "Compra do mês de Janeiro",
-            date = 1736698430000, // Mon Jan 06 2025 21:00:00.000
-            category = Category(1, "Mercado"),
-            dueDate = 1736698430000, // Sat Feb 15 2025 00:00:00.000
-            expired = false,
-            paid = true,
-            paymentType = PaymentType.CARD,
-            tags = listOf("Mercado")
-        ),
-        Bill(
-            id = 3,
-            billType = BillType.INCOME,
-            origin = "Trabalho",
-            title = "Salário",
-            value = 2624.72,
-            description = "Salário do mês de Janeiro",
-            date = 1736208000000, // Mon Jan 06 2025 21:00:00.000
-            category = Category(1, "Trabalho"),
-            dueDate = 1739588400000, // Sat Feb 15 2025 00:00:00.000
-            expired = false,
-            paid = true,
-            paymentType = PaymentType.MONEY,
-            tags = listOf("Salario", "Trabalho")
-        ),
-        Bill(
-            id = 4,
-            billType = BillType.EXPENSE,
-            origin = "Mercado",
-            title = "Compra do Mês",
-            value = 975.35,
-            description = "Compra do mês de Janeiro",
-            date = 1736208000000, // Mon Jan 06 2025 21:00:00.000
-            category = Category(1, "Mercado"),
-            dueDate = 1739588400000, // Sat Feb 15 2025 00:00:00.000
-            expired = false,
-            paid = true,
-            paymentType = PaymentType.CARD,
-            tags = listOf("Mercado")
-        ),
-        Bill(
-            id = 5,
-            billType = BillType.INCOME,
-            origin = "Trabalho",
-            title = "Salário Data",
-            value = 2624.72,
-            description = "Salário do mês de Janeiro",
-            date = 1736698430000, // Mon Jan 06 2025 21:00:00.000
-            category = Category(1, "Trabalho"),
-            dueDate = 1736698430000, // Sat Feb 15 2025 00:00:00.000
-            expired = false,
-            paid = true,
-            paymentType = PaymentType.MONEY,
-            tags = listOf("Salario", "Trabalho")
-        ),
-        Bill(
-            id = 6,
-            billType = BillType.EXPENSE,
-            origin = "Mercado",
-            title = "Compra do Mês",
-            value = 975.35,
-            description = "Compra do mês de Janeiro",
-            date = 1736208000000, // Mon Jan 06 2025 21:00:00.000
-            category = Category(1, "Mercado"),
-            dueDate = 1739588400000, // Sat Feb 15 2025 00:00:00.000
-            expired = false,
-            paid = true,
-            paymentType = PaymentType.CARD,
-            tags = listOf("Mercado")
-        ),
-        Bill(
-            id = 7,
-            billType = BillType.INCOME,
-            origin = "Trabalho",
-            title = "Salário",
-            value = 2624.72,
-            description = "Salário do mês de Janeiro",
-            date = 1736208000000, // Mon Jan 06 2025 21:00:00.000
-            category = Category(1, "Trabalho"),
-            dueDate = 1739588400000, // Sat Feb 15 2025 00:00:00.000
-            expired = false,
-            paid = true,
-            paymentType = PaymentType.MONEY,
-            tags = listOf("Salario", "Trabalho")
-        ),
-        Bill(
-            id = 8,
-            billType = BillType.EXPENSE,
-            origin = "Mercado",
-            title = "Compra do Mês",
-            value = 975.35,
-            description = "Compra do mês de Janeiro",
-            date = 1736208000000, // Mon Jan 06 2025 21:00:00.000
-            category = Category(1, "Mercado"),
-            dueDate = 1739588400000, // Sat Feb 15 2025 00:00:00.000
-            expired = false,
-            paid = true,
-            paymentType = PaymentType.CARD,
-            tags = listOf("Mercado")
-        ),
-        Bill(
-            id = 9,
-            billType = BillType.INCOME,
-            origin = "Trabalho",
-            title = "Salário",
-            value = 2624.72,
-            description = "Salário do mês de Janeiro",
-            date = 1736208000000, // Mon Jan 06 2025 21:00:00.000
-            category = Category(1, "Trabalho"),
-            dueDate = 1739588400000, // Sat Feb 15 2025 00:00:00.000
-            expired = false,
-            paid = true,
-            paymentType = PaymentType.MONEY,
-            tags = listOf("Salario", "Trabalho")
-        ),
-        Bill(
-            id = 10,
-            billType = BillType.EXPENSE,
-            origin = "Mercado",
-            title = "Compra do Mês",
-            value = 975.35,
-            description = "Compra do mês de Janeiro",
-            date = 1736208000000, // Mon Jan 06 2025 21:00:00.000
-            category = Category(1, "Mercado"),
-            dueDate = 1739588400000, // Sat Feb 15 2025 00:00:00.000
-            expired = false,
-            paid = true,
-            paymentType = PaymentType.CARD,
-            tags = listOf("Mercado")
-        ),
-        Bill(
-            id = 11,
-            billType = BillType.INCOME,
-            origin = "Trabalho",
-            title = "Salário",
-            value = 2624.72,
-            description = "Salário do mês de Janeiro",
-            date = 1736208000000, // Mon Jan 06 2025 21:00:00.000
-            category = Category(1, "Trabalho"),
-            dueDate = 1739588400000, // Sat Feb 15 2025 00:00:00.000
-            expired = false,
-            paid = true,
-            paymentType = PaymentType.MONEY,
-            tags = listOf("Salario", "Trabalho")
-        ),
-        Bill(
-            id = 12,
-            billType = BillType.EXPENSE,
-            origin = "Mercado",
-            title = "Compra do Mês",
-            value = 975.35,
-            description = "Compra do mês de Janeiro",
-            date = 1736208000000, // Mon Jan 06 2025 21:00:00.000
-            category = Category(1, "Mercado"),
-            dueDate = 1739588400000, // Sat Feb 15 2025 00:00:00.000
-            expired = false,
-            paid = true,
-            paymentType = PaymentType.CARD,
-            tags = listOf("Mercado")
-        ),
-        Bill(
-            id = 13,
-            billType = BillType.INCOME,
-            origin = "Trabalho",
-            title = "Salário",
-            value = 2624.72,
-            description = "Salário do mês de Janeiro",
-            date = 1736208000000, // Mon Jan 06 2025 21:00:00.000
-            category = Category(1, "Trabalho"),
-            dueDate = 1739588400000, // Sat Feb 15 2025 00:00:00.000
-            expired = false,
-            paid = true,
-            paymentType = PaymentType.MONEY,
-            tags = listOf("Salario", "Trabalho")
-        ),
-        Bill(
-            id = 14,
-            billType = BillType.EXPENSE,
-            origin = "Mercado",
-            title = "Compra do Mês",
-            value = 975.35,
-            description = "Compra do mês de Janeiro",
-            date = 1736208000000, // Mon Jan 06 2025 21:00:00.000
-            category = Category(1, "Mercado"),
-            dueDate = 1739588400000, // Sat Feb 15 2025 00:00:00.000
-            expired = false,
-            paid = true,
-            paymentType = PaymentType.CARD,
-            tags = listOf("Mercado")
-        ),
-        Bill(
-            id = 15,
-            billType = BillType.INCOME,
-            origin = "Trabalho",
-            title = "Salário",
-            value = 2624.72,
-            description = "Salário do mês de Janeiro",
-            date = 1736208000000, // Mon Jan 06 2025 21:00:00.000
-            category = Category(1, "Trabalho"),
-            dueDate = 1739588400000, // Sat Feb 15 2025 00:00:00.000
-            expired = false,
-            paid = true,
-            paymentType = PaymentType.MONEY,
-            tags = listOf("Salario", "Trabalho")
-        ),
-        Bill(
-            id = 16,
-            billType = BillType.EXPENSE,
-            origin = "Mercado",
-            title = "Compra do Mês",
-            value = 975.35,
-            description = "Compra do mês de Janeiro",
-            date = 1736208000000, // Mon Jan 06 2025 21:00:00.000
-            category = Category(1, "Mercado"),
-            dueDate = 1739588400000, // Sat Feb 15 2025 00:00:00.000
-            expired = false,
-            paid = true,
-            paymentType = PaymentType.CARD,
-            tags = listOf("Mercado")
-        ),
-    )*/
 
     private val _uiState = MutableStateFlow(UiState<BillOperationType>())
     val uiState = _uiState.asStateFlow()
@@ -285,10 +42,6 @@ class BillsViewModel @Inject constructor(
 
     private val _bills = MutableStateFlow<List<Bill>?>(null)
     val bills = _bills.asStateFlow()
-
-    init {
-        getBills()
-    }
 
     fun updateFilterSelectedDateRange(filterSelectedRange: Pair<Long, Long>?) {
         _filterSelectedDateRange.value = filterSelectedRange
@@ -304,6 +57,10 @@ class BillsViewModel @Inject constructor(
 
     fun resetUiState() {
         _uiState.value = UiState()
+    }
+
+    private fun updateUiState(uiState: UiState<BillOperationType>) {
+        _uiState.value = uiState
     }
 
     fun applyDateRangeFilter(startDate: Long, endDate: Long) {
@@ -377,7 +134,7 @@ class BillsViewModel @Inject constructor(
         getBills()
     }
 
-    private fun getBills() {
+    fun getBills() {
         viewModelScope.launch(Dispatchers.IO) {
             getBillsUseCase().collect { result ->
                 when(result) {

@@ -1,4 +1,4 @@
-package com.wcsm.wcsmfinanceiro.presentation.model
+package com.wcsm.wcsmfinanceiro.presentation.model.bills
 
 import androidx.compose.ui.graphics.vector.ImageVector
 

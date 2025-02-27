@@ -1,4 +1,4 @@
-package com.wcsm.wcsmfinanceiro.presentation.model
+package com.wcsm.wcsmfinanceiro.presentation.model.wallet
 
 data class WalletCardState(
     var walletId : Long = 0,

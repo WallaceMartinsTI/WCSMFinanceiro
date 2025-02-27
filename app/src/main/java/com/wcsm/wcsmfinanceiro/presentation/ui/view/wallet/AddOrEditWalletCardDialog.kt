@@ -51,8 +51,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.data.entity.Wallet
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
-import com.wcsm.wcsmfinanceiro.presentation.model.WalletCardState
-import com.wcsm.wcsmfinanceiro.presentation.model.WalletOperationType
+import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletCardState
+import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletOperationType
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.XIcon
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.CustomCheckbox

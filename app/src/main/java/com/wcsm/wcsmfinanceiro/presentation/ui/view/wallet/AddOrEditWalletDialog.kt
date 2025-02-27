@@ -52,9 +52,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.data.entity.WalletCard
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
-import com.wcsm.wcsmfinanceiro.presentation.model.WalletOperationType
-import com.wcsm.wcsmfinanceiro.presentation.model.WalletState
-import com.wcsm.wcsmfinanceiro.presentation.model.WalletType
+import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletOperationType
+import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletState
+import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletType
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.XIcon
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.MonetaryInputField
