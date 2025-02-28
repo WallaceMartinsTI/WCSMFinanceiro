@@ -82,7 +82,7 @@ fun BillsView() {
 
     LaunchedEffect(textFilter) {
         if(filterSelectedDateRange != null && textFilter.isNotBlank()) {
-            billsViewModel.clearFilter()
+            billsViewModel.clearSelectedDateRangeFilter()
         }
     }
 
@@ -143,7 +143,7 @@ fun BillsView() {
             },
             onClearFilter = {
                 textFilter = ""
-                billsViewModel.clearFilter()
+                billsViewModel.clearSelectedDateRangeFilter()
             },
             onFilter = { startDate, endDate ->
                 billsViewModel.applyDateRangeFilter(
@@ -186,7 +186,7 @@ fun BillsView() {
                 if(textFilter.isNotBlank()) {
                     XIcon {
                         textFilter = ""
-                        billsViewModel.clearFilter()
+                        billsViewModel.clearSelectedDateRangeFilter()
                     }
                 }
             },

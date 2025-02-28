@@ -1,5 +1,6 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills
 
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wcsm.wcsmfinanceiro.data.entity.Bill
@@ -51,6 +52,15 @@ class BillsViewModel @Inject constructor(
         _billStateFlow.value = updatedState
     }
 
+    fun updateUiState(uiState: UiState<BillOperationType>) {
+        _uiState.value = uiState
+    }
+
+    fun clearSelectedDateRangeFilter() {
+        _filterSelectedDateRange.value = null
+        getBills()
+    }
+
     fun resetBillState() {
         _billStateFlow.value = BillState()
     }
@@ -59,38 +69,40 @@ class BillsViewModel @Inject constructor(
         _uiState.value = UiState()
     }
 
-    private fun updateUiState(uiState: UiState<BillOperationType>) {
-        _uiState.value = uiState
+    fun resetBillStateErrorMessages() {
+        updateBillState(
+            billStateFlow.value.copy(
+                titleErrorMessage = "",
+                dateErrorMessage = "",
+                valueErrorMessage = "",
+                categoryErrorMessage = ""
+            )
+        )
     }
 
     fun applyDateRangeFilter(startDate: Long, endDate: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = uiState.value.copy(
-                operationType = null
-            )
+            updateUiState(uiState.value.copy(operationType = null))
 
             getBillsByDateUseCase(startDate, endDate).collect { result ->
                 when(result) {
                     is Response.Loading -> {
-                        _uiState.value = uiState.value.copy(
-                            isLoading = true,
-                        )
+                        updateUiState(uiState.value.copy(isLoading = true))
                     }
                     is Response.Error -> {
-                        _uiState.value = uiState.value.copy(
+                        updateUiState(uiState.value.copy(
                             isLoading = false,
                             error = result.message
-                        )
+                        ))
                     }
                     is Response.Success -> {
                         _bills.value = result.data.sortedBy { bill ->
                             bill.date
                         }
-
-                        _uiState.value = uiState.value.copy(
+                        updateUiState(uiState.value.copy(
                             isLoading = false,
                             success = true
-                        )
+                        ))
                     }
                 }
             }
@@ -99,39 +111,30 @@ class BillsViewModel @Inject constructor(
 
     fun applyTextFilter(text: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = uiState.value.copy(
-                operationType = null
-            )
+            updateUiState(uiState.value.copy(operationType = null))
 
             getBillsByTextUseCase(text).collect { result ->
                 when(result) {
                     is Response.Loading -> {
-                        _uiState.value = uiState.value.copy(
-                            isLoading = true,
-                        )
+                        updateUiState(uiState.value.copy(isLoading = true))
                     }
                     is Response.Error -> {
-                        _uiState.value = uiState.value.copy(
+                        updateUiState(uiState.value.copy(
                             isLoading = false,
                             error = result.message
-                        )
+                        ))
                     }
                     is Response.Success -> {
                         _bills.value = result.data
 
-                        _uiState.value = uiState.value.copy(
+                        updateUiState(uiState.value.copy(
                             isLoading = false,
                             success = true
-                        )
+                        ))
                     }
                 }
             }
         }
-    }
-
-    fun clearFilter() {
-        _filterSelectedDateRange.value = null
-        getBills()
     }
 
     fun getBills() {
@@ -139,22 +142,21 @@ class BillsViewModel @Inject constructor(
             getBillsUseCase().collect { result ->
                 when(result) {
                     is Response.Loading -> {
-                        _uiState.value = uiState.value.copy(
-                            isLoading = true
-                        )
+                        updateUiState(uiState.value.copy(isLoading = true))
                     }
                     is Response.Error -> {
-                        _uiState.value = uiState.value.copy(
+                        updateUiState(uiState.value.copy(
                             isLoading = false,
                             error = result.message
-                        )
+                        ))
                     }
                     is Response.Success -> {
                         _bills.value = result.data.reversed()
-                        _uiState.value = uiState.value.copy(
+
+                        updateUiState(uiState.value.copy(
                             isLoading = false,
                             success = true
-                        )
+                        ))
                     }
                 }
             }
@@ -162,35 +164,31 @@ class BillsViewModel @Inject constructor(
     }
 
     fun saveBill(billState: BillState) {
-        resetErrorMessages()
+        resetBillStateErrorMessages()
 
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = uiState.value.copy(
-                operationType = BillOperationType.SAVE
-            )
+            updateUiState(uiState.value.copy(operationType = BillOperationType.SAVE))
 
             if(isBillStateValid()) {
                 val bill = billState.toBill()
                 saveBillUseCase(bill).collect { result ->
                     when(result) {
                         is Response.Loading -> {
-                            _uiState.value = uiState.value.copy(
-                                isLoading = false,
-                            )
+                            updateUiState(uiState.value.copy(isLoading = true))
                         }
                         is Response.Error -> {
-                            _uiState.value = uiState.value.copy(
+                            updateUiState(uiState.value.copy(
                                 isLoading = false,
                                 error = result.message
-                            )
+                            ))
                         }
                         is Response.Success -> {
                             _billStateFlow.value = BillState()
 
-                            _uiState.value = uiState.value.copy(
+                            updateUiState(uiState.value.copy(
                                 isLoading = false,
                                 success = true
-                            )
+                            ))
 
                             getBills()
                         }
@@ -214,36 +212,32 @@ class BillsViewModel @Inject constructor(
     }
 
     fun updateBill(billState: BillState, isUpdatingOnlyTags: Boolean = false) {
-        resetErrorMessages()
+        resetBillStateErrorMessages()
 
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = uiState.value.copy(
-                operationType = BillOperationType.UPDATE
-            )
+            updateUiState(uiState.value.copy(operationType = BillOperationType.UPDATE))
 
             if(isBillStateValid()) {
                 val bill = billState.toBill()
                 updateBillUseCase(bill).collect { result ->
                     when(result) {
                         is Response.Loading -> {
-                            _uiState.value = uiState.value.copy(
-                                isLoading = true
-                            )
+                            updateUiState(uiState.value.copy(isLoading = true))
                         }
                         is Response.Error -> {
-                            _uiState.value = uiState.value.copy(
+                            updateUiState(uiState.value.copy(
                                 isLoading = false,
                                 error = result.message
-                            )
+                            ))
                         }
                         is Response.Success -> {
                             if(!isUpdatingOnlyTags) {
                                 _billStateFlow.value = BillState()
 
-                                _uiState.value = uiState.value.copy(
+                                updateUiState(uiState.value.copy(
                                     isLoading = false,
                                     success = true
-                                )
+                                ))
 
                                 getBills()
                             }
@@ -256,32 +250,28 @@ class BillsViewModel @Inject constructor(
 
     fun deleteBill(billState: BillState) {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = uiState.value.copy(
-                operationType = BillOperationType.DELETE
-            )
+            updateUiState(uiState.value.copy(operationType = BillOperationType.DELETE))
 
             if(isBillStateValid()) {
                 val bill = billState.toBill()
                 deleteBillUseCase(bill).collect { result ->
                     when(result) {
                         is Response.Loading -> {
-                            _uiState.value = uiState.value.copy(
-                                isLoading = true
-                            )
+                            updateUiState(uiState.value.copy(isLoading = true))
                         }
                         is Response.Error -> {
-                            _uiState.value = uiState.value.copy(
+                            updateUiState(uiState.value.copy(
                                 isLoading = false,
                                 error = result.message
-                            )
+                            ))
                         }
                         is Response.Success -> {
                             _billStateFlow.value = BillState()
 
-                            _uiState.value = uiState.value.copy(
+                            updateUiState(uiState.value.copy(
                                 isLoading = false,
                                 success = true
-                            )
+                            ))
 
                             getBills()
                         }
@@ -289,17 +279,6 @@ class BillsViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    private fun resetErrorMessages() {
-        updateBillState(
-            billStateFlow.value.copy(
-                titleErrorMessage = "",
-                dateErrorMessage = "",
-                valueErrorMessage = "",
-                categoryErrorMessage = ""
-            )
-        )
     }
 
     private fun isBillStateValid() : Boolean {
