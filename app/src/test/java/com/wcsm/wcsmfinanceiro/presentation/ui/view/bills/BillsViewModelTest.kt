@@ -18,10 +18,8 @@ import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillState
 import com.wcsm.wcsmfinanceiro.presentation.util.toBill
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mock
@@ -29,8 +27,6 @@ import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 
 class BillsViewModelTest {
-
-    private lateinit var billsViewModel: BillsViewModel
 
     @Mock
     private lateinit var getBillsUseCase: GetBillsUseCase
@@ -48,15 +44,15 @@ class BillsViewModelTest {
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-
-        billsViewModel = BillsViewModel(
-            getBillsUseCase, saveBillUseCase, updateBillUseCase,
-            deleteBillUseCase, getBillsByDateUseCase, getBillsByTextUseCase
-        )
     }
 
     @Test
     fun updateFilterSelectedDateRange_updateFilterSelectedDateRangeState_shouldUpdateCorrectly() = runTest {
+        val billsViewModel = BillsViewModel(
+            getBillsUseCase, saveBillUseCase, updateBillUseCase,
+            deleteBillUseCase, getBillsByDateUseCase, getBillsByTextUseCase
+        )
+
         // GIVEN: A date range to filter
         val dateRange = Pair(1000L, 2000L)
 
@@ -74,6 +70,11 @@ class BillsViewModelTest {
 
     @Test
     fun updateBillState_updateBillState_shouldUpdateCorrectly() = runTest {
+        val billsViewModel = BillsViewModel(
+            getBillsUseCase, saveBillUseCase, updateBillUseCase,
+            deleteBillUseCase, getBillsByDateUseCase, getBillsByTextUseCase
+        )
+
         // GIVEN: A new billState to be updated
         val billState = BillState()
 
@@ -91,6 +92,11 @@ class BillsViewModelTest {
 
     @Test
     fun updateUiState_updateUiState_shouldUpdateUiStateCorrectly() = runTest {
+        val billsViewModel = BillsViewModel(
+            getBillsUseCase, saveBillUseCase, updateBillUseCase,
+            deleteBillUseCase, getBillsByDateUseCase, getBillsByTextUseCase
+        )
+
         // GIVEN: A new uiState to be updated
         val uiState = UiState<BillOperationType>()
 
@@ -106,8 +112,15 @@ class BillsViewModelTest {
         }
     }
 
-    //@Test
+    @Test
     fun clearSelectedDateRangeFilter_clearSelectedDateRangeFilter_shouldClearFilterSelectedDateRange() = runTest {
+        val billsViewModel = BillsViewModel(
+            getBillsUseCase, saveBillUseCase, updateBillUseCase,
+            deleteBillUseCase, getBillsByDateUseCase, getBillsByTextUseCase
+        )
+
+        Mockito.`when`(getBillsUseCase()).thenReturn( flow { emit(Response.Success(emptyList())) } )
+
         val initialDateRange = Pair(1000L, 2000L)
         // GIVEN: A fake date range to be cleared
         billsViewModel.updateFilterSelectedDateRange(initialDateRange)
@@ -126,6 +139,11 @@ class BillsViewModelTest {
 
     @Test
     fun resetBillState_resetBillState_shouldMatchWithAndEmptyBillState() = runTest {
+        val billsViewModel = BillsViewModel(
+            getBillsUseCase, saveBillUseCase, updateBillUseCase,
+            deleteBillUseCase, getBillsByDateUseCase, getBillsByTextUseCase
+        )
+
         // GIVEN: A reset bill state
         val billState = BillState()
 
@@ -149,6 +167,11 @@ class BillsViewModelTest {
 
     @Test
     fun resetUiState_resetUiState_shouldMatchWithAnEmptyUiState() = runTest {
+        val billsViewModel = BillsViewModel(
+            getBillsUseCase, saveBillUseCase, updateBillUseCase,
+            deleteBillUseCase, getBillsByDateUseCase, getBillsByTextUseCase
+        )
+
         // GIVEN: A reset ui state
         val uiState = UiState<BillOperationType>()
 
@@ -158,6 +181,7 @@ class BillsViewModelTest {
 
             // Update uiState to be reset
             billsViewModel.updateUiState(uiState.copy(error = "Erro simulado"))
+
             assertThat(awaitItem().error).isEqualTo("Erro simulado")
 
             // WHEN: Reset uiState
@@ -170,6 +194,11 @@ class BillsViewModelTest {
 
     @Test
     fun resetBillStateErrorMessages_resetBillStateErrorMessages_shouldResetAllErrorMessagesFromBillState() = runTest {
+        val billsViewModel = BillsViewModel(
+            getBillsUseCase, saveBillUseCase, updateBillUseCase,
+            deleteBillUseCase, getBillsByDateUseCase, getBillsByTextUseCase
+        )
+
         // GIVEN: A bill state with error values
         val billStateWithErrors = BillState(
             titleErrorMessage = "Erro no Título",
@@ -177,6 +206,7 @@ class BillsViewModelTest {
             valueErrorMessage = "Erro no Valor",
             categoryErrorMessage = "Erro na Categoria"
         )
+
         billsViewModel.updateBillState(billStateWithErrors)
 
         billsViewModel.billStateFlow.test {
@@ -249,6 +279,11 @@ class BillsViewModelTest {
             flow { emit(Response.Success(filteredBillsByDate)) }
         )
 
+        val billsViewModel = BillsViewModel(
+            getBillsUseCase, saveBillUseCase, updateBillUseCase,
+            deleteBillUseCase, getBillsByDateUseCase, getBillsByTextUseCase
+        )
+
         billsViewModel.bills.test {
             assertThat(awaitItem()).isNull()
 
@@ -312,6 +347,11 @@ class BillsViewModelTest {
 
         Mockito.`when`(getBillsByTextUseCase(anyString())).thenReturn(
             flow { emit(Response.Success(filteredBillsByText)) }
+        )
+
+        val billsViewModel = BillsViewModel(
+            getBillsUseCase, saveBillUseCase, updateBillUseCase,
+            deleteBillUseCase, getBillsByDateUseCase, getBillsByTextUseCase
         )
 
         billsViewModel.bills.test {
@@ -379,6 +419,11 @@ class BillsViewModelTest {
             flow { emit(Response.Success(bills)) }
         )
 
+        val billsViewModel = BillsViewModel(
+            getBillsUseCase, saveBillUseCase, updateBillUseCase,
+            deleteBillUseCase, getBillsByDateUseCase, getBillsByTextUseCase
+        )
+
         billsViewModel.bills.test {
             assertThat(awaitItem()).isNull()
 
@@ -390,8 +435,9 @@ class BillsViewModelTest {
         }
     }
 
-    //@Test
+    @Test
     fun saveBill_saveBillToUseCase_shouldSaveBillAndFillUiStateWithSuccess() = runTest {
+        // GIVEN: A bill to be saved
         val billToBeSaved = BillState(
             billId = 1L,
             billType = BillType.INCOME,
@@ -408,43 +454,160 @@ class BillsViewModelTest {
             tags = listOf("energia", "luz", "casa")
         )
 
-        billsViewModel.updateBillState(billToBeSaved)
-
         Mockito.`when`(saveBillUseCase(billToBeSaved.toBill())).thenReturn(
             flow { emit(Response.Success(1L)) }
         )
+        Mockito.`when`(getBillsUseCase()).thenReturn(
+            flow { emit(Response.Success(emptyList())) }
+        )
+
+        val billsViewModel = BillsViewModel(
+            getBillsUseCase, saveBillUseCase, updateBillUseCase,
+            deleteBillUseCase, getBillsByDateUseCase, getBillsByTextUseCase
+        )
+
+        billsViewModel.updateBillState(billToBeSaved)
 
         billsViewModel.uiState.test {
-            //assertThat(awaitItem()).isEqualTo(UiState<BillOperationType>())
-            println("1: ${awaitItem()}")
-            //println("2: ${awaitItem()}")
+            assertThat(awaitItem()).isEqualTo(UiState<BillOperationType>())
+
+            // WHEN: Save the bill
             billsViewModel.saveBill(billToBeSaved)
 
-            println("3: ${awaitItem()}")
-            //assertThat(awaitItem().operationType).isEqualTo(BillOperationType.SAVE)
+            assertThat(awaitItem().operationType).isEqualTo(BillOperationType.SAVE)
 
-            println("4: ${awaitItem()}")
-            //assertThat(awaitItem().success).isTrue()
+            // THEN: Should emit success
+            assertThat(awaitItem().success).isTrue()
         }
     }
 
-    /*
+    @Test
+    fun deleteTag_deleteTag_shouldDeleteTagCorrectly() = runTest {
+        val billsViewModel = BillsViewModel(
+            getBillsUseCase, saveBillUseCase, updateBillUseCase,
+            deleteBillUseCase, getBillsByDateUseCase, getBillsByTextUseCase
+        )
 
+        // GIVEN: A bill to be updated
+        val billWithTags = BillState(
+            billId = 1L,
+            billType = BillType.INCOME,
+            origin = "Companhia de Energia",
+            title = "Conta de Luz",
+            value = 250.75,
+            description = "Conta de energia elétrica referente ao mês de janeiro",
+            date = 1706659200000L,
+            paymentType = PaymentType.CARD,
+            paid = false,
+            dueDate = 1709251200000L,
+            expired = false,
+            category = "Despesas Domésticas",
+            tags = listOf("energia", "luz", "casa")
+        )
 
-            @Test
-            fun saveBill() {
-            }
+        billsViewModel.updateBillState(billWithTags)
 
-            @Test
-            fun deleteTag() {
-            }
+        billsViewModel.billStateFlow.test {
+            // Bill tags should have the tag that will be deleted
+            assertThat(awaitItem().tags).contains("luz")
 
-            @Test
-            fun updateBill() {
-            }
+            // WHEN: A tag is deleted
+            billsViewModel.deleteTag("luz")
 
-            @Test
-            fun deleteBill() {
-            }
-            */
+            // THEN: Bill tags should not have deleted tag
+            assertThat(awaitItem().tags).doesNotContain("luz")
+        }
+    }
+
+    @Test
+    fun updateBill_updateBillToUseCase_shouldUpdateBillAndFillUiStateWithSuccess() = runTest {
+        // GIVEN: A bill to be updated
+        val billToBeUpdated = BillState(
+            billId = 1L,
+            billType = BillType.INCOME,
+            origin = "Companhia de Energia",
+            title = "Conta de Luz",
+            value = 250.75,
+            description = "Conta de energia elétrica referente ao mês de janeiro",
+            date = 1706659200000L,
+            paymentType = PaymentType.CARD,
+            paid = false,
+            dueDate = 1709251200000L,
+            expired = false,
+            category = "Despesas Domésticas",
+            tags = listOf("energia", "luz", "casa")
+        )
+
+        Mockito.`when`(updateBillUseCase(billToBeUpdated.toBill())).thenReturn(
+            flow { emit(Response.Success(1)) }
+        )
+        Mockito.`when`(getBillsUseCase()).thenReturn(
+            flow { emit(Response.Success(emptyList())) }
+        )
+
+        val billsViewModel = BillsViewModel(
+            getBillsUseCase, saveBillUseCase, updateBillUseCase,
+            deleteBillUseCase, getBillsByDateUseCase, getBillsByTextUseCase
+        )
+
+        billsViewModel.updateBillState(billToBeUpdated)
+
+        billsViewModel.uiState.test {
+            assertThat(awaitItem()).isEqualTo(UiState<BillOperationType>())
+
+            // WHEN: Update the bill
+            billsViewModel.updateBill(billToBeUpdated)
+
+            assertThat(awaitItem().operationType).isEqualTo(BillOperationType.UPDATE)
+
+            // THEN: Should emit success
+            assertThat(awaitItem().success).isTrue()
+        }
+    }
+
+    @Test
+    fun deleteBill_deleteBillToUseCase_shouldSaveBillAndFillUiStateWithSuccess() = runTest {
+        // GIVEN: A bill to be deleted
+        val billToBeDeleted = BillState(
+            billId = 1L,
+            billType = BillType.INCOME,
+            origin = "Companhia de Energia",
+            title = "Conta de Luz",
+            value = 250.75,
+            description = "Conta de energia elétrica referente ao mês de janeiro",
+            date = 1706659200000L,
+            paymentType = PaymentType.CARD,
+            paid = false,
+            dueDate = 1709251200000L,
+            expired = false,
+            category = "Despesas Domésticas",
+            tags = listOf("energia", "luz", "casa")
+        )
+
+        Mockito.`when`(deleteBillUseCase(billToBeDeleted.toBill())).thenReturn(
+            flow { emit(Response.Success(1)) }
+        )
+        Mockito.`when`(getBillsUseCase()).thenReturn(
+            flow { emit(Response.Success(emptyList())) }
+        )
+
+        val billsViewModel = BillsViewModel(
+            getBillsUseCase, saveBillUseCase, updateBillUseCase,
+            deleteBillUseCase, getBillsByDateUseCase, getBillsByTextUseCase
+        )
+
+        billsViewModel.updateBillState(billToBeDeleted)
+
+        billsViewModel.uiState.test {
+            assertThat(awaitItem()).isEqualTo(UiState<BillOperationType>())
+
+            // WHEN: Delete the bill
+            billsViewModel.deleteBill(billToBeDeleted)
+
+            assertThat(awaitItem().operationType).isEqualTo(BillOperationType.DELETE)
+
+            // THEN: Should emit success
+            assertThat(awaitItem().success).isTrue()
+        }
+    }
 }
