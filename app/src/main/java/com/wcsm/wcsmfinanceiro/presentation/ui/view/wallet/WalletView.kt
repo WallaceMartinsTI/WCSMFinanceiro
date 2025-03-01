@@ -70,6 +70,10 @@ fun WalletView(
 
     var walletsList: List<Wallet> by remember { mutableStateOf(emptyList()) }
 
+    LaunchedEffect(Unit) {
+        walletViewModel.getWalletWithCards()
+    }
+
     LaunchedEffect(walletsWithCards) {
         walletsList = walletsWithCards?.map {
             it.wallet

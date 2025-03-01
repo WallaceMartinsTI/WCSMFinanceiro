@@ -20,12 +20,15 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
+import org.mockito.junit.MockitoJUnitRunner
 
+@RunWith(MockitoJUnitRunner::class)
 class BillsViewModelTest {
 
     @Mock
@@ -65,6 +68,9 @@ class BillsViewModelTest {
 
             // THEN: filterSelectedDateRange state should match with passed dateRange
             assertThat(awaitItem()).isEqualTo(dateRange)
+
+            // Important: Cancels the flow to prevent coroutine leaks in the test
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
@@ -87,6 +93,9 @@ class BillsViewModelTest {
 
             // THEN: Bill state should match with updated BillState
             assertThat(awaitItem().title).isEqualTo("Título Atualizado")
+
+            // Important: Cancels the flow to prevent coroutine leaks in the test
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
@@ -109,6 +118,9 @@ class BillsViewModelTest {
 
             // THEN: uiState should match with updated uiState
             assertThat(awaitItem().isLoading).isTrue()
+
+            // Important: Cancels the flow to prevent coroutine leaks in the test
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
@@ -134,6 +146,9 @@ class BillsViewModelTest {
 
             // THEN: filterSelectedDateRange should be null
             assertThat(awaitItem()).isNull()
+
+            // Important: Cancels the flow to prevent coroutine leaks in the test
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
@@ -162,6 +177,9 @@ class BillsViewModelTest {
 
             // THEN: Bill state should match with a reset billState
             assertThat(awaitItem()).isEqualTo(billState)
+
+            // Important: Cancels the flow to prevent coroutine leaks in the test
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
@@ -189,6 +207,9 @@ class BillsViewModelTest {
 
             // THEN: uiState should match with a reset uiState
             assertThat(awaitItem()).isEqualTo(uiState)
+
+            // Important: Cancels the flow to prevent coroutine leaks in the test
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
@@ -222,6 +243,9 @@ class BillsViewModelTest {
             assertThat(billStateAfterReset.dateErrorMessage).isEmpty()
             assertThat(billStateAfterReset.valueErrorMessage).isEmpty()
             assertThat(billStateAfterReset.categoryErrorMessage).isEmpty()
+
+            // Important: Cancels the flow to prevent coroutine leaks in the test
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
@@ -292,6 +316,9 @@ class BillsViewModelTest {
 
             // THEN: Should return a filtered bills list
             assertThat(awaitItem()).isEqualTo(filteredBillsByDate)
+
+            // Important: Cancels the flow to prevent coroutine leaks in the test
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
@@ -362,6 +389,9 @@ class BillsViewModelTest {
 
             // THEN: Should return a filtered bills list
             assertThat(awaitItem()).isEqualTo(filteredBillsByText)
+
+            // Important: Cancels the flow to prevent coroutine leaks in the test
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
@@ -415,13 +445,13 @@ class BillsViewModelTest {
             )
         )
 
-        Mockito.`when`(getBillsUseCase()).thenReturn(
-            flow { emit(Response.Success(bills)) }
-        )
-
         val billsViewModel = BillsViewModel(
             getBillsUseCase, saveBillUseCase, updateBillUseCase,
             deleteBillUseCase, getBillsByDateUseCase, getBillsByTextUseCase
+        )
+
+        Mockito.`when`(getBillsUseCase()).thenReturn(
+            flow { emit(Response.Success(bills)) }
         )
 
         billsViewModel.bills.test {
@@ -432,6 +462,9 @@ class BillsViewModelTest {
 
             // THEN: bills list should be filled with requested bills and reversed
             assertThat(awaitItem()).isEqualTo(bills.reversed())
+
+            // Important: Cancels the flow to prevent coroutine leaks in the test
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
@@ -454,16 +487,16 @@ class BillsViewModelTest {
             tags = listOf("energia", "luz", "casa")
         )
 
+        val billsViewModel = BillsViewModel(
+            getBillsUseCase, saveBillUseCase, updateBillUseCase,
+            deleteBillUseCase, getBillsByDateUseCase, getBillsByTextUseCase
+        )
+
         Mockito.`when`(saveBillUseCase(billToBeSaved.toBill())).thenReturn(
             flow { emit(Response.Success(1L)) }
         )
         Mockito.`when`(getBillsUseCase()).thenReturn(
             flow { emit(Response.Success(emptyList())) }
-        )
-
-        val billsViewModel = BillsViewModel(
-            getBillsUseCase, saveBillUseCase, updateBillUseCase,
-            deleteBillUseCase, getBillsByDateUseCase, getBillsByTextUseCase
         )
 
         billsViewModel.updateBillState(billToBeSaved)
@@ -478,6 +511,9 @@ class BillsViewModelTest {
 
             // THEN: Should emit success
             assertThat(awaitItem().success).isTrue()
+
+            // Important: Cancels the flow to prevent coroutine leaks in the test
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
@@ -516,6 +552,9 @@ class BillsViewModelTest {
 
             // THEN: Bill tags should not have deleted tag
             assertThat(awaitItem().tags).doesNotContain("luz")
+
+            // Important: Cancels the flow to prevent coroutine leaks in the test
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
@@ -538,16 +577,16 @@ class BillsViewModelTest {
             tags = listOf("energia", "luz", "casa")
         )
 
+        val billsViewModel = BillsViewModel(
+            getBillsUseCase, saveBillUseCase, updateBillUseCase,
+            deleteBillUseCase, getBillsByDateUseCase, getBillsByTextUseCase
+        )
+
         Mockito.`when`(updateBillUseCase(billToBeUpdated.toBill())).thenReturn(
             flow { emit(Response.Success(1)) }
         )
         Mockito.`when`(getBillsUseCase()).thenReturn(
             flow { emit(Response.Success(emptyList())) }
-        )
-
-        val billsViewModel = BillsViewModel(
-            getBillsUseCase, saveBillUseCase, updateBillUseCase,
-            deleteBillUseCase, getBillsByDateUseCase, getBillsByTextUseCase
         )
 
         billsViewModel.updateBillState(billToBeUpdated)
@@ -562,6 +601,9 @@ class BillsViewModelTest {
 
             // THEN: Should emit success
             assertThat(awaitItem().success).isTrue()
+
+            // Important: Cancels the flow to prevent coroutine leaks in the test
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
@@ -608,6 +650,9 @@ class BillsViewModelTest {
 
             // THEN: Should emit success
             assertThat(awaitItem().success).isTrue()
+
+            // Important: Cancels the flow to prevent coroutine leaks in the test
+            cancelAndIgnoreRemainingEvents()
         }
     }
 }

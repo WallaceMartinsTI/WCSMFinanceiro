@@ -170,10 +170,6 @@ class WalletViewModel @Inject constructor(
     private val _walletsWithCards = MutableStateFlow<List<WalletWithCards>?>(null)
     val walletsWithCards = _walletsWithCards.asStateFlow()
 
-    init {
-        getWalletWithCards()
-    }
-
     fun updateWalletState(updatedState: WalletState) {
         _walletStateFlow.value = updatedState
     }
@@ -188,6 +184,10 @@ class WalletViewModel @Inject constructor(
 
     fun resetWalletCardState() {
         _walletCardStateFlow.value = WalletCardState()
+    }
+
+    fun updateUiState(uiState: UiState<WalletOperationType>) {
+        _uiState.value = uiState
     }
 
     fun resetUiState() {
