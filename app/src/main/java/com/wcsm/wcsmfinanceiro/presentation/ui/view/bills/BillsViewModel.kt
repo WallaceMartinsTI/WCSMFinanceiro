@@ -1,10 +1,9 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills
 
-import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wcsm.wcsmfinanceiro.data.entity.Bill
-import com.wcsm.wcsmfinanceiro.domain.model.Response
+import com.wcsm.wcsmfinanceiro.domain.model.DatabaseResponse
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.DeleteBillUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsByDateUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsByTextUseCase
@@ -80,29 +79,35 @@ class BillsViewModel @Inject constructor(
         )
     }
 
+    private fun onLoadingResponse() {
+        updateUiState(uiState.value.copy(isLoading = true))
+    }
+
+    private fun onErrorResponse(errorMessage: String) {
+        updateUiState(uiState.value.copy(isLoading = false, error = errorMessage))
+    }
+
+    private fun onSuccessResponse(onSuccess: () -> Unit) {
+        onSuccess()
+
+        updateUiState(uiState.value.copy(
+            isLoading = false,
+            success = true
+        ))
+    }
+
     fun applyDateRangeFilter(startDate: Long, endDate: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             updateUiState(uiState.value.copy(operationType = null))
 
             getBillsByDateUseCase(startDate, endDate).collect { result ->
                 when(result) {
-                    is Response.Loading -> {
-                        updateUiState(uiState.value.copy(isLoading = true))
-                    }
-                    is Response.Error -> {
-                        updateUiState(uiState.value.copy(
-                            isLoading = false,
-                            error = result.message
-                        ))
-                    }
-                    is Response.Success -> {
+                    is DatabaseResponse.Loading -> onLoadingResponse()
+                    is DatabaseResponse.Error -> onErrorResponse(result.message)
+                    is DatabaseResponse.Success -> onSuccessResponse {
                         _bills.value = result.data.sortedBy { bill ->
                             bill.date
                         }
-                        updateUiState(uiState.value.copy(
-                            isLoading = false,
-                            success = true
-                        ))
                     }
                 }
             }
@@ -115,22 +120,10 @@ class BillsViewModel @Inject constructor(
 
             getBillsByTextUseCase(text).collect { result ->
                 when(result) {
-                    is Response.Loading -> {
-                        updateUiState(uiState.value.copy(isLoading = true))
-                    }
-                    is Response.Error -> {
-                        updateUiState(uiState.value.copy(
-                            isLoading = false,
-                            error = result.message
-                        ))
-                    }
-                    is Response.Success -> {
+                    is DatabaseResponse.Loading -> onLoadingResponse()
+                    is DatabaseResponse.Error -> onErrorResponse(result.message)
+                    is DatabaseResponse.Success -> onSuccessResponse {
                         _bills.value = result.data
-
-                        updateUiState(uiState.value.copy(
-                            isLoading = false,
-                            success = true
-                        ))
                     }
                 }
             }
@@ -141,22 +134,10 @@ class BillsViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             getBillsUseCase().collect { result ->
                 when(result) {
-                    is Response.Loading -> {
-                        updateUiState(uiState.value.copy(isLoading = true))
-                    }
-                    is Response.Error -> {
-                        updateUiState(uiState.value.copy(
-                            isLoading = false,
-                            error = result.message
-                        ))
-                    }
-                    is Response.Success -> {
+                    is DatabaseResponse.Loading -> onLoadingResponse()
+                    is DatabaseResponse.Error -> onErrorResponse(result.message)
+                    is DatabaseResponse.Success -> onSuccessResponse {
                         _bills.value = result.data.reversed()
-
-                        updateUiState(uiState.value.copy(
-                            isLoading = false,
-                            success = true
-                        ))
                     }
                 }
             }
@@ -173,23 +154,10 @@ class BillsViewModel @Inject constructor(
                 val bill = billState.toBill()
                 saveBillUseCase(bill).collect { result ->
                     when(result) {
-                        is Response.Loading -> {
-                            updateUiState(uiState.value.copy(isLoading = true))
-                        }
-                        is Response.Error -> {
-                            updateUiState(uiState.value.copy(
-                                isLoading = false,
-                                error = result.message
-                            ))
-                        }
-                        is Response.Success -> {
+                        is DatabaseResponse.Loading -> onLoadingResponse()
+                        is DatabaseResponse.Error -> onErrorResponse(result.message)
+                        is DatabaseResponse.Success -> onSuccessResponse {
                             _billStateFlow.value = BillState()
-
-                            updateUiState(uiState.value.copy(
-                                isLoading = false,
-                                success = true
-                            ))
-
                             getBills()
                         }
                     }
@@ -221,24 +189,11 @@ class BillsViewModel @Inject constructor(
                 val bill = billState.toBill()
                 updateBillUseCase(bill).collect { result ->
                     when(result) {
-                        is Response.Loading -> {
-                            updateUiState(uiState.value.copy(isLoading = true))
-                        }
-                        is Response.Error -> {
-                            updateUiState(uiState.value.copy(
-                                isLoading = false,
-                                error = result.message
-                            ))
-                        }
-                        is Response.Success -> {
+                        is DatabaseResponse.Loading -> onLoadingResponse()
+                        is DatabaseResponse.Error -> onErrorResponse(result.message)
+                        is DatabaseResponse.Success -> onSuccessResponse {
                             if(!isUpdatingOnlyTags) {
                                 _billStateFlow.value = BillState()
-
-                                updateUiState(uiState.value.copy(
-                                    isLoading = false,
-                                    success = true
-                                ))
-
                                 getBills()
                             }
                         }
@@ -256,23 +211,10 @@ class BillsViewModel @Inject constructor(
                 val bill = billState.toBill()
                 deleteBillUseCase(bill).collect { result ->
                     when(result) {
-                        is Response.Loading -> {
-                            updateUiState(uiState.value.copy(isLoading = true))
-                        }
-                        is Response.Error -> {
-                            updateUiState(uiState.value.copy(
-                                isLoading = false,
-                                error = result.message
-                            ))
-                        }
-                        is Response.Success -> {
+                        is DatabaseResponse.Loading -> onLoadingResponse()
+                        is DatabaseResponse.Error -> onErrorResponse(result.message)
+                        is DatabaseResponse.Success -> onSuccessResponse {
                             _billStateFlow.value = BillState()
-
-                            updateUiState(uiState.value.copy(
-                                isLoading = false,
-                                success = true
-                            ))
-
                             getBills()
                         }
                     }

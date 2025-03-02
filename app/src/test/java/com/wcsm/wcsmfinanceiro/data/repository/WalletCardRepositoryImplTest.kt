@@ -5,7 +5,7 @@ import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.wcsm.wcsmfinanceiro.data.database.dao.WalletCardDao
 import com.wcsm.wcsmfinanceiro.data.entity.WalletCard
-import com.wcsm.wcsmfinanceiro.domain.model.Response
+import com.wcsm.wcsmfinanceiro.domain.model.DatabaseResponse
 import com.wcsm.wcsmfinanceiro.domain.repository.WalletCardRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -49,10 +49,10 @@ class WalletCardRepositoryImplTest {
         // WHEN: Trying to save the wallet card
         walletCardRepository.saveWalletCard(walletCard).test {
             // THEN: Repository should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
 
             // AND THEN: It should emit a success response
-            assertThat((awaitItem() as Response.Success).data).isEqualTo(walletCard.walletCardId)
+            assertThat((awaitItem() as DatabaseResponse.Success).data).isEqualTo(walletCard.walletCardId)
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()
@@ -77,10 +77,10 @@ class WalletCardRepositoryImplTest {
         // WHEN: Trying to save the wallet card
         walletCardRepository.saveWalletCard(walletCard).test {
             // THEN: Repository should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
 
             // AND THEN: It should emit an error response
-            assertThat((awaitItem() as Response.Error).message).isEqualTo("Erro ao salvar cartão.")
+            assertThat((awaitItem() as DatabaseResponse.Error).message).isEqualTo("Erro ao salvar cartão.")
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()
@@ -105,10 +105,10 @@ class WalletCardRepositoryImplTest {
         // WHEN: Trying to save the wallet card
         walletCardRepository.saveWalletCard(walletCard).test {
             // THEN: Repository should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
 
             // AND THEN: It should emit an error response
-            assertThat((awaitItem() as Response.Error).message).isEqualTo("Erro desconhecido ao salvar cartão, informe o administrador.")
+            assertThat((awaitItem() as DatabaseResponse.Error).message).isEqualTo("Erro desconhecido ao salvar cartão, informe o administrador.")
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()
@@ -133,10 +133,10 @@ class WalletCardRepositoryImplTest {
         // WHEN: Trying to update the wallet card
         walletCardRepository.updateWalletCard(walletCard).test {
             // THEN: Repository should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
 
             // AND THEN: It should emit a success response
-            val rowsAffected = (awaitItem() as Response.Success).data
+            val rowsAffected = (awaitItem() as DatabaseResponse.Success).data
             assertThat(rowsAffected).isEqualTo(1)
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
@@ -162,10 +162,10 @@ class WalletCardRepositoryImplTest {
         // WHEN: Trying to update the wallet card
         walletCardRepository.updateWalletCard(walletCard).test {
             // THEN: Repository should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
 
             // AND THEN: It should emit an error response
-            assertThat((awaitItem() as Response.Error).message).isEqualTo("Erro ao atualizar cartão.")
+            assertThat((awaitItem() as DatabaseResponse.Error).message).isEqualTo("Erro ao atualizar cartão.")
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()
@@ -190,10 +190,10 @@ class WalletCardRepositoryImplTest {
         // WHEN: Trying to delete the wallet card
         walletCardRepository.deleteWalletCard(walletCard).test {
             // THEN: Repository should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
 
             // AND THEN: It should emit a success response
-            assertThat((awaitItem() as Response.Success).data).isEqualTo(1)
+            assertThat((awaitItem() as DatabaseResponse.Success).data).isEqualTo(1)
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()
@@ -218,10 +218,10 @@ class WalletCardRepositoryImplTest {
         // WHEN: Trying to delete the wallet card
         walletCardRepository.deleteWalletCard(walletCard).test {
             // THEN: Repository should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
 
             // AND THEN: It should emit an error response
-            assertThat((awaitItem() as Response.Error).message).isEqualTo("Erro ao deletar cartão.")
+            assertThat((awaitItem() as DatabaseResponse.Error).message).isEqualTo("Erro ao deletar cartão.")
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()

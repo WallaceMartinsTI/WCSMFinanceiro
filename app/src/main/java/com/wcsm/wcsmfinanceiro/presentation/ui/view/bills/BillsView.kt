@@ -53,6 +53,8 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PoppinsFontFamily
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PrimaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
+import com.wcsm.wcsmfinanceiro.presentation.ui.view.bills.components.AddOrEditBillDialog
+import com.wcsm.wcsmfinanceiro.presentation.ui.view.bills.components.BillCard
 import com.wcsm.wcsmfinanceiro.presentation.util.showToastMessage
 import com.wcsm.wcsmfinanceiro.presentation.util.toBillState
 

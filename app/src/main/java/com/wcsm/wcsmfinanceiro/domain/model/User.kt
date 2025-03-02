@@ -1,4 +1,4 @@
-package com.wcsm.wcsmfinanceiro.data.model
+package com.wcsm.wcsmfinanceiro.domain.model
 
 data class User(
     val id: String,

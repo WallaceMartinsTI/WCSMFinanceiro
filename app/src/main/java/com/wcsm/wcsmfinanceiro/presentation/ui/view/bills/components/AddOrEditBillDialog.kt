@@ -1,4 +1,4 @@
-package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills
+package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -79,6 +79,7 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PrimaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.SurfaceColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
+import com.wcsm.wcsmfinanceiro.presentation.ui.view.bills.BillsViewModel
 import com.wcsm.wcsmfinanceiro.presentation.util.brazilianDateToTimeInMillis
 import com.wcsm.wcsmfinanceiro.presentation.util.formatMonetaryValue
 import com.wcsm.wcsmfinanceiro.presentation.util.getBillTypeFromString

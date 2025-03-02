@@ -18,29 +18,29 @@ fun AuthenticationNavigation() {
 
     NavHost(
         navController = authenticationNavController,
-        startDestination = Screen.WelcomeScreen.route
+        startDestination = Screen.WelcomeScreen
     ) {
-        composable(route = Screen.WelcomeScreen.route) {
+        composable<Screen.WelcomeScreen> {
             WelcomeView(
-                onContinue = { authenticationNavController.navigate(Screen.LoginScreen.route) }
+                onContinue = { authenticationNavController.navigate(Screen.LoginScreen) }
             )
         }
 
-        composable(route = Screen.LoginScreen.route) {
+        composable<Screen.LoginScreen>{
             LoginView(
-                onCreateAccount = { authenticationNavController.navigate(Screen.RegisterScreen.route) },
-                onLogin = { authenticationNavController.navigate(Screen.MainNavigation.route) }
+                onCreateAccount = { authenticationNavController.navigate(Screen.RegisterScreen) },
+                onLogin = { authenticationNavController.navigate(Screen.MainNavigation) }
             )
         }
 
-        composable(route = Screen.RegisterScreen.route) {
+        composable<Screen.RegisterScreen> {
             RegisterView(
-                onAlreadyHasAccount = { authenticationNavController.navigate(Screen.LoginScreen.route) },
-                onRegister = { authenticationNavController.navigate(Screen.LoginScreen.route) }
+                onAlreadyHasAccount = { authenticationNavController.navigate(Screen.LoginScreen) },
+                onRegister = { authenticationNavController.navigate(Screen.LoginScreen) }
             )
         }
 
-        composable(route = Screen.MainNavigation.route) {
+        composable<Screen.MainNavigation> {
             MainNavigation()
         }
     }

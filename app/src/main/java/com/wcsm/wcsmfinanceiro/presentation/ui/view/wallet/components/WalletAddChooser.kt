@@ -1,4 +1,4 @@
-package com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet
+package com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

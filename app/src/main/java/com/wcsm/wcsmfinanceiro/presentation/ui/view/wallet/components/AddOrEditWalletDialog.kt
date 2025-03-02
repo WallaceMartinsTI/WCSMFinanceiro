@@ -1,4 +1,4 @@
-package com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet
+package com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -66,6 +66,7 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PrimaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.SurfaceColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
+import com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet.WalletViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 

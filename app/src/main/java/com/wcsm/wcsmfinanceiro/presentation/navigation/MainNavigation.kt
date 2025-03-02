@@ -1,17 +1,24 @@
 package com.wcsm.wcsmfinanceiro.presentation.navigation
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.wcsm.wcsmfinanceiro.presentation.model.Screen
-import com.wcsm.wcsmfinanceiro.presentation.ui.component.BottomBar
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.BottomNavigationBarItem
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.bills.BillsView
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.home.HomeView
@@ -23,40 +30,62 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet.WalletView
 fun MainNavigation() {
     val mainNavController = rememberNavController()
 
-    val currentBackStackEntry by mainNavController.currentBackStackEntryAsState()
+    val currentDestination = mainNavController.currentBackStackEntryAsState().value?.destination
 
     Scaffold(
         bottomBar = {
-            BottomBar(
-                actualScreen = currentBackStackEntry?.destination?.route ?: "Home",
-                onNavigateToSelectedScreen = { route ->
-                    mainNavController.navigate(route)
-                },
-            )
+            NavigationBar {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    BottomNavigationScreen.entries.forEach { destination ->
+                        val selected = currentDestination?.hierarchy?.any {
+                            it.hasRoute(destination.screen::class)
+                        } == true
+
+                        BottomNavigationBarItem(
+                            label = destination.title,
+                            icon = destination.icon,
+                            iconDescription = destination.iconContentDescription,
+                            selected = selected
+                        ) {
+                            mainNavController.navigate(destination.screen) {
+                                popUpTo(mainNavController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    }
+                }
+            }
         }
     ) { paddingValues ->
         NavHost(
             navController = mainNavController,
-            startDestination = Screen.HomeScreen.route,
+            startDestination = Screen.HomeScreen,
             modifier = Modifier.padding(paddingValues)
         ) {
-            composable(route = Screen.HomeScreen.route) {
+            composable<Screen.HomeScreen> {
                 HomeView()
             }
 
-            composable(route = Screen.BillsScreen.route) {
+            composable<Screen.BillsScreen> {
                 BillsView()
             }
 
-            composable(route = Screen.WalletScreen.route) {
+            composable<Screen.WalletScreen> {
                 WalletView()
             }
 
-            composable(route = Screen.PlusScreen.route) {
+            composable<Screen.PlusScreen> {
                 PlusView()
             }
 
-            composable(route = Screen.SettingsScreen.route) {
+            composable<Screen.SettingsScreen> {
                 SettingsView()
             }
         }

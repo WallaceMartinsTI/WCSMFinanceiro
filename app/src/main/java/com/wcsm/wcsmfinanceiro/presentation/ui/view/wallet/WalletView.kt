@@ -44,6 +44,10 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnSecondaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PoppinsFontFamily
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PrimaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
+import com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet.components.AddOrEditWalletCardDialog
+import com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet.components.AddOrEditWalletDialog
+import com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet.components.WalletAddChooser
+import com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet.components.WalletContainer
 import com.wcsm.wcsmfinanceiro.presentation.util.showToastMessage
 import com.wcsm.wcsmfinanceiro.presentation.util.toWalletCardState
 import com.wcsm.wcsmfinanceiro.presentation.util.toWalletState

@@ -2,26 +2,25 @@ package com.wcsm.wcsmfinanceiro.presentation.model
 
 import kotlinx.serialization.Serializable
 
-@Serializable
-sealed class Screen(val route: String) {
+sealed interface Screen {
     @Serializable
-    data object WelcomeScreen : Screen("welcome")
+    data object WelcomeScreen : Screen
     @Serializable
-    data object LoginScreen : Screen("login")
+    data object LoginScreen : Screen
     @Serializable
-    data object RegisterScreen : Screen("register")
+    data object RegisterScreen : Screen
 
     @Serializable
-    data object MainNavigation: Screen("main_navigation")
+    data object MainNavigation : Screen
 
     @Serializable
-    data object HomeScreen : Screen("home")
+    data object HomeScreen : Screen
     @Serializable
-    data object BillsScreen : Screen("bills")
+    data object BillsScreen : Screen
     @Serializable
-    data object WalletScreen : Screen("wallet")
+    data object WalletScreen : Screen
     @Serializable
-    data object PlusScreen : Screen("plus")
+    data object PlusScreen : Screen
     @Serializable
-    data object SettingsScreen : Screen("settings")
+    data object SettingsScreen : Screen
 }

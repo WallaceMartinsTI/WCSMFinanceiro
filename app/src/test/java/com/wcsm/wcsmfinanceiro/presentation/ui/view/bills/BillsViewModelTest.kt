@@ -5,7 +5,7 @@ import com.google.common.truth.Truth.assertThat
 import com.wcsm.wcsmfinanceiro.data.entity.Bill
 import com.wcsm.wcsmfinanceiro.data.model.BillType
 import com.wcsm.wcsmfinanceiro.data.model.PaymentType
-import com.wcsm.wcsmfinanceiro.domain.model.Response
+import com.wcsm.wcsmfinanceiro.domain.model.DatabaseResponse
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.DeleteBillUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsByDateUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsByTextUseCase
@@ -131,7 +131,7 @@ class BillsViewModelTest {
             deleteBillUseCase, getBillsByDateUseCase, getBillsByTextUseCase
         )
 
-        Mockito.`when`(getBillsUseCase()).thenReturn( flow { emit(Response.Success(emptyList())) } )
+        Mockito.`when`(getBillsUseCase()).thenReturn( flow { emit(DatabaseResponse.Success(emptyList())) } )
 
         val initialDateRange = Pair(1000L, 2000L)
         // GIVEN: A fake date range to be cleared
@@ -300,7 +300,7 @@ class BillsViewModelTest {
         )
 
         Mockito.`when`(getBillsByDateUseCase(anyLong(), anyLong())).thenReturn(
-            flow { emit(Response.Success(filteredBillsByDate)) }
+            flow { emit(DatabaseResponse.Success(filteredBillsByDate)) }
         )
 
         val billsViewModel = BillsViewModel(
@@ -373,7 +373,7 @@ class BillsViewModelTest {
         )
 
         Mockito.`when`(getBillsByTextUseCase(anyString())).thenReturn(
-            flow { emit(Response.Success(filteredBillsByText)) }
+            flow { emit(DatabaseResponse.Success(filteredBillsByText)) }
         )
 
         val billsViewModel = BillsViewModel(
@@ -451,7 +451,7 @@ class BillsViewModelTest {
         )
 
         Mockito.`when`(getBillsUseCase()).thenReturn(
-            flow { emit(Response.Success(bills)) }
+            flow { emit(DatabaseResponse.Success(bills)) }
         )
 
         billsViewModel.bills.test {
@@ -493,10 +493,10 @@ class BillsViewModelTest {
         )
 
         Mockito.`when`(saveBillUseCase(billToBeSaved.toBill())).thenReturn(
-            flow { emit(Response.Success(1L)) }
+            flow { emit(DatabaseResponse.Success(1L)) }
         )
         Mockito.`when`(getBillsUseCase()).thenReturn(
-            flow { emit(Response.Success(emptyList())) }
+            flow { emit(DatabaseResponse.Success(emptyList())) }
         )
 
         billsViewModel.updateBillState(billToBeSaved)
@@ -583,10 +583,10 @@ class BillsViewModelTest {
         )
 
         Mockito.`when`(updateBillUseCase(billToBeUpdated.toBill())).thenReturn(
-            flow { emit(Response.Success(1)) }
+            flow { emit(DatabaseResponse.Success(1)) }
         )
         Mockito.`when`(getBillsUseCase()).thenReturn(
-            flow { emit(Response.Success(emptyList())) }
+            flow { emit(DatabaseResponse.Success(emptyList())) }
         )
 
         billsViewModel.updateBillState(billToBeUpdated)
@@ -627,10 +627,10 @@ class BillsViewModelTest {
         )
 
         Mockito.`when`(deleteBillUseCase(billToBeDeleted.toBill())).thenReturn(
-            flow { emit(Response.Success(1)) }
+            flow { emit(DatabaseResponse.Success(1)) }
         )
         Mockito.`when`(getBillsUseCase()).thenReturn(
-            flow { emit(Response.Success(emptyList())) }
+            flow { emit(DatabaseResponse.Success(emptyList())) }
         )
 
         val billsViewModel = BillsViewModel(

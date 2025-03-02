@@ -5,7 +5,7 @@ import com.google.common.truth.Truth.assertThat
 import com.wcsm.wcsmfinanceiro.data.entity.Bill
 import com.wcsm.wcsmfinanceiro.data.model.BillType
 import com.wcsm.wcsmfinanceiro.data.model.PaymentType
-import com.wcsm.wcsmfinanceiro.domain.model.Response
+import com.wcsm.wcsmfinanceiro.domain.model.DatabaseResponse
 import com.wcsm.wcsmfinanceiro.domain.repository.BillsRepository
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
@@ -70,18 +70,18 @@ class GetBillsByDateUseCaseTest {
 
         Mockito.`when`(billsRepository.getBillsByDate(anyLong(), anyLong())).thenReturn(
             flow {
-                emit(Response.Loading)
-                emit(Response.Success(expectedBillsList))
+                emit(DatabaseResponse.Loading)
+                emit(DatabaseResponse.Success(expectedBillsList))
             }
         )
 
         // GIVEN & WHEN: A request for the bills by date
         getBillsByDateUseCase(1, 2).test {
             // THEN: Use case should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
 
             // AND THEN: It should emit a success response
-            assertThat((awaitItem() as Response.Success).data).isEqualTo(expectedBillsList)
+            assertThat((awaitItem() as DatabaseResponse.Success).data).isEqualTo(expectedBillsList)
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()
@@ -92,18 +92,18 @@ class GetBillsByDateUseCaseTest {
     fun getBillsByDateUseCase_getBillsByDateUseCaseNoBillsForTheInformedDate_shouldEmitSuccessResponseWithAnEmptyList() = runTest {
         Mockito.`when`(billsRepository.getBillsByDate(anyLong(), anyLong())).thenReturn(
             flow {
-                emit(Response.Loading)
-                emit(Response.Success(emptyList()))
+                emit(DatabaseResponse.Loading)
+                emit(DatabaseResponse.Success(emptyList()))
             }
         )
 
         // GIVEN & WHEN: A request for the bills by date
         getBillsByDateUseCase(1, 2).test {
             // THEN: Use case should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
 
             // AND THEN: It should emit a success response with an empty list
-            assertThat((awaitItem() as Response.Success).data).isEmpty()
+            assertThat((awaitItem() as DatabaseResponse.Success).data).isEmpty()
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()

@@ -1,4 +1,4 @@
-package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills
+package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
