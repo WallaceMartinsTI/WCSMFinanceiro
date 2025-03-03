@@ -50,7 +50,7 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PrimaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.RedColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.SecondaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
-import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianDateString
+import com.wcsm.wcsmfinanceiro.util.toBrazilianDateString
 
 @Composable
 fun HomeView(

@@ -30,9 +30,9 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PoppinsFontFamily
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
-import com.wcsm.wcsmfinanceiro.presentation.util.CurrencyVisualTransformation
-import com.wcsm.wcsmfinanceiro.presentation.util.formatMonetaryValue
-import com.wcsm.wcsmfinanceiro.presentation.util.getDoubleForStringPrice
+import com.wcsm.wcsmfinanceiro.util.CurrencyVisualTransformation
+import com.wcsm.wcsmfinanceiro.util.formatMonetaryValue
+import com.wcsm.wcsmfinanceiro.util.getDoubleForStringPrice
 
 @Composable
 fun MonetaryInputField(

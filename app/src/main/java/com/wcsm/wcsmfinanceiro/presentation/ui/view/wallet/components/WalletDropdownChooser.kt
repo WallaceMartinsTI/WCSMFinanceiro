@@ -29,7 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.wcsm.wcsmfinanceiro.data.entity.Wallet
+import com.wcsm.wcsmfinanceiro.data.local.entity.Wallet
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PoppinsFontFamily
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme

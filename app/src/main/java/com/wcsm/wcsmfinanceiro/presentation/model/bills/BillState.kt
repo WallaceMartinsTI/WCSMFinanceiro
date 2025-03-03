@@ -1,7 +1,7 @@
 package com.wcsm.wcsmfinanceiro.presentation.model.bills
 
-import com.wcsm.wcsmfinanceiro.data.model.BillType
-import com.wcsm.wcsmfinanceiro.data.model.PaymentType
+import com.wcsm.wcsmfinanceiro.data.local.model.BillType
+import com.wcsm.wcsmfinanceiro.data.local.model.PaymentType
 
 data class BillState(
     var billId: Long = 0,

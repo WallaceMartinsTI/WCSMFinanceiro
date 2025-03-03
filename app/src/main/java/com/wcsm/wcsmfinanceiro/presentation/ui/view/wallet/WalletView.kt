@@ -34,8 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.wcsm.wcsmfinanceiro.data.entity.Wallet
-import com.wcsm.wcsmfinanceiro.data.entity.WalletCard
+import com.wcsm.wcsmfinanceiro.data.local.entity.Wallet
+import com.wcsm.wcsmfinanceiro.data.local.entity.WalletCard
 import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletOperationType
 import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletType
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
@@ -48,9 +48,9 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet.components.AddOrEditW
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet.components.AddOrEditWalletDialog
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet.components.WalletAddChooser
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet.components.WalletContainer
-import com.wcsm.wcsmfinanceiro.presentation.util.showToastMessage
-import com.wcsm.wcsmfinanceiro.presentation.util.toWalletCardState
-import com.wcsm.wcsmfinanceiro.presentation.util.toWalletState
+import com.wcsm.wcsmfinanceiro.util.showToastMessage
+import com.wcsm.wcsmfinanceiro.util.toWalletCardState
+import com.wcsm.wcsmfinanceiro.util.toWalletState
 
 @Composable
 fun WalletView(

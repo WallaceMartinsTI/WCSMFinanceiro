@@ -2,10 +2,10 @@ package com.wcsm.wcsmfinanceiro.domain.usecase.bills
 
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
-import com.wcsm.wcsmfinanceiro.data.entity.Bill
-import com.wcsm.wcsmfinanceiro.data.model.BillType
-import com.wcsm.wcsmfinanceiro.data.model.PaymentType
-import com.wcsm.wcsmfinanceiro.domain.model.DatabaseResponse
+import com.wcsm.wcsmfinanceiro.data.local.entity.Bill
+import com.wcsm.wcsmfinanceiro.data.local.model.BillType
+import com.wcsm.wcsmfinanceiro.data.local.model.PaymentType
+import com.wcsm.wcsmfinanceiro.domain.model.Response
 import com.wcsm.wcsmfinanceiro.domain.repository.BillsRepository
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
@@ -53,18 +53,18 @@ class SaveBillUseCaseTest {
 
         Mockito.`when`(billsRepository.saveBill(bill)).thenReturn(
             flow {
-                emit(DatabaseResponse.Loading)
-                emit(DatabaseResponse.Success(bill.billId))
+                emit(Response.Loading)
+                emit(Response.Success(bill.billId))
             }
         )
 
         // WHEN: Trying to save the bill
         saveBillUseCase(bill).test {
             // THEN: Use case should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit a success response
-            assertThat((awaitItem() as DatabaseResponse.Success).data).isEqualTo(bill.billId)
+            assertThat((awaitItem() as Response.Success).data).isEqualTo(bill.billId)
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()
@@ -93,18 +93,18 @@ class SaveBillUseCaseTest {
 
         Mockito.`when`(billsRepository.saveBill(bill)).thenReturn(
             flow {
-                emit(DatabaseResponse.Loading)
-                emit(DatabaseResponse.Error(errorMessage))
+                emit(Response.Loading)
+                emit(Response.Error(errorMessage))
             }
         )
 
         // WHEN: Trying to save the bill
         saveBillUseCase(bill).test {
             // THEN: Use case should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit an error response
-            assertThat((awaitItem() as DatabaseResponse.Error).message).isEqualTo(errorMessage)
+            assertThat((awaitItem() as Response.Error).message).isEqualTo(errorMessage)
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()
@@ -133,7 +133,7 @@ class SaveBillUseCaseTest {
         // WHEN: Trying to save the bill
         saveBillUseCase(bill).test {
             // THEN: It should emit an error response
-            assertThat((awaitItem() as DatabaseResponse.Error).message).isEqualTo("Valor muito alto (max. R$9.999.999,99).")
+            assertThat((awaitItem() as Response.Error).message).isEqualTo("Valor muito alto (max. R$9.999.999,99).")
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()

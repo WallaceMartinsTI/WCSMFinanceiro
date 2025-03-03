@@ -22,14 +22,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.wcsm.wcsmfinanceiro.data.entity.Wallet
-import com.wcsm.wcsmfinanceiro.data.entity.WalletCard
-import com.wcsm.wcsmfinanceiro.data.entity.relation.WalletWithCards
+import com.wcsm.wcsmfinanceiro.data.local.entity.Wallet
+import com.wcsm.wcsmfinanceiro.data.local.entity.WalletCard
+import com.wcsm.wcsmfinanceiro.data.local.entity.relation.WalletWithCards
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PoppinsFontFamily
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.SecondaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
-import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianReal
+import com.wcsm.wcsmfinanceiro.util.toBrazilianReal
 
 @Composable
 fun WalletContainer(

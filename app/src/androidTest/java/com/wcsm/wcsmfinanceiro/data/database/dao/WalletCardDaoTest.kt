@@ -5,10 +5,12 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
-import com.wcsm.wcsmfinanceiro.data.database.WCSMFinanceiroDatabase
-import com.wcsm.wcsmfinanceiro.data.entity.Wallet
-import com.wcsm.wcsmfinanceiro.data.entity.WalletCard
-import com.wcsm.wcsmfinanceiro.data.entity.converter.BillConverter
+import com.wcsm.wcsmfinanceiro.data.local.database.WCSMFinanceiroDatabase
+import com.wcsm.wcsmfinanceiro.data.local.entity.Wallet
+import com.wcsm.wcsmfinanceiro.data.local.entity.WalletCard
+import com.wcsm.wcsmfinanceiro.data.local.entity.converter.BillConverter
+import com.wcsm.wcsmfinanceiro.data.local.database.dao.WalletCardDao
+import com.wcsm.wcsmfinanceiro.data.local.database.dao.WalletDao
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before

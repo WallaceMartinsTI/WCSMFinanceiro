@@ -2,10 +2,10 @@ package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills
 
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
-import com.wcsm.wcsmfinanceiro.data.entity.Bill
-import com.wcsm.wcsmfinanceiro.data.model.BillType
-import com.wcsm.wcsmfinanceiro.data.model.PaymentType
-import com.wcsm.wcsmfinanceiro.domain.model.DatabaseResponse
+import com.wcsm.wcsmfinanceiro.data.local.entity.Bill
+import com.wcsm.wcsmfinanceiro.data.local.model.BillType
+import com.wcsm.wcsmfinanceiro.data.local.model.PaymentType
+import com.wcsm.wcsmfinanceiro.domain.model.Response
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.DeleteBillUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsByDateUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsByTextUseCase
@@ -15,7 +15,7 @@ import com.wcsm.wcsmfinanceiro.domain.usecase.bills.UpdateBillUseCase
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillOperationType
 import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillState
-import com.wcsm.wcsmfinanceiro.presentation.util.toBill
+import com.wcsm.wcsmfinanceiro.util.toBill
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -131,7 +131,7 @@ class BillsViewModelTest {
             deleteBillUseCase, getBillsByDateUseCase, getBillsByTextUseCase
         )
 
-        Mockito.`when`(getBillsUseCase()).thenReturn( flow { emit(DatabaseResponse.Success(emptyList())) } )
+        Mockito.`when`(getBillsUseCase()).thenReturn( flow { emit(Response.Success(emptyList())) } )
 
         val initialDateRange = Pair(1000L, 2000L)
         // GIVEN: A fake date range to be cleared
@@ -300,7 +300,7 @@ class BillsViewModelTest {
         )
 
         Mockito.`when`(getBillsByDateUseCase(anyLong(), anyLong())).thenReturn(
-            flow { emit(DatabaseResponse.Success(filteredBillsByDate)) }
+            flow { emit(Response.Success(filteredBillsByDate)) }
         )
 
         val billsViewModel = BillsViewModel(
@@ -373,7 +373,7 @@ class BillsViewModelTest {
         )
 
         Mockito.`when`(getBillsByTextUseCase(anyString())).thenReturn(
-            flow { emit(DatabaseResponse.Success(filteredBillsByText)) }
+            flow { emit(Response.Success(filteredBillsByText)) }
         )
 
         val billsViewModel = BillsViewModel(
@@ -451,7 +451,7 @@ class BillsViewModelTest {
         )
 
         Mockito.`when`(getBillsUseCase()).thenReturn(
-            flow { emit(DatabaseResponse.Success(bills)) }
+            flow { emit(Response.Success(bills)) }
         )
 
         billsViewModel.bills.test {
@@ -493,10 +493,10 @@ class BillsViewModelTest {
         )
 
         Mockito.`when`(saveBillUseCase(billToBeSaved.toBill())).thenReturn(
-            flow { emit(DatabaseResponse.Success(1L)) }
+            flow { emit(Response.Success(1L)) }
         )
         Mockito.`when`(getBillsUseCase()).thenReturn(
-            flow { emit(DatabaseResponse.Success(emptyList())) }
+            flow { emit(Response.Success(emptyList())) }
         )
 
         billsViewModel.updateBillState(billToBeSaved)
@@ -583,10 +583,10 @@ class BillsViewModelTest {
         )
 
         Mockito.`when`(updateBillUseCase(billToBeUpdated.toBill())).thenReturn(
-            flow { emit(DatabaseResponse.Success(1)) }
+            flow { emit(Response.Success(1)) }
         )
         Mockito.`when`(getBillsUseCase()).thenReturn(
-            flow { emit(DatabaseResponse.Success(emptyList())) }
+            flow { emit(Response.Success(emptyList())) }
         )
 
         billsViewModel.updateBillState(billToBeUpdated)
@@ -627,10 +627,10 @@ class BillsViewModelTest {
         )
 
         Mockito.`when`(deleteBillUseCase(billToBeDeleted.toBill())).thenReturn(
-            flow { emit(DatabaseResponse.Success(1)) }
+            flow { emit(Response.Success(1)) }
         )
         Mockito.`when`(getBillsUseCase()).thenReturn(
-            flow { emit(DatabaseResponse.Success(emptyList())) }
+            flow { emit(Response.Success(emptyList())) }
         )
 
         val billsViewModel = BillsViewModel(

@@ -2,10 +2,10 @@ package com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet
 
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
-import com.wcsm.wcsmfinanceiro.data.entity.Wallet
-import com.wcsm.wcsmfinanceiro.data.entity.WalletCard
-import com.wcsm.wcsmfinanceiro.data.entity.relation.WalletWithCards
-import com.wcsm.wcsmfinanceiro.domain.model.DatabaseResponse
+import com.wcsm.wcsmfinanceiro.data.local.entity.Wallet
+import com.wcsm.wcsmfinanceiro.data.local.entity.WalletCard
+import com.wcsm.wcsmfinanceiro.data.local.entity.relation.WalletWithCards
+import com.wcsm.wcsmfinanceiro.domain.model.Response
 import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.DeleteWalletCardUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.DeleteWalletUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.GetWalletWithCardsUseCase
@@ -17,8 +17,8 @@ import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletCardState
 import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletOperationType
 import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletState
-import com.wcsm.wcsmfinanceiro.presentation.util.toWallet
-import com.wcsm.wcsmfinanceiro.presentation.util.toWalletCard
+import com.wcsm.wcsmfinanceiro.util.toWallet
+import com.wcsm.wcsmfinanceiro.util.toWalletCard
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -311,7 +311,7 @@ class WalletViewModelTest {
         )
 
         Mockito.`when`(getWalletWithCardsUseCase()).thenReturn(
-            flow { emit(DatabaseResponse.Success(walletWithCards)) }
+            flow { emit(Response.Success(walletWithCards)) }
         )
 
         walletViewModel.walletsWithCards.test {
@@ -343,11 +343,11 @@ class WalletViewModelTest {
         )
 
         Mockito.`when`(saveWalletUseCase(walletToBeSaved.toWallet())).thenReturn(
-            flow { emit(DatabaseResponse.Success(1L)) }
+            flow { emit(Response.Success(1L)) }
         )
 
         Mockito.`when`(getWalletWithCardsUseCase()).thenReturn(
-            flow { emit(DatabaseResponse.Success(emptyList())) }
+            flow { emit(Response.Success(emptyList())) }
         )
 
         walletViewModel.updateWalletState(walletToBeSaved)
@@ -383,11 +383,11 @@ class WalletViewModelTest {
         )
 
         Mockito.`when`(updateWalletUseCase(walletToBeUpdated.toWallet())).thenReturn(
-            flow { emit(DatabaseResponse.Success(1)) }
+            flow { emit(Response.Success(1)) }
         )
 
         Mockito.`when`(getWalletWithCardsUseCase()).thenReturn(
-            flow { emit(DatabaseResponse.Success(emptyList())) }
+            flow { emit(Response.Success(emptyList())) }
         )
 
         walletViewModel.updateWalletState(walletToBeUpdated)
@@ -423,11 +423,11 @@ class WalletViewModelTest {
         )
 
         Mockito.`when`(deleteWalletUseCase(walletToBeDeleted.toWallet())).thenReturn(
-            flow { emit(DatabaseResponse.Success(1)) }
+            flow { emit(Response.Success(1)) }
         )
 
         Mockito.`when`(getWalletWithCardsUseCase()).thenReturn(
-            flow { emit(DatabaseResponse.Success(emptyList())) }
+            flow { emit(Response.Success(emptyList())) }
         )
 
         walletViewModel.updateWalletState(walletToBeDeleted)
@@ -478,12 +478,12 @@ class WalletViewModelTest {
         )
 
         Mockito.`when`(saveWalletCardUseCase(walletCardToBeSaved.toWalletCard())).thenReturn(
-            flow { emit(DatabaseResponse.Success(1L)) }
+            flow { emit(Response.Success(1L)) }
         )
 
 
         Mockito.`when`(getWalletWithCardsUseCase()).thenReturn(
-            flow { emit(DatabaseResponse.Success(walletWithCardsList)) }
+            flow { emit(Response.Success(walletWithCardsList)) }
         )
 
         walletViewModel.updateWalletCardState(walletCardToBeSaved)
@@ -540,12 +540,12 @@ class WalletViewModelTest {
         )
 
         Mockito.`when`(updateWalletCardUseCase(walletCardToBeUpdated.toWalletCard())).thenReturn(
-            flow { emit(DatabaseResponse.Success(1)) }
+            flow { emit(Response.Success(1)) }
         )
 
 
         Mockito.`when`(getWalletWithCardsUseCase()).thenReturn(
-            flow { emit(DatabaseResponse.Success(walletWithCardsList)) }
+            flow { emit(Response.Success(walletWithCardsList)) }
         )
 
         walletViewModel.updateWalletCardState(walletCardToBeUpdated)
@@ -602,12 +602,12 @@ class WalletViewModelTest {
         )
 
         Mockito.`when`(deleteWalletCardUseCase(walletCardToBeDeleted.toWalletCard())).thenReturn(
-            flow { emit(DatabaseResponse.Success(1)) }
+            flow { emit(Response.Success(1)) }
         )
 
 
         Mockito.`when`(getWalletWithCardsUseCase()).thenReturn(
-            flow { emit(DatabaseResponse.Success(walletWithCardsList)) }
+            flow { emit(Response.Success(walletWithCardsList)) }
         )
 
         walletViewModel.updateWalletCardState(walletCardToBeDeleted)

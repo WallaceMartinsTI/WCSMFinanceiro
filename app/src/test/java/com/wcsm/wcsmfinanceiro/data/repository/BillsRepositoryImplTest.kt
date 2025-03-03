@@ -3,11 +3,12 @@ package com.wcsm.wcsmfinanceiro.data.repository
 import android.database.sqlite.SQLiteConstraintException
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
-import com.wcsm.wcsmfinanceiro.data.database.dao.BillsDao
-import com.wcsm.wcsmfinanceiro.data.entity.Bill
-import com.wcsm.wcsmfinanceiro.data.model.BillType
-import com.wcsm.wcsmfinanceiro.data.model.PaymentType
-import com.wcsm.wcsmfinanceiro.domain.model.DatabaseResponse
+import com.wcsm.wcsmfinanceiro.data.local.database.dao.BillsDao
+import com.wcsm.wcsmfinanceiro.data.local.entity.Bill
+import com.wcsm.wcsmfinanceiro.data.local.model.BillType
+import com.wcsm.wcsmfinanceiro.data.local.model.PaymentType
+import com.wcsm.wcsmfinanceiro.data.local.repository.BillsRepositoryImpl
+import com.wcsm.wcsmfinanceiro.domain.model.Response
 import com.wcsm.wcsmfinanceiro.domain.repository.BillsRepository
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
@@ -61,10 +62,10 @@ class BillsRepositoryImplTest {
         // WHEN: Trying to save the bill
         billsRepository.saveBill(bill).test {
             // THEN: Repository should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit a success response
-            assertThat((awaitItem() as DatabaseResponse.Success).data).isEqualTo(bill.billId)
+            assertThat((awaitItem() as Response.Success).data).isEqualTo(bill.billId)
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()
@@ -95,10 +96,10 @@ class BillsRepositoryImplTest {
         // WHEN: Trying to save the bill
         billsRepository.saveBill(bill).test {
             // THEN: Repository should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit an error response
-            assertThat((awaitItem() as DatabaseResponse.Error).message).isEqualTo("Erro ao salvar conta.")
+            assertThat((awaitItem() as Response.Error).message).isEqualTo("Erro ao salvar conta.")
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()
@@ -129,10 +130,10 @@ class BillsRepositoryImplTest {
         // WHEN: Trying to save the bill
         billsRepository.saveBill(bill).test {
             // THEN: Repository should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit an error response
-            assertThat((awaitItem() as DatabaseResponse.Error).message).isEqualTo("Erro desconhecido ao salvar conta, informe o administrador.")
+            assertThat((awaitItem() as Response.Error).message).isEqualTo("Erro desconhecido ao salvar conta, informe o administrador.")
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()
@@ -164,10 +165,10 @@ class BillsRepositoryImplTest {
         // WHEN: Trying to update the bill
         billsRepository.updateBill(bill).test {
             // THEN: Repository should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit a success response with rows affected
-            val rowsAffected = (awaitItem() as DatabaseResponse.Success).data
+            val rowsAffected = (awaitItem() as Response.Success).data
             assertThat(rowsAffected).isEqualTo(1)
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
@@ -199,10 +200,10 @@ class BillsRepositoryImplTest {
         // WHEN: Trying to update the bill
         billsRepository.updateBill(bill).test {
             // THEN: Repository should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit an error response
-            assertThat((awaitItem() as DatabaseResponse.Error).message).isEqualTo("Erro ao atualizar conta.")
+            assertThat((awaitItem() as Response.Error).message).isEqualTo("Erro ao atualizar conta.")
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()
@@ -233,10 +234,10 @@ class BillsRepositoryImplTest {
         // WHEN: Trying to update the bill
         billsRepository.deleteBill(bill).test {
             // THEN: Repository should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit a success response
-            assertThat((awaitItem() as DatabaseResponse.Success).data).isEqualTo(1)
+            assertThat((awaitItem() as Response.Success).data).isEqualTo(1)
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()
@@ -267,10 +268,10 @@ class BillsRepositoryImplTest {
         // WHEN: Trying to update the bill
         billsRepository.deleteBill(bill).test {
             // THEN: Repository should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit an error response
-            assertThat((awaitItem() as DatabaseResponse.Error).message).isEqualTo("Erro ao deletar conta.")
+            assertThat((awaitItem() as Response.Error).message).isEqualTo("Erro ao deletar conta.")
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()
@@ -320,10 +321,10 @@ class BillsRepositoryImplTest {
         // GIVEN & WHEN: A request to select all bills
         billsRepository.getBills().test {
             // THEN: Repository should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit a success response with the bills list
-            assertThat((awaitItem() as DatabaseResponse.Success).data).isEqualTo(expectedBills)
+            assertThat((awaitItem() as Response.Success).data).isEqualTo(expectedBills)
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()
@@ -341,10 +342,10 @@ class BillsRepositoryImplTest {
         // GIVEN & WHEN: A request to select all bills
         billsRepository.getBills().test {
             // THEN: Repository should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit an error response
-            assertThat((awaitItem() as DatabaseResponse.Error).message).isEqualTo("Erro desconhecido ao buscar contas, informe o administrador.")
+            assertThat((awaitItem() as Response.Error).message).isEqualTo("Erro desconhecido ao buscar contas, informe o administrador.")
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()
@@ -379,10 +380,10 @@ class BillsRepositoryImplTest {
         // GIVEN & WHEN: A request to select all bills by date
         billsRepository.getBillsByDate(1737504000000, 1737804000000).test {
             // THEN: Repository should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit a success response with the filtered bills list
-            assertThat((awaitItem() as DatabaseResponse.Success).data).isEqualTo(expectedBills)
+            assertThat((awaitItem() as Response.Success).data).isEqualTo(expectedBills)
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()
@@ -400,10 +401,10 @@ class BillsRepositoryImplTest {
         // GIVEN & WHEN: A request to select all bills
         billsRepository.getBillsByDate(1737504000000, 1737804000000).test {
             // THEN: Repository should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit an error response
-            assertThat((awaitItem() as DatabaseResponse.Error).message).isEqualTo("Erro desconhecido ao buscar contas pela data, informe o administrador.")
+            assertThat((awaitItem() as Response.Error).message).isEqualTo("Erro desconhecido ao buscar contas pela data, informe o administrador.")
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()
@@ -438,10 +439,10 @@ class BillsRepositoryImplTest {
         // GIVEN & WHEN: A request to select all bills by date
         billsRepository.getBillsByText("Teste2").test {
             // THEN: Repository should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit a success response with the filtered bills list
-            assertThat((awaitItem() as DatabaseResponse.Success).data).isEqualTo(expectedBills)
+            assertThat((awaitItem() as Response.Success).data).isEqualTo(expectedBills)
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()
@@ -459,10 +460,10 @@ class BillsRepositoryImplTest {
         // GIVEN & WHEN: A request to select all bills
         billsRepository.getBillsByText("Teste2").test {
             // THEN: Repository should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit an error response
-            assertThat((awaitItem() as DatabaseResponse.Error).message).isEqualTo("Erro desconhecido ao buscar contas pelo texto, informe o administrador.")
+            assertThat((awaitItem() as Response.Error).message).isEqualTo("Erro desconhecido ao buscar contas pelo texto, informe o administrador.")
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()

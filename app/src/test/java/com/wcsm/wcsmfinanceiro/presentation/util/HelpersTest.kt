@@ -1,5 +1,6 @@
 package com.wcsm.wcsmfinanceiro.presentation.util
 
+import com.wcsm.wcsmfinanceiro.util.formatMonetaryValue
 import org.junit.Test
 import org.junit.Assert.*
 

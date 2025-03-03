@@ -2,10 +2,10 @@ package com.wcsm.wcsmfinanceiro.domain.usecase.bills
 
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
-import com.wcsm.wcsmfinanceiro.data.entity.Bill
-import com.wcsm.wcsmfinanceiro.data.model.BillType
-import com.wcsm.wcsmfinanceiro.data.model.PaymentType
-import com.wcsm.wcsmfinanceiro.domain.model.DatabaseResponse
+import com.wcsm.wcsmfinanceiro.data.local.entity.Bill
+import com.wcsm.wcsmfinanceiro.data.local.model.BillType
+import com.wcsm.wcsmfinanceiro.data.local.model.PaymentType
+import com.wcsm.wcsmfinanceiro.domain.model.Response
 import com.wcsm.wcsmfinanceiro.domain.repository.BillsRepository
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
@@ -50,18 +50,18 @@ class UpdateBillUseCaseTest {
 
         Mockito.`when`(billsRepository.updateBill(bill)).thenReturn(
             flow {
-                emit(DatabaseResponse.Loading)
-                emit(DatabaseResponse.Success(1))
+                emit(Response.Loading)
+                emit(Response.Success(1))
             }
         )
 
         // WHEN: Trying to update the bill
         updateBillUseCase(bill).test {
             // THEN: Use case should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit a success response
-            val rowsAffected = (awaitItem() as DatabaseResponse.Success).data
+            val rowsAffected = (awaitItem() as Response.Success).data
             assertThat(rowsAffected).isEqualTo(1)
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
@@ -91,18 +91,18 @@ class UpdateBillUseCaseTest {
 
         Mockito.`when`(billsRepository.updateBill(bill)).thenReturn(
             flow {
-                emit(DatabaseResponse.Loading)
-                emit(DatabaseResponse.Error(errorMessage))
+                emit(Response.Loading)
+                emit(Response.Error(errorMessage))
             }
         )
 
         // WHEN: Trying to update the bill
         updateBillUseCase(bill).test {
             // THEN: Use case should emit Loading at first
-            assertThat(awaitItem()).isInstanceOf(DatabaseResponse.Loading::class.java)
+            assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit an error response
-            assertThat((awaitItem() as DatabaseResponse.Error).message).isEqualTo(errorMessage)
+            assertThat((awaitItem() as Response.Error).message).isEqualTo(errorMessage)
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()
@@ -131,7 +131,7 @@ class UpdateBillUseCaseTest {
         // WHEN: Trying to update the bill
         updateBillUseCase(bill).test {
             // THEN: It should emit an error response
-            assertThat((awaitItem() as DatabaseResponse.Error).message).isEqualTo("Valor muito alto (max. R$9.999.999,99).")
+            assertThat((awaitItem() as Response.Error).message).isEqualTo("Valor muito alto (max. R$9.999.999,99).")
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()

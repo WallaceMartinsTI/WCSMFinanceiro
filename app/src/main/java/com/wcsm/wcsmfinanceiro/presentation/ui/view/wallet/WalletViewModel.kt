@@ -2,10 +2,10 @@ package com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wcsm.wcsmfinanceiro.data.entity.Wallet
-import com.wcsm.wcsmfinanceiro.data.entity.WalletCard
-import com.wcsm.wcsmfinanceiro.data.entity.relation.WalletWithCards
-import com.wcsm.wcsmfinanceiro.domain.model.DatabaseResponse
+import com.wcsm.wcsmfinanceiro.data.local.entity.Wallet
+import com.wcsm.wcsmfinanceiro.data.local.entity.WalletCard
+import com.wcsm.wcsmfinanceiro.data.local.entity.relation.WalletWithCards
+import com.wcsm.wcsmfinanceiro.domain.model.Response
 import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.DeleteWalletCardUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.DeleteWalletUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.GetWalletWithCardsUseCase
@@ -18,8 +18,8 @@ import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletCardState
 import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletState
 import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletType
-import com.wcsm.wcsmfinanceiro.presentation.util.toWallet
-import com.wcsm.wcsmfinanceiro.presentation.util.toWalletCard
+import com.wcsm.wcsmfinanceiro.util.toWallet
+import com.wcsm.wcsmfinanceiro.util.toWalletCard
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -215,9 +215,9 @@ class WalletViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             getWalletWithCardsUseCase().collect { result ->
                 when(result) {
-                    is DatabaseResponse.Loading -> onLoadingResponse()
-                    is DatabaseResponse.Error -> onErrorResponse(result.message)
-                    is DatabaseResponse.Success -> onSuccessResponse {
+                    is Response.Loading -> onLoadingResponse()
+                    is Response.Error -> onErrorResponse(result.message)
+                    is Response.Success -> onSuccessResponse {
                         _walletsWithCards.value = result.data.reversed()// + accountsLists // accountsLists used for tests
                     }
                 }
@@ -237,9 +237,9 @@ class WalletViewModel @Inject constructor(
                 val wallet = walletState.toWallet()
                 saveWalletUseCase(wallet).collect { result ->
                     when(result) {
-                        is DatabaseResponse.Loading -> onLoadingResponse()
-                        is DatabaseResponse.Error -> onErrorResponse(result.message)
-                        is DatabaseResponse.Success -> onSuccessResponse {
+                        is Response.Loading -> onLoadingResponse()
+                        is Response.Error -> onErrorResponse(result.message)
+                        is Response.Success -> onSuccessResponse {
                             _walletStateFlow.value = WalletState()
                             getWalletWithCards()
                         }
@@ -261,9 +261,9 @@ class WalletViewModel @Inject constructor(
                 val wallet = walletState.toWallet()
                 updateWalletUseCase(wallet).collect { result ->
                     when(result) {
-                        is DatabaseResponse.Loading -> onLoadingResponse()
-                        is DatabaseResponse.Error -> onErrorResponse(result.message)
-                        is DatabaseResponse.Success -> onSuccessResponse {
+                        is Response.Loading -> onLoadingResponse()
+                        is Response.Error -> onErrorResponse(result.message)
+                        is Response.Success -> onSuccessResponse {
                             _walletStateFlow.value = WalletState()
                             getWalletWithCards()
                         }
@@ -285,9 +285,9 @@ class WalletViewModel @Inject constructor(
                 val wallet = walletState.toWallet()
                 deleteWalletUseCase(wallet).collect { result ->
                     when(result) {
-                        is DatabaseResponse.Loading -> onLoadingResponse()
-                        is DatabaseResponse.Error -> onErrorResponse(result.message)
-                        is DatabaseResponse.Success -> onSuccessResponse {
+                        is Response.Loading -> onLoadingResponse()
+                        is Response.Error -> onErrorResponse(result.message)
+                        is Response.Success -> onSuccessResponse {
                             _walletStateFlow.value = WalletState()
                             getWalletWithCards()
                         }
@@ -361,18 +361,18 @@ class WalletViewModel @Inject constructor(
                 val walletCard = walletCardState.toWalletCard()
                 saveWalletCardUseCase(walletCard).collect { result ->
                     when(result) {
-                        is DatabaseResponse.Loading -> {
+                        is Response.Loading -> {
                             _uiState.value = uiState.value.copy(
                                 isLoading = false,
                             )
                         }
-                        is DatabaseResponse.Error -> {
+                        is Response.Error -> {
                             _uiState.value = uiState.value.copy(
                                 isLoading = false,
                                 error = result.message
                             )
                         }
-                        is DatabaseResponse.Success -> {
+                        is Response.Success -> {
                             _walletCardStateFlow.value = WalletCardState()
 
                             _uiState.value = uiState.value.copy(
@@ -400,18 +400,18 @@ class WalletViewModel @Inject constructor(
                 val walletCard = walletCardState.toWalletCard()
                 updateWalletCardUseCase(walletCard).collect { result ->
                     when(result) {
-                        is DatabaseResponse.Loading -> {
+                        is Response.Loading -> {
                             _uiState.value = uiState.value.copy(
                                 isLoading = false,
                             )
                         }
-                        is DatabaseResponse.Error -> {
+                        is Response.Error -> {
                             _uiState.value = uiState.value.copy(
                                 isLoading = false,
                                 error = result.message
                             )
                         }
-                        is DatabaseResponse.Success -> {
+                        is Response.Success -> {
                             _walletCardStateFlow.value = WalletCardState()
 
                             _uiState.value = uiState.value.copy(
@@ -439,18 +439,18 @@ class WalletViewModel @Inject constructor(
                 val walletCard = walletCardState.toWalletCard()
                 deleteWalletCardUseCase(walletCard).collect { result ->
                     when(result) {
-                        is DatabaseResponse.Loading -> {
+                        is Response.Loading -> {
                             _uiState.value = uiState.value.copy(
                                 isLoading = false,
                             )
                         }
-                        is DatabaseResponse.Error -> {
+                        is Response.Error -> {
                             _uiState.value = uiState.value.copy(
                                 isLoading = false,
                                 error = result.message
                             )
                         }
-                        is DatabaseResponse.Success -> {
+                        is Response.Success -> {
                             _walletCardStateFlow.value = WalletCardState()
 
                             _uiState.value = uiState.value.copy(

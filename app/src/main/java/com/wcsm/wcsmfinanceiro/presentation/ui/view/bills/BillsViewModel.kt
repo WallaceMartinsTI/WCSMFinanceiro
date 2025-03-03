@@ -2,8 +2,8 @@ package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wcsm.wcsmfinanceiro.data.entity.Bill
-import com.wcsm.wcsmfinanceiro.domain.model.DatabaseResponse
+import com.wcsm.wcsmfinanceiro.data.local.entity.Bill
+import com.wcsm.wcsmfinanceiro.domain.model.Response
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.DeleteBillUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsByDateUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsByTextUseCase
@@ -13,7 +13,7 @@ import com.wcsm.wcsmfinanceiro.domain.usecase.bills.UpdateBillUseCase
 import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillOperationType
 import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillState
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
-import com.wcsm.wcsmfinanceiro.presentation.util.toBill
+import com.wcsm.wcsmfinanceiro.util.toBill
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -102,9 +102,9 @@ class BillsViewModel @Inject constructor(
 
             getBillsByDateUseCase(startDate, endDate).collect { result ->
                 when(result) {
-                    is DatabaseResponse.Loading -> onLoadingResponse()
-                    is DatabaseResponse.Error -> onErrorResponse(result.message)
-                    is DatabaseResponse.Success -> onSuccessResponse {
+                    is Response.Loading -> onLoadingResponse()
+                    is Response.Error -> onErrorResponse(result.message)
+                    is Response.Success -> onSuccessResponse {
                         _bills.value = result.data.sortedBy { bill ->
                             bill.date
                         }
@@ -120,9 +120,9 @@ class BillsViewModel @Inject constructor(
 
             getBillsByTextUseCase(text).collect { result ->
                 when(result) {
-                    is DatabaseResponse.Loading -> onLoadingResponse()
-                    is DatabaseResponse.Error -> onErrorResponse(result.message)
-                    is DatabaseResponse.Success -> onSuccessResponse {
+                    is Response.Loading -> onLoadingResponse()
+                    is Response.Error -> onErrorResponse(result.message)
+                    is Response.Success -> onSuccessResponse {
                         _bills.value = result.data
                     }
                 }
@@ -134,9 +134,9 @@ class BillsViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             getBillsUseCase().collect { result ->
                 when(result) {
-                    is DatabaseResponse.Loading -> onLoadingResponse()
-                    is DatabaseResponse.Error -> onErrorResponse(result.message)
-                    is DatabaseResponse.Success -> onSuccessResponse {
+                    is Response.Loading -> onLoadingResponse()
+                    is Response.Error -> onErrorResponse(result.message)
+                    is Response.Success -> onSuccessResponse {
                         _bills.value = result.data.reversed()
                     }
                 }
@@ -154,9 +154,9 @@ class BillsViewModel @Inject constructor(
                 val bill = billState.toBill()
                 saveBillUseCase(bill).collect { result ->
                     when(result) {
-                        is DatabaseResponse.Loading -> onLoadingResponse()
-                        is DatabaseResponse.Error -> onErrorResponse(result.message)
-                        is DatabaseResponse.Success -> onSuccessResponse {
+                        is Response.Loading -> onLoadingResponse()
+                        is Response.Error -> onErrorResponse(result.message)
+                        is Response.Success -> onSuccessResponse {
                             _billStateFlow.value = BillState()
                             getBills()
                         }
@@ -189,9 +189,9 @@ class BillsViewModel @Inject constructor(
                 val bill = billState.toBill()
                 updateBillUseCase(bill).collect { result ->
                     when(result) {
-                        is DatabaseResponse.Loading -> onLoadingResponse()
-                        is DatabaseResponse.Error -> onErrorResponse(result.message)
-                        is DatabaseResponse.Success -> onSuccessResponse {
+                        is Response.Loading -> onLoadingResponse()
+                        is Response.Error -> onErrorResponse(result.message)
+                        is Response.Success -> onSuccessResponse {
                             if(!isUpdatingOnlyTags) {
                                 _billStateFlow.value = BillState()
                                 getBills()
@@ -211,9 +211,9 @@ class BillsViewModel @Inject constructor(
                 val bill = billState.toBill()
                 deleteBillUseCase(bill).collect { result ->
                     when(result) {
-                        is DatabaseResponse.Loading -> onLoadingResponse()
-                        is DatabaseResponse.Error -> onErrorResponse(result.message)
-                        is DatabaseResponse.Success -> onSuccessResponse {
+                        is Response.Loading -> onLoadingResponse()
+                        is Response.Error -> onErrorResponse(result.message)
+                        is Response.Success -> onSuccessResponse {
                             _billStateFlow.value = BillState()
                             getBills()
                         }

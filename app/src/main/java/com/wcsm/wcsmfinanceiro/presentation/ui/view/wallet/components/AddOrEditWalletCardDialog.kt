@@ -49,7 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.wcsm.wcsmfinanceiro.data.entity.Wallet
+import com.wcsm.wcsmfinanceiro.data.local.entity.Wallet
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletCardState
 import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletOperationType
@@ -66,7 +66,7 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.SurfaceColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet.WalletViewModel
-import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianReal
+import com.wcsm.wcsmfinanceiro.util.toBrazilianReal
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 

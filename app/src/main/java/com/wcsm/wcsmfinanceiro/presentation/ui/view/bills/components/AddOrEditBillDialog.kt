@@ -59,8 +59,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.wcsm.wcsmfinanceiro.data.model.BillType
-import com.wcsm.wcsmfinanceiro.data.model.PaymentType
+import com.wcsm.wcsmfinanceiro.data.local.model.BillType
+import com.wcsm.wcsmfinanceiro.data.local.model.PaymentType
 import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillOperationType
 import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillState
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
@@ -80,13 +80,13 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.SurfaceColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.bills.BillsViewModel
-import com.wcsm.wcsmfinanceiro.presentation.util.brazilianDateToTimeInMillis
-import com.wcsm.wcsmfinanceiro.presentation.util.formatMonetaryValue
-import com.wcsm.wcsmfinanceiro.presentation.util.getBillTypeFromString
-import com.wcsm.wcsmfinanceiro.presentation.util.getDoubleForStringPrice
-import com.wcsm.wcsmfinanceiro.presentation.util.getFormattedTags
-import com.wcsm.wcsmfinanceiro.presentation.util.getPaymentTypeFromString
-import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianDateString
+import com.wcsm.wcsmfinanceiro.util.brazilianDateToTimeInMillis
+import com.wcsm.wcsmfinanceiro.util.formatMonetaryValue
+import com.wcsm.wcsmfinanceiro.util.getBillTypeFromString
+import com.wcsm.wcsmfinanceiro.util.getDoubleForStringPrice
+import com.wcsm.wcsmfinanceiro.util.getFormattedTags
+import com.wcsm.wcsmfinanceiro.util.getPaymentTypeFromString
+import com.wcsm.wcsmfinanceiro.util.toBrazilianDateString
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 

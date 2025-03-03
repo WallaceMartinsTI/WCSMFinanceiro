@@ -28,7 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
-import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianDateString
+import com.wcsm.wcsmfinanceiro.util.toBrazilianDateString
 
 @Composable
 fun DateRangeFilter(

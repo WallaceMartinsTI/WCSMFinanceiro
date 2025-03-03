@@ -1,9 +1,18 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
+}
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if(localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
 }
 
 android {
@@ -21,6 +30,9 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        val exchangeRateApiKey = localProperties["EXCHANGE_RATE_API_KEY"] as? String ?: ""
+        buildConfigField("String", "EXCHANGE_RATE_API_KEY", "\"$exchangeRateApiKey\"")
     }
 
     buildTypes {
@@ -41,6 +53,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -65,6 +78,10 @@ dependencies {
 
     // Extended Icons
     implementation(libs.androidx.material.icons.extended)
+
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
     // Room
     implementation(libs.androidx.room.runtime)

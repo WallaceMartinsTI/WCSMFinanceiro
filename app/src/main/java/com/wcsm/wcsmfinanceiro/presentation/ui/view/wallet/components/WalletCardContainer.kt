@@ -27,7 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.wcsm.wcsmfinanceiro.data.entity.WalletCard
+import com.wcsm.wcsmfinanceiro.data.local.entity.WalletCard
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.ErrorColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.GrayColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.MoneyGreenColor
@@ -35,7 +35,7 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnSurfaceColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PoppinsFontFamily
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.TertiaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
-import com.wcsm.wcsmfinanceiro.presentation.util.toBrazilianReal
+import com.wcsm.wcsmfinanceiro.util.toBrazilianReal
 
 @Composable
 fun WalletCardContainer(
