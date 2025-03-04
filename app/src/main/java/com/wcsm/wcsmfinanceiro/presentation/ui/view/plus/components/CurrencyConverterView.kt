@@ -8,10 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,51 +20,76 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.MonetaryInputField
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.SecondaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.SurfaceColor
+import com.wcsm.wcsmfinanceiro.presentation.ui.theme.TertiaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
+import com.wcsm.wcsmfinanceiro.presentation.ui.view.plus.viewmodel.CurrencyConversionViewModel
+import com.wcsm.wcsmfinanceiro.util.showToastMessage
+import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CurrencyConverterView() {
-    val options = listOf(
-        "Selecione uma moeda",
-        "AED - Emirados Árabes Unidos",
-        "ARS - Argentina",
-        "AUD - Austrália",
-        "BRL - Brasil",
-        "CAD - Canadá",
-        "CNY - China",
-        "EGP - Egito",
-        "GBP - Reino Unido",
-        "JPY - Japão",
-        "NZD - Nova Zelândia",
-        "THB - Tailândia",
-        "UAH - Ucrânia",
-        "USD - Estados Unidos",
-        "YER - Iêmen"
-    )
+fun CurrencyConverterView(
+    onDismiss: () -> Unit
+) {
+    val currencyConversionViewModel: CurrencyConversionViewModel = hiltViewModel()
 
-    var baseCurrencyExpanded by remember { mutableStateOf(false) }
-    var targetCurrencyExpanded by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
-    var baseCurrencySelected by remember { mutableStateOf(options[0]) }
-    var targetCurrencySelected by remember { mutableStateOf(options[0]) }
+    val currencyConversionState by currencyConversionViewModel.currencyConversionStateFlow.collectAsStateWithLifecycle()
+    val uiState by currencyConversionViewModel.uiState.collectAsStateWithLifecycle()
 
-    var valueToConvert by remember { mutableStateOf("") }
-    var valueConverted by remember { mutableStateOf("") }
+    var isConvertButtonEnable by remember { mutableStateOf(true) }
+    var convertButtonText by remember { mutableStateOf("CONVERTER") }
 
-    LaunchedEffect(valueToConvert) {
-        println("+++++++ valueToConvert: $valueToConvert")
+    var conversionResult by remember { mutableStateOf("") }
+
+    LaunchedEffect(currencyConversionState.convertedValue) {
+        val convertedValue = currencyConversionState.convertedValue
+        if(convertedValue == 0.0) {
+            conversionResult = ""
+        } else {
+            val formattedTargetCode = currencyConversionState.targetCode.split("-")[0].trim()
+            val formattedConvertedValue = String.format(Locale("pt", "BR"), "%.2f", convertedValue)
+            conversionResult = "$formattedTargetCode $$formattedConvertedValue"
+        }
+    }
+
+    LaunchedEffect(uiState) {
+        if(uiState.isLoading) {
+            isConvertButtonEnable = false
+            convertButtonText = "CONVERTENDO..."
+            return@LaunchedEffect
+        }
+
+        if(uiState.error?.isNotBlank() == true) {
+            val errorMessage = uiState.error
+            errorMessage?.let { showToastMessage(context, it) }
+
+            isConvertButtonEnable = true
+            convertButtonText = "CONVERTER"
+
+            return@LaunchedEffect
+        }
+
+        if(uiState.success) {
+            isConvertButtonEnable = true
+            convertButtonText = "CONVERTER"
+
+            currencyConversionViewModel.resetUiState()
+        }
     }
 
     Dialog(
-        onDismissRequest = {}
+        onDismissRequest = { onDismiss() }
     ) {
         Column(
             modifier = Modifier
@@ -84,123 +106,67 @@ fun CurrencyConverterView() {
                 fontWeight = FontWeight.Bold
             )
 
-            ExposedDropdownMenuBox(
-                expanded = baseCurrencyExpanded,
-                onExpandedChange = {
-                    baseCurrencyExpanded = !baseCurrencyExpanded
+            CurrencyDropdown(
+                label = "Moeda (DE)",
+                isError = currencyConversionState.baseCodeErrorMessage.isNotBlank(),
+                errorMessage = currencyConversionState.baseCodeErrorMessage,
+                onValueSelected = { selectedCurrency ->
+                    currencyConversionViewModel.updateCurrencyConversionStateFlow(
+                        currencyConversionState.copy(
+                            baseCode = selectedCurrency
+                        )
+                    )
                 }
-            ) {
-                OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
-                    readOnly = true,
-                    label = {
-                        Text(
-                            text = "Moeda (DE)"
-                        )
-                    },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(
-                            expanded = baseCurrencyExpanded
-                        )
-                    },
-                    colors = ExposedDropdownMenuDefaults.textFieldColors()
-                )
+            )
 
-                ExposedDropdownMenu(
-                    expanded = baseCurrencyExpanded,
-                    onDismissRequest = {
-                        baseCurrencyExpanded = false
-                    }
-                ) {
-                    options.forEach { selectionOption ->
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = selectionOption
-                                )
-                            },
-                            onClick = {
-                                baseCurrencySelected = selectionOption
-                                baseCurrencyExpanded = false
-                            }
+            CurrencyDropdown(
+                label = "Moeda (PARA)",
+                isError = currencyConversionState.targetCodeErrorMessage.isNotBlank(),
+                errorMessage = currencyConversionState.targetCodeErrorMessage,
+                onValueSelected = { selectedCurrency ->
+                    currencyConversionViewModel.updateCurrencyConversionStateFlow(
+                        currencyConversionState.copy(
+                            targetCode = selectedCurrency
                         )
-                    }
+                    )
                 }
-            }
-
-            ExposedDropdownMenuBox(
-                expanded = targetCurrencyExpanded,
-                onExpandedChange = {
-                    targetCurrencyExpanded = !targetCurrencyExpanded
-                }
-            ) {
-                OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
-                    readOnly = true,
-                    label = {
-                        Text(
-                            text = "Moeda (PARA)"
-                        )
-                    },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(
-                            expanded = targetCurrencyExpanded
-                        )
-                    },
-                    colors = ExposedDropdownMenuDefaults.textFieldColors()
-                )
-
-                ExposedDropdownMenu(
-                    expanded = targetCurrencyExpanded,
-                    onDismissRequest = {
-                        targetCurrencyExpanded = false
-                    }
-                ) {
-                    options.forEach { selectionOption ->
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = selectionOption
-                                )
-                            },
-                            onClick = {
-                                targetCurrencySelected = selectionOption
-                                targetCurrencyExpanded = false
-                            }
-                        )
-                    }
-                }
-            }
+            )
 
             MonetaryInputField(
                 label = "Valor",
                 alreadyExistsDoubleValue = false,
                 alreadyDoubleValue = 0.0,
-                isError = false,
-                errorMessage = "",
+                isError = currencyConversionState.valueToConvertErrorMessage.isNotBlank(),
+                errorMessage = currencyConversionState.valueToConvertErrorMessage,
                 onMonetaryValueChange = { doubleMonetaryValue ->
-                    valueToConvert = doubleMonetaryValue.toString()
+                    currencyConversionViewModel.updateCurrencyConversionStateFlow(
+                        currencyConversionState.copy(
+                            valueToConvert = doubleMonetaryValue
+                        )
+                    )
                 },
                 modifier = Modifier.width(280.dp)
             )
 
             Button(
-                onClick = {}
+                onClick = {
+                    currencyConversionViewModel.getConvertedCurrency(currencyConversionState)
+                },
+                enabled = isConvertButtonEnable
             ) {
                 Text(
-                    text = "CONVERTER"
+                    text = convertButtonText
                 )
             }
 
             OutlinedTextField(
-                value = valueConverted,
+                value = conversionResult,
                 onValueChange = {},
                 readOnly = true,
                 label = {
                     Text(
-                        text = "Resultado da conversão"
+                        text = "Resultado da conversão",
+                        color = TertiaryColor
                     )
                 },
             )
@@ -212,6 +178,6 @@ fun CurrencyConverterView() {
 @Composable
 private fun CurrencyConverterViewPreview() {
     WCSMFinanceiroTheme(dynamicColor = false) {
-        CurrencyConverterView()
+        CurrencyConverterView {}
     }
 }

@@ -58,7 +58,7 @@ fun BillCategoriesDropdown(
 ) {
     var category by remember { mutableStateOf("Selecione uma categoria") }
 
-    val categoriesDrowpdownOptions = listOf(
+    val categoriesDropdownOptions = listOf(
         BillCategory(1, "Moradia", Icons.Default.Home),
         BillCategory(2, "Alimentação", Icons.Default.SetMeal),
         BillCategory(3, "Transporte", Icons.Default.EmojiTransportation),
@@ -143,7 +143,7 @@ fun BillCategoriesDropdown(
                 expanded = showCategoriesDropdown,
                 onDismissRequest = { showCategoriesDropdown = false }
             ) {
-                categoriesDrowpdownOptions.forEach { selectedCategory ->
+                categoriesDropdownOptions.forEach { selectedCategory ->
                     DropdownMenuItem(
                         text = {
                             Text(
@@ -167,7 +167,6 @@ fun BillCategoriesDropdown(
             }
         }
     }
-
 }
 
 @Preview

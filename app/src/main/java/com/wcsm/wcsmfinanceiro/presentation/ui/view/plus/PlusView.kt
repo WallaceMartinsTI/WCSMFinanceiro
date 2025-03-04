@@ -57,7 +57,6 @@ fun PlusView() {
         ) { showCurrencyConverter = true }
     )
 
-
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -87,7 +86,7 @@ fun PlusView() {
         }
 
         if(showCurrencyConverter) {
-            CurrencyConverterView()
+            CurrencyConverterView { showCurrencyConverter = false}
         }
     }
 }
