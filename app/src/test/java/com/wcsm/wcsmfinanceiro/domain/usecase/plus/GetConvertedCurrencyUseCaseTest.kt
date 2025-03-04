@@ -33,7 +33,7 @@ class GetConvertedCurrencyUseCaseTest {
 
     @Test
     fun getConvertedCurrencyUseCase_getConvertedCurrencyFromRepository_shouldEmitSuccess() = runTest {
-        val expectedResponse = 5.8876
+        val expectedResponse = Pair(5.8876, 5.8876)
 
         Mockito.`when`(currencyExchangeRepository.convertCurrency(anyString(), anyString(), anyDouble())).thenReturn(
             flow {

@@ -65,7 +65,9 @@ class CurrencyExchangeRepositoryImplTest {
             assertThat(awaitItem()).isInstanceOf(Response.Loading::class.java)
 
             // AND THEN: It should emit a success response
-            assertThat((awaitItem() as Response.Success).data).isEqualTo(expectedReturn.conversionResult)
+            assertThat(
+                (awaitItem() as Response.Success).data
+            ).isEqualTo(Pair(expectedReturn.conversionResult, value))
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()

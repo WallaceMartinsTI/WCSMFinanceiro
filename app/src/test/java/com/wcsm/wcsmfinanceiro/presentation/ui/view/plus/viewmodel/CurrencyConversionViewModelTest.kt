@@ -5,7 +5,9 @@ import com.google.common.truth.Truth.assertThat
 import com.wcsm.wcsmfinanceiro.domain.model.Response
 import com.wcsm.wcsmfinanceiro.domain.usecase.plus.GetConvertedCurrencyUseCase
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
+import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillState
 import com.wcsm.wcsmfinanceiro.presentation.model.plus.CurrencyConversionState
+import com.wcsm.wcsmfinanceiro.presentation.ui.view.bills.BillsViewModel
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -85,6 +87,43 @@ class CurrencyConversionViewModelTest {
     }
 
     @Test
+    fun resetCurrencyConversionState_resetCurrencyConversionState_shouldMatchWithAnEmptyCurrencyConversionState() = runTest {
+        val currencyConversionViewModel = CurrencyConversionViewModel(getConvertedCurrencyUseCase)
+
+        // GIVEN: A reset currency conversion state
+        val currencyConversionState = CurrencyConversionState()
+
+        currencyConversionViewModel.currencyConversionStateFlow.test {
+            // At first currencyConversionStateFlow state should start with an empty CurrencyConversionState
+            assertThat(awaitItem()).isEqualTo(currencyConversionState)
+
+            // Update a currency conversion state to be reset
+            currencyConversionViewModel.updateCurrencyConversionStateFlow(
+                currencyConversionState.copy(
+                    baseCode = "USD",
+                    targetCode = "BRL",
+                    valueToConvert = 1.0
+                )
+            )
+
+            // Check if bill state was updated
+            val updateCurrencyConversionState = awaitItem()
+            assertThat(updateCurrencyConversionState.baseCode).isEqualTo("USD")
+            assertThat(updateCurrencyConversionState.targetCode).isEqualTo("BRL")
+            assertThat(updateCurrencyConversionState.valueToConvert).isEqualTo(1.0)
+
+            // WHEN: Reset currency conversion state
+            currencyConversionViewModel.resetCurrencyConversionStateFlow()
+
+            // THEN: Currency conversion state should match with a reset currencyConversionState
+            assertThat(awaitItem()).isEqualTo(currencyConversionState)
+
+            // Important: Cancels the flow to prevent coroutine leaks in the test
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
     fun resetUiState_resetUiState_shouldMatchWithAnEmptyUiState() = runTest {
         val currencyConversionViewModel = CurrencyConversionViewModel(getConvertedCurrencyUseCase)
 
@@ -113,7 +152,7 @@ class CurrencyConversionViewModelTest {
 
     @Test
     fun getConvertedCurrency_getConvertedCurrency_shouldFillCurrencyConversionStateConvertedValue() = runTest {
-        val expectedValue = 5.8884
+        val expectedValue = Pair(5.8884, 5.8884)
 
         val currencyConversionViewModel = CurrencyConversionViewModel(getConvertedCurrencyUseCase)
 
@@ -153,7 +192,7 @@ class CurrencyConversionViewModelTest {
             )
 
             // THEN: Converted value should match with expected
-            assertThat(awaitItem().convertedValue).isEqualTo(expectedValue)
+            assertThat(awaitItem().convertedValue).isEqualTo(expectedValue.first)
 
             // Important: Cancels the flow to prevent coroutine leaks in the test
             cancelAndIgnoreRemainingEvents()

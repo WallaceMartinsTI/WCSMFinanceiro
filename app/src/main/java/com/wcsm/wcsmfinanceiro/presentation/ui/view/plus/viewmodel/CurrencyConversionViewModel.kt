@@ -35,6 +35,10 @@ class CurrencyConversionViewModel @Inject constructor(
         _uiState.value = uiState
     }
 
+    fun resetCurrencyConversionStateFlow() {
+        _currencyConversionStateFlow.value = CurrencyConversionState()
+    }
+
     fun resetUiState() {
         _uiState.value = UiState()
     }
