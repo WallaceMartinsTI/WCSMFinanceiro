@@ -1,4 +1,4 @@
-package com.wcsm.wcsmfinanceiro.data.database.dao
+package com.wcsm.wcsmfinanceiro.data.local.database.dao
 
 import android.database.sqlite.SQLiteConstraintException
 import androidx.room.Room

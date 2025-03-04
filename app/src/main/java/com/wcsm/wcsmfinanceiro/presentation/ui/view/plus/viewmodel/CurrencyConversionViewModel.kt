@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.wcsm.wcsmfinanceiro.domain.model.Response
 import com.wcsm.wcsmfinanceiro.domain.usecase.plus.GetConvertedCurrencyUseCase
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
-import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillOperationType
 import com.wcsm.wcsmfinanceiro.presentation.model.plus.CurrencyConversionState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -29,12 +28,12 @@ class CurrencyConversionViewModel @Inject constructor(
         _currencyConversionStateFlow.value = currencyConversionState
     }
 
-    fun resetUiState() {
-        _uiState.value = UiState()
+    fun updateUiState(uiState: UiState<Nothing>) {
+        _uiState.value = uiState
     }
 
-    private fun updateUiState(uiState: UiState<Nothing>) {
-        _uiState.value = uiState
+    fun resetUiState() {
+        _uiState.value = UiState()
     }
 
     private fun onLoadingResponse() {

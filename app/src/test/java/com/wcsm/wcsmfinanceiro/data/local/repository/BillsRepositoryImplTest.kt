@@ -1,4 +1,4 @@
-package com.wcsm.wcsmfinanceiro.data.repository
+package com.wcsm.wcsmfinanceiro.data.local.repository
 
 import android.database.sqlite.SQLiteConstraintException
 import app.cash.turbine.test
