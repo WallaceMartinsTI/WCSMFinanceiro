@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -52,6 +51,8 @@ fun CurrencyConverterView(
 
     var conversionResult by remember { mutableStateOf("") }
 
+    var isDropdownExpanded by remember { mutableStateOf(false) }
+
     LaunchedEffect(currencyConversionState.convertedValue) {
         val convertedValue = currencyConversionState.convertedValue
         if(convertedValue == 0.0) {
@@ -89,7 +90,11 @@ fun CurrencyConverterView(
     }
 
     Dialog(
-        onDismissRequest = { onDismiss() }
+        onDismissRequest = {
+            if(!isDropdownExpanded) {
+                onDismiss()
+            }
+        }
     ) {
         Column(
             modifier = Modifier
@@ -116,7 +121,8 @@ fun CurrencyConverterView(
                             baseCode = selectedCurrency
                         )
                     )
-                }
+                },
+                onDropdownStateChange = { expanded -> isDropdownExpanded = expanded }
             )
 
             CurrencyDropdown(
@@ -129,7 +135,8 @@ fun CurrencyConverterView(
                             targetCode = selectedCurrency
                         )
                     )
-                }
+                },
+                onDropdownStateChange = { expanded -> isDropdownExpanded = expanded }
             )
 
             MonetaryInputField(

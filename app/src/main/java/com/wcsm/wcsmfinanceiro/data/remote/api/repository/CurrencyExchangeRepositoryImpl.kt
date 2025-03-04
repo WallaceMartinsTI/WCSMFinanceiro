@@ -14,7 +14,7 @@ class CurrencyExchangeRepositoryImpl @Inject constructor(
         baseCode: String,
         targetCode: String,
         value: Double,
-    ): Flow<Response<Double>> = flow {
+    ): Flow<Response<Pair<Double, Double>>> = flow {
         try {
             emit(Response.Loading)
 
@@ -23,7 +23,8 @@ class CurrencyExchangeRepositoryImpl @Inject constructor(
             if(exchangeResult.isSuccessful) {
                 val resultBody = exchangeResult.body()
                 if(resultBody != null) {
-                    emit(Response.Success(resultBody.conversionResult))
+                    val result = Pair(resultBody.conversionResult, resultBody.conversionRate)
+                    emit(Response.Success(result))
                 } else {
                     emit(Response.Error("Erro, requisição retornou vazio."))
                 }

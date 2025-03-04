@@ -17,6 +17,9 @@ import javax.inject.Inject
 class CurrencyConversionViewModel @Inject constructor(
     private val getConvertedCurrencyUseCase: GetConvertedCurrencyUseCase
 ) : ViewModel() {
+    private val _cachedCurrencyConversions = MutableStateFlow<Map<Pair<String, String>, Double>>(
+        emptyMap()
+    )
 
     private val _uiState = MutableStateFlow(UiState<Nothing>())
     val uiState = _uiState.asStateFlow()
@@ -62,13 +65,26 @@ class CurrencyConversionViewModel @Inject constructor(
                 val targetCode = currencyConversionState.targetCode.split("-")[0].trim()
                 val valueToConvert = currencyConversionState.valueToConvert
 
+                val cachedConversionRate = _cachedCurrencyConversions.value[Pair(baseCode, targetCode)]
+                if(cachedConversionRate != null) {
+                    val convertedValue = valueToConvert * cachedConversionRate
+                    _currencyConversionStateFlow.value = currencyConversionStateFlow.value.copy(
+                        convertedValue = convertedValue
+                    )
+                    return@launch
+                }
+
                 getConvertedCurrencyUseCase(baseCode, targetCode, valueToConvert).collect { result ->
                     when(result) {
                         is Response.Loading -> onLoadingResponse()
                         is Response.Error -> onErrorResponse(result.message)
                         is Response.Success -> onSuccessResponse {
+                            _cachedCurrencyConversions.value = _cachedCurrencyConversions.value.toMutableMap().apply {
+                                put(Pair(baseCode, targetCode), result.data.second)
+                            }
+
                             _currencyConversionStateFlow.value = currencyConversionStateFlow.value.copy(
-                                convertedValue = result.data
+                                convertedValue = result.data.first
                             )
                         }
                     }

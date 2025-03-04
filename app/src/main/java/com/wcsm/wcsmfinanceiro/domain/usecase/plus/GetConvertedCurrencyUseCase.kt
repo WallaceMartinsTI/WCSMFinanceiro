@@ -12,7 +12,7 @@ class GetConvertedCurrencyUseCase @Inject constructor(
         baseCode: String,
         targetCode: String,
         value: Double
-    ) : Flow<Response<Double>> {
+    ) : Flow<Response<Pair<Double, Double>>> {
         return currencyExchangeRepository.convertCurrency(baseCode, targetCode, value)
     }
 }

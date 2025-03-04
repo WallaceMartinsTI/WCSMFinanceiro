@@ -1,5 +1,7 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.plus.components
 
+import androidx.compose.foundation.interaction.FocusInteraction
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.width
@@ -36,7 +38,8 @@ fun CurrencyDropdown(
     isError: Boolean,
     errorMessage: String,
     modifier: Modifier = Modifier,
-    onValueSelected: (selectedCurrency: String) -> Unit
+    onValueSelected: (selectedCurrency: String) -> Unit,
+    onDropdownStateChange: (Boolean) -> Unit
 ) {
     var currency by remember { mutableStateOf("Selecione uma moeda") }
 
@@ -71,7 +74,10 @@ fun CurrencyDropdown(
     ) {
         ExposedDropdownMenuBox(
             expanded = showCurrencyDropdown,
-            onExpandedChange = { showCurrencyDropdown = !showCurrencyDropdown }
+            onExpandedChange = { expanded ->
+                showCurrencyDropdown = expanded
+                onDropdownStateChange(expanded)
+            }
         ) {
             OutlinedTextField(
                 modifier = Modifier
@@ -119,7 +125,10 @@ fun CurrencyDropdown(
 
             ExposedDropdownMenu(
                 expanded = showCurrencyDropdown,
-                onDismissRequest = { showCurrencyDropdown = false }
+                onDismissRequest = {
+                    showCurrencyDropdown = false
+                    onDropdownStateChange(false)
+                }
             ) {
                 currencyDropdownOptions.forEach { selectedCurrency ->
                     DropdownMenuItem(
@@ -132,6 +141,7 @@ fun CurrencyDropdown(
                         onClick = {
                             currency = selectedCurrency
                             showCurrencyDropdown = false
+                            onDropdownStateChange(false)
                         }
                     )
                 }
@@ -148,14 +158,18 @@ private fun CurrencyDropdownPreview() {
             CurrencyDropdown(
                 label = "Moeda (DE)",
                 isError = false,
-                errorMessage = ""
-            ) {}
+                errorMessage = "",
+                onValueSelected = {},
+                onDropdownStateChange = {}
+            )
 
             CurrencyDropdown(
                 label = "Moeda (PARA)",
                 isError = false,
-                errorMessage = ""
-            ) {}
+                errorMessage = "",
+                onValueSelected = {},
+                onDropdownStateChange = {}
+            )
         }
     }
 }

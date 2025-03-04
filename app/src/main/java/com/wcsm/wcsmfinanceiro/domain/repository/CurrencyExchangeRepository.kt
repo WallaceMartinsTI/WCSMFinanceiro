@@ -8,5 +8,5 @@ interface CurrencyExchangeRepository {
         baseCode: String,
         targetCode: String,
         value: Double
-    ) : Flow<Response<Double>>
+    ) : Flow<Response<Pair<Double, Double>>>
 }
