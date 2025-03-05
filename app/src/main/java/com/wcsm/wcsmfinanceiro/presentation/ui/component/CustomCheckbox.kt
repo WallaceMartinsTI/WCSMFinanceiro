@@ -30,7 +30,7 @@ fun CustomCheckbox(
     checkboxText: String,
     alreadyChecked: Boolean,
     modifier: Modifier = Modifier,
-    onCheckdChange: (isChecked: Boolean) -> Unit
+    onCheckedChange: (isChecked: Boolean) -> Unit
 ) {
     var isChecked by remember { mutableStateOf(alreadyChecked) }
 
@@ -44,7 +44,7 @@ fun CustomCheckbox(
                 selected = isChecked,
                 onClick = {
                     isChecked = !isChecked
-                    onCheckdChange(isChecked)
+                    onCheckedChange(isChecked)
                 },
                 role = Role.Checkbox
             ),
@@ -54,7 +54,7 @@ fun CustomCheckbox(
             checked = isChecked,
             onCheckedChange = {
                 isChecked = !isChecked
-                onCheckdChange(isChecked)
+                onCheckedChange(isChecked)
             },
         )
 
@@ -74,7 +74,7 @@ private fun CustomCheckboxPreview() {
         CustomCheckbox(
             checkboxText = "Continuar Logado?",
             alreadyChecked = false,
-            onCheckdChange = {}
+            onCheckedChange = {}
         )
     }
 }

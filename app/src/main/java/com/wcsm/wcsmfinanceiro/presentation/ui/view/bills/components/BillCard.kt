@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Expand
+import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -106,8 +107,8 @@ fun BillCard(
             }
 
             Icon(
-                imageVector = Icons.Default.Expand,
-                contentDescription = "Ícone de expandir",
+                imageVector = Icons.Default.OpenInFull,
+                contentDescription = "Ícone de abrir em tela cheia",
                 tint = White06Color
             )
         }

@@ -79,6 +79,9 @@ dependencies {
     // Splashscreen
     implementation(libs.androidx.core.splashscreen)
 
+    // System UI Controller
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
+
     // Navigation Component
     implementation(libs.androidx.navigation.compose)
 
