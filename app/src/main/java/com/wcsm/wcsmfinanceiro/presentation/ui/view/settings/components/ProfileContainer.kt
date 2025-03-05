@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -73,17 +74,35 @@ fun ProfileContainer() {
         ) {
             OutlinedTextField(
                 value = "",
-                onValueChange = {}
+                onValueChange = {},
+                label = {
+                    Text(
+                        text = "Nome",
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
             )
 
             OutlinedTextField(
                 value = "",
-                onValueChange = {}
+                onValueChange = {},
+                label = {
+                    Text(
+                        text = "Email",
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
             )
 
             OutlinedTextField(
                 value = "",
-                onValueChange = {}
+                onValueChange = {},
+                label = {
+                    Text(
+                        text = "Senha",
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
             )
 
         }

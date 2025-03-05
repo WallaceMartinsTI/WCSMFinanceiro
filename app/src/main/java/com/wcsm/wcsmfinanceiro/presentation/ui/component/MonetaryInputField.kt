@@ -24,6 +24,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
@@ -42,7 +43,8 @@ fun MonetaryInputField(
     isError: Boolean,
     errorMessage: String,
     onMonetaryValueChange: (doubleMonetaryValue: Double) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    imeAction: ImeAction = ImeAction.Next
 ) {
     val monetaryFocusRequester = remember { FocusRequester() }
     var monetaryValue by remember { mutableStateOf("") }
@@ -106,8 +108,8 @@ fun MonetaryInputField(
             }
         },
         keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number,
-            imeAction = ImeAction.Done,
+            keyboardType = KeyboardType.Decimal,
+            imeAction = imeAction,
         ),
         visualTransformation = CurrencyVisualTransformation()
     )

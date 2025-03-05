@@ -1,15 +1,18 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.plus
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.CurrencyExchange
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,17 +32,23 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PoppinsFontFamily
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PrimaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.plus.components.CurrencyConverterView
+import com.wcsm.wcsmfinanceiro.presentation.ui.view.plus.components.InstallmentCalculatorView
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.plus.components.PlusItem
 
 @Composable
 fun PlusView() {
-    var showCurrencyConverter by remember { mutableStateOf(false) }
+    var showCurrencyConverterView by remember { mutableStateOf(false) }
+    var showInstallmentCalculatorView by remember { mutableStateOf(false) }
 
     val plusOptions = listOf(
         PlusOptionItem(
             icon = Icons.Default.CurrencyExchange,
             label = "Conversor de Moedas"
-        ) { showCurrencyConverter = true }
+        ) { showCurrencyConverterView = true },
+        PlusOptionItem(
+            icon = Icons.Default.Calculate,
+            label = "Calculadora de Parcelas"
+        ) { showInstallmentCalculatorView = true }
     )
 
     Box(
@@ -60,7 +69,10 @@ fun PlusView() {
 
             Spacer(Modifier.height(16.dp))
 
-            LazyColumn {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
                 items(plusOptions) { plusOptionItem ->
                     PlusItem(
                         plusOptionItem = plusOptionItem,
@@ -70,8 +82,12 @@ fun PlusView() {
             }
         }
 
-        if(showCurrencyConverter) {
-            CurrencyConverterView { showCurrencyConverter = false}
+        if(showCurrencyConverterView) {
+            CurrencyConverterView { showCurrencyConverterView = false}
+        }
+
+        if(showInstallmentCalculatorView) {
+            InstallmentCalculatorView { showInstallmentCalculatorView = false }
         }
     }
 }

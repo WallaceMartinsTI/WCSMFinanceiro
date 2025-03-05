@@ -62,7 +62,7 @@ fun AppInfoView(
     )
 
     val appPresentationText = buildAnnotatedString {
-        append("Gerencie suas finanças de forma simples e eficiente! Com este app, você pode acompanhar receitas, despesas e gráficos na cadastrar transações em ")
+        append("Gerencie suas finanças de forma simples e eficiente! Com este app, você pode acompanhar receitas, despesas e gráficos na ")
         withStyle(specialWordStyle) {
             append("Home")
         }
@@ -82,7 +82,8 @@ fun AppInfoView(
         withStyle(specialWordStyle) {
             append("Configurações")
         }
-        append(". Tudo isso com segurança e praticidade. \uD83D\uDE80\uD83D\uDCB0")
+        append(". Tudo isso com segurança e praticidade.")
+
     }
 
     Dialog(

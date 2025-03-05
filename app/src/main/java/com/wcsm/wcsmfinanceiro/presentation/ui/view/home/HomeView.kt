@@ -1,7 +1,10 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.home
 
+import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -39,6 +43,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.wcsm.wcsmfinanceiro.R
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.CurrentDateTimeContainer
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.DateRangeFilter
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.ExitAppDialog
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.StylizedText
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.ErrorColor
@@ -56,11 +61,19 @@ import com.wcsm.wcsmfinanceiro.util.toBrazilianDateString
 fun HomeView(
     homeViewModel: HomeViewModel = viewModel()
 ) {
+    val activity = LocalContext.current as? Activity
+
     val userName = "Wallace"
 
     val filterSelectedDateRange by homeViewModel.filterSelectedDateRange.collectAsStateWithLifecycle()
 
     var selectedFilterDate by remember { mutableStateOf("Selecione uma data") }
+
+    var showExitAppDialog by remember { mutableStateOf(false) }
+
+    BackHandler {
+        showExitAppDialog = true
+    }
 
     LaunchedEffect(filterSelectedDateRange) {
         if (filterSelectedDateRange != null) {
@@ -70,93 +83,108 @@ fun HomeView(
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize().background(BackgroundColor),
-        horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            StylizedText(
-                initialText = "Olá, ",
-                textToStyle = userName,
-                endText = "!",
-                color = OnBackgroundColor,
-                fontWeight = FontWeight.SemiBold,
-                fontFamily = PoppinsFontFamily,
-                style = SpanStyle(
-                    color = PrimaryColor,
-                    fontWeight = FontWeight.Bold
-                )
-            )
-
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.Logout,
-                contentDescription = "Ícone de logout",
-                tint = ErrorColor
-            )
-        }
-
-        CurrentDateTimeContainer()
-
-        HorizontalDivider(
-            modifier = Modifier.padding(16.dp),
-            color = OnBackgroundColor
-        )
-
-        DateRangeFilter(
-            filterSelectedDateRange = filterSelectedDateRange,
-            onDateSelected = { startDate, endDate ->
-                homeViewModel.updateFilterSelectedDateRange(
-                    startDate = startDate,
-                    endDate = endDate
-                )
-            },
-            onClearFilter = {},
-            onFilter = { _, _ -> } // FAZER FILTRO
-        )
-
-        HorizontalDivider(
-            modifier = Modifier.padding(16.dp),
-            color = OnBackgroundColor
-        )
-
         Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+            modifier = Modifier.fillMaxSize().background(BackgroundColor),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            UserValuesContainer(
-                iconResourceId = R.drawable.money_up,
-                iconContentDescription = "Ícone de dinheiro pra cima",
-                text = "Receitas",
-                value = 2538.92,
-                contentColor = MoneyGreenColor
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                StylizedText(
+                    initialText = "Olá, ",
+                    textToStyle = userName,
+                    endText = "!",
+                    color = OnBackgroundColor,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = PoppinsFontFamily,
+                    style = SpanStyle(
+                        color = PrimaryColor,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Logout,
+                    contentDescription = "Ícone de logout",
+                    tint = ErrorColor,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(15.dp))
+                        .clickable { showExitAppDialog = true }
+                )
+            }
+
+            CurrentDateTimeContainer()
+
+            HorizontalDivider(
+                modifier = Modifier.padding(16.dp),
+                color = OnBackgroundColor
             )
+
+            DateRangeFilter(
+                filterSelectedDateRange = filterSelectedDateRange,
+                onDateSelected = { startDate, endDate ->
+                    homeViewModel.updateFilterSelectedDateRange(
+                        startDate = startDate,
+                        endDate = endDate
+                    )
+                },
+                onClearFilter = {},
+                onFilter = { _, _ -> } // FAZER FILTRO
+            )
+
+            HorizontalDivider(
+                modifier = Modifier.padding(16.dp),
+                color = OnBackgroundColor
+            )
+
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+            ) {
+                UserValuesContainer(
+                    iconResourceId = R.drawable.money_up,
+                    iconContentDescription = "Ícone de dinheiro pra cima",
+                    text = "Receitas",
+                    value = 2538.92,
+                    contentColor = MoneyGreenColor
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                UserValuesContainer(
+                    iconResourceId = R.drawable.money_down,
+                    iconContentDescription = "Ícone de dinheiro pra baixo",
+                    text = "Despezas",
+                    value = 1327.32,
+                    contentColor = RedColor
+                )
+            }
 
             Spacer(Modifier.height(16.dp))
 
-            UserValuesContainer(
-                iconResourceId = R.drawable.money_down,
-                iconContentDescription = "Ícone de dinheiro pra baixo",
-                text = "Despezas",
-                value = 1327.32,
-                contentColor = RedColor
-            )
+            Box(
+                modifier = Modifier.fillMaxSize().padding(16.dp).border(1.dp, SecondaryColor),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "GRÁFICO",
+                    color = OnSecondaryColor,
+                    fontFamily = PoppinsFontFamily,
+                    fontSize = 40.sp,
+                )
+            }
         }
 
-        Spacer(Modifier.height(16.dp))
-
-        Box(
-            modifier = Modifier.fillMaxSize().padding(16.dp).border(1.dp, SecondaryColor),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "GRÁFICO",
-                color = OnSecondaryColor,
-                fontFamily = PoppinsFontFamily,
-                fontSize = 40.sp,
+        if(showExitAppDialog) {
+            ExitAppDialog(
+                onExitApp = { activity?.finish() },
+                onLogout = {}, // FAZER LOGOUT
+                onDismiss = { showExitAppDialog = false }
             )
         }
     }
