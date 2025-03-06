@@ -5,9 +5,7 @@ import com.google.common.truth.Truth.assertThat
 import com.wcsm.wcsmfinanceiro.domain.model.Response
 import com.wcsm.wcsmfinanceiro.domain.usecase.plus.GetConvertedCurrencyUseCase
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
-import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillState
 import com.wcsm.wcsmfinanceiro.presentation.model.plus.CurrencyConversionState
-import com.wcsm.wcsmfinanceiro.presentation.ui.view.bills.BillsViewModel
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -107,10 +105,10 @@ class CurrencyConversionViewModelTest {
             )
 
             // Check if bill state was updated
-            val updateCurrencyConversionState = awaitItem()
-            assertThat(updateCurrencyConversionState.baseCode).isEqualTo("USD")
-            assertThat(updateCurrencyConversionState.targetCode).isEqualTo("BRL")
-            assertThat(updateCurrencyConversionState.valueToConvert).isEqualTo(1.0)
+            val updatedCurrencyConversionState = awaitItem()
+            assertThat(updatedCurrencyConversionState.baseCode).isEqualTo("USD")
+            assertThat(updatedCurrencyConversionState.targetCode).isEqualTo("BRL")
+            assertThat(updatedCurrencyConversionState.valueToConvert).isEqualTo(1.0)
 
             // WHEN: Reset currency conversion state
             currencyConversionViewModel.resetCurrencyConversionStateFlow()
