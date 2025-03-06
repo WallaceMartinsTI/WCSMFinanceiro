@@ -7,5 +7,6 @@ data class InstallmentCalculatorState(
     var installmentErrorMessage: String = "",
     var fees: String = "",
     var feesErrorMessage: String = "",
-    var installmentCalculationResult: String = ""
+    var installmentCalculationResult: String = "",
+    var installmentTotalWithFees: String = ""
 )

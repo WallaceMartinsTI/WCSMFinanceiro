@@ -59,8 +59,10 @@ fun InstallmentCalculatorView(
     var installmentValue by remember { mutableStateOf("") }
     var feesValue by remember { mutableStateOf("") }
 
-    var installmentFocusRequester = remember { FocusRequester() }
-    var feesFocusRequester = remember { FocusRequester() }
+    val installmentFocusRequester = remember { FocusRequester() }
+    val feesFocusRequester = remember { FocusRequester() }
+
+    var showTotalWithFees by remember { mutableStateOf(false) }
 
     LaunchedEffect(installmentCalculatorState.installment) {
         installmentValue = if(installmentCalculatorState.installment == 0) {
@@ -85,6 +87,19 @@ fun InstallmentCalculatorView(
                     )
                 )
             }
+        }
+    }
+
+    LaunchedEffect(feesValue, installmentCalculatorState.installmentCalculationResult) {
+        showTotalWithFees = if(feesValue.isNotBlank() && installmentCalculatorState.installmentCalculationResult.isNotBlank()) {
+            true
+        } else {
+            installmentCalculatorViewModel.updateInstallmentCalculatorStateFlow(
+                installmentCalculatorState.copy(
+                    installmentTotalWithFees = ""
+                )
+            )
+            false
         }
     }
 
@@ -175,10 +190,8 @@ fun InstallmentCalculatorView(
 
             OutlinedTextField(
                 value = feesValue,
-                onValueChange = { newValue ->
-                    if(newValue.all { it.isDigit() }) {
-                        feesValue = newValue
-                    }
+                onValueChange = {
+                    feesValue = it
                 },
                 modifier = Modifier.focusRequester(feesFocusRequester),
                 label = {
@@ -222,7 +235,7 @@ fun InstallmentCalculatorView(
                 onClick = {
                     installmentCalculatorViewModel.updateInstallmentCalculatorStateFlow(
                         installmentCalculatorState.copy(
-                            fees = feesValue.replace(",", ".")
+                            fees = feesValue.replace(",", ".").trim()
                         )
                     )
 
@@ -256,6 +269,20 @@ fun InstallmentCalculatorView(
                     }
                 },
             )
+
+            if(showTotalWithFees) {
+                OutlinedTextField(
+                    value = installmentCalculatorState.installmentTotalWithFees,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = {
+                        Text(
+                            text = "Total com Juros",
+                            color = TertiaryColor
+                        )
+                    }
+                )
+            }
         }
     }
 }

@@ -44,16 +44,26 @@ class InstallmentCalculatorViewModel : ViewModel() {
 
             updateInstallmentCalculatorStateFlow(
                 installmentCalculatorStateFlow.value.copy(
-                    installmentCalculationResult = formattedResult
+                    installmentCalculationResult = formattedResult,
+                    installmentTotalWithFees = amount.toBrazilianReal()
                 )
             )
         }
     }
 
     private fun isInstallmentCalculatorStateValid() : Boolean {
+        val fees = installmentCalculatorStateFlow.value.fees
+        if(fees.endsWith(".")) {
+            updateInstallmentCalculatorStateFlow(
+                installmentCalculatorState = installmentCalculatorStateFlow.value.copy(
+                    fees = fees.dropLast(1).trim()
+                )
+            )
+        }
+
         val isValueValid = validateValue(installmentCalculatorStateFlow.value.value)
         val isInstallmentValid = validateInstallment(installmentCalculatorStateFlow.value.installment)
-        val isFeesValid = validateFees(installmentCalculatorStateFlow.value.fees)
+        val isFeesValid = validateFees(fees)
 
         updateInstallmentCalculatorStateFlow(
             installmentCalculatorStateFlow.value.copy(
@@ -89,19 +99,18 @@ class InstallmentCalculatorViewModel : ViewModel() {
     }
 
     private fun validateFees(fees: String) : Pair<Boolean, String> {
-        return try {
-           if(fees.toDouble() < 0) {
-                Pair(false, "Juros inválido.")
-            } else if(fees.toDouble() > 500) {
-                Pair(false, "A porcentagem máxima do juros é 500%.")
-            } else if(fees.isBlank() || fees.toDoubleOrNull() != null) {
-                Pair(true, "")
-            } else {
-                Pair(false, "Erro: $fees")
-            }
-        } catch (e: Exception) {
-            Pair(false, "Juros inválido, tente novamente (formato: 2,5)")
+        if (fees.isEmpty()) return Pair(true, "")
+
+        val splitFees = fees.split(".")
+        if (splitFees.size == 2 && splitFees[1].length > 2) {
+            return Pair(false, "Permitido somente 2 casas decimais.")
         }
 
+        val feesValue = fees.toDoubleOrNull() ?: return Pair(false, "Juros inválido, tente novamente (formato: 2,5)")
+        return when {
+            feesValue < 0 -> Pair(false, "Juros inválido.")
+            feesValue > 500 -> Pair(false, "A porcentagem máxima do juros é 500%.")
+            else -> Pair(true, "")
+        }
     }
 }
