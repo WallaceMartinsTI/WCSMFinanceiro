@@ -19,42 +19,42 @@ object BillsUseCasesModule {
     @Provides
     fun provideGetBillsUseCase(
         billsRepository: BillsRepository
-    ) : GetBillsUseCase {
+    ): GetBillsUseCase {
         return GetBillsUseCase(billsRepository)
     }
 
     @Provides
     fun provideSaveBillUseCase(
         billsRepository: BillsRepository
-    ) : SaveBillUseCase {
+    ): SaveBillUseCase {
         return SaveBillUseCase(billsRepository)
     }
 
     @Provides
     fun provideUpdateBillUseCase(
         billsRepository: BillsRepository
-    ) : UpdateBillUseCase {
+    ): UpdateBillUseCase {
         return UpdateBillUseCase(billsRepository)
     }
 
     @Provides
     fun provideDeleteBillUseCase(
         billsRepository: BillsRepository
-    ) : DeleteBillUseCase {
+    ): DeleteBillUseCase {
         return DeleteBillUseCase(billsRepository)
     }
 
     @Provides
     fun provideGetBillsByDateUseCase(
         billsRepository: BillsRepository
-    ) : GetBillsByDateUseCase {
+    ): GetBillsByDateUseCase {
         return GetBillsByDateUseCase(billsRepository)
     }
 
     @Provides
     fun provideGetBillsByTextUseCase(
         billsRepository: BillsRepository
-    ) : GetBillsByTextUseCase {
+    ): GetBillsByTextUseCase {
         return GetBillsByTextUseCase(billsRepository)
     }
 

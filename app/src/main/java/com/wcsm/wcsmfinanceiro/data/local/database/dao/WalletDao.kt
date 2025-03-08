@@ -13,15 +13,15 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface WalletDao {
     @Insert
-    fun saveWallet(wallet: Wallet) : Long
+    fun saveWallet(wallet: Wallet): Long
 
     @Update
-    fun updateWallet(wallet: Wallet) : Int
+    fun updateWallet(wallet: Wallet): Int
 
     @Delete
-    fun deleteWallet(wallet: Wallet) : Int
+    fun deleteWallet(wallet: Wallet): Int
 
     @Transaction
     @Query("SELECT * FROM wallets")
-    fun selectAllWalletWithCards() : Flow<List<WalletWithCards>>
+    fun selectAllWalletWithCards(): Flow<List<WalletWithCards>>
 }

@@ -3,12 +3,16 @@ package com.wcsm.wcsmfinanceiro.di.local
 import android.content.Context
 import com.wcsm.wcsmfinanceiro.data.local.database.WCSMFinanceiroDatabase
 import com.wcsm.wcsmfinanceiro.data.local.database.dao.BillsDao
+import com.wcsm.wcsmfinanceiro.data.local.database.dao.SubscriptionDao
 import com.wcsm.wcsmfinanceiro.data.local.database.dao.WalletCardDao
 import com.wcsm.wcsmfinanceiro.data.local.database.dao.WalletDao
+import com.wcsm.wcsmfinanceiro.data.local.entity.Subscription
 import com.wcsm.wcsmfinanceiro.data.local.repository.BillsRepositoryImpl
+import com.wcsm.wcsmfinanceiro.data.local.repository.SubscriptionRepositoryImpl
 import com.wcsm.wcsmfinanceiro.data.local.repository.WalletCardRepositoryImpl
 import com.wcsm.wcsmfinanceiro.data.local.repository.WalletRepositoryImpl
 import com.wcsm.wcsmfinanceiro.domain.repository.BillsRepository
+import com.wcsm.wcsmfinanceiro.domain.repository.SubscriptionRepository
 import com.wcsm.wcsmfinanceiro.domain.repository.WalletCardRepository
 import com.wcsm.wcsmfinanceiro.domain.repository.WalletRepository
 import dagger.Module
@@ -24,50 +28,63 @@ object DatabaseModule {
     @Provides
     fun provideWCSMFinanceiroDatabas(
         @ApplicationContext context: Context
-    ) : WCSMFinanceiroDatabase {
+    ): WCSMFinanceiroDatabase {
         return WCSMFinanceiroDatabase.getInstance(context)
     }
 
     @Provides
     fun provideBillsDao(
         wcsmFinanceiroDatabase: WCSMFinanceiroDatabase
-    ) : BillsDao {
+    ): BillsDao {
         return wcsmFinanceiroDatabase.billsDao
     }
 
     @Provides
-    fun provideWalleDao(
+    fun provideWalletDao(
         wcsmFinanceiroDatabase: WCSMFinanceiroDatabase
-    ) : WalletDao {
+    ): WalletDao {
         return wcsmFinanceiroDatabase.walletDao
     }
 
     @Provides
     fun provideWalletCardDao(
         wcsmFinanceiroDatabase: WCSMFinanceiroDatabase
-    ) : WalletCardDao {
+    ): WalletCardDao {
         return wcsmFinanceiroDatabase.walletCardDao
+    }
+
+    @Provides
+    fun provideSubscriptionDao(
+        wcsmFinanceiroDatabase: WCSMFinanceiroDatabase
+    ): SubscriptionDao {
+        return wcsmFinanceiroDatabase.subscriptionDao
     }
 
     @Provides
     fun provideBillsRepository(
         billsDao: BillsDao
-    ) : BillsRepository {
+    ): BillsRepository {
         return BillsRepositoryImpl(billsDao)
     }
 
     @Provides
     fun provideWalletRepository(
         walletDao: WalletDao
-    ) : WalletRepository {
+    ): WalletRepository {
         return WalletRepositoryImpl(walletDao)
     }
 
     @Provides
     fun provideWalletCardRepository(
         walletCardDao: WalletCardDao
-    ) : WalletCardRepository {
+    ): WalletCardRepository {
         return WalletCardRepositoryImpl(walletCardDao)
     }
 
+    @Provides
+    fun provideSubscriptionRepository(
+        subscriptionDao: SubscriptionDao
+    ): SubscriptionRepository {
+        return SubscriptionRepositoryImpl(subscriptionDao)
+    }
 }

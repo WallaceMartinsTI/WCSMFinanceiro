@@ -196,7 +196,7 @@ fun InstallmentCalculatorView(
                 modifier = Modifier.focusRequester(feesFocusRequester),
                 label = {
                     Text(
-                        text = "Juros",
+                        text = "Juros (ao mês)",
                         style = MaterialTheme.typography.labelMedium
                     )
                 },

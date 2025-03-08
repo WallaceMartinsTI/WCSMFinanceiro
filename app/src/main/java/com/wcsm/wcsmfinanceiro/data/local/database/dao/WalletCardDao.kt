@@ -9,11 +9,11 @@ import com.wcsm.wcsmfinanceiro.data.local.entity.WalletCard
 @Dao
 interface WalletCardDao {
     @Insert
-    fun saveWalletCard(walletCard: WalletCard) : Long
+    fun saveWalletCard(walletCard: WalletCard): Long
 
     @Update
-    fun updateWalletCard(walletCard: WalletCard) : Int
+    fun updateWalletCard(walletCard: WalletCard): Int
 
     @Delete
-    fun deleteWalletCard(walletCard: WalletCard) : Int
+    fun deleteWalletCard(walletCard: WalletCard): Int
 }

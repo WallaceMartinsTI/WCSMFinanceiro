@@ -20,10 +20,10 @@ interface BillsDao {
     fun deleteBill(bill: Bill): Int
 
     @Query("SELECT * FROM bills")
-    fun selectAllBills() : Flow<List<Bill>>
+    fun selectAllBills(): Flow<List<Bill>>
 
     @Query("SELECT * FROM bills WHERE date BETWEEN :startDate AND :endDate")
-    fun selectBillsByDate(startDate: Long, endDate: Long) : Flow<List<Bill>>
+    fun selectBillsByDate(startDate: Long, endDate: Long): Flow<List<Bill>>
 
     @Query("""
         SELECT * FROM bills WHERE 
@@ -31,5 +31,5 @@ interface BillsDao {
         title LIKE '%' || :text || '%' OR
         description LIKE '%' || :text || '%'
     """)
-    fun selectBillsByText(text: String) : Flow<List<Bill>>
+    fun selectBillsByText(text: String): Flow<List<Bill>>
 }

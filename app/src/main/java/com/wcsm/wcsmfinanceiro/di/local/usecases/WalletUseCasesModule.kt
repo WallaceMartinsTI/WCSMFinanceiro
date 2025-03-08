@@ -21,49 +21,49 @@ object WalletUseCasesModule {
     @Provides
     fun provideGetWalletWithCardsUseCase(
         walletRepository: WalletRepository
-    ) : GetWalletWithCardsUseCase {
+    ): GetWalletWithCardsUseCase {
         return GetWalletWithCardsUseCase(walletRepository)
     }
 
     @Provides
     fun provideSaveWalletUseCase(
         walletRepository: WalletRepository
-    ) : SaveWalletUseCase {
+    ): SaveWalletUseCase {
         return SaveWalletUseCase(walletRepository)
     }
 
     @Provides
     fun provideUpdateWalletUseCase(
         walletRepository: WalletRepository
-    ) : UpdateWalletUseCase {
+    ): UpdateWalletUseCase {
         return UpdateWalletUseCase(walletRepository)
     }
 
     @Provides
     fun provideDeleteWalletUseCase(
         walletRepository: WalletRepository
-    ) : DeleteWalletUseCase {
+    ): DeleteWalletUseCase {
         return DeleteWalletUseCase(walletRepository)
     }
 
     @Provides
     fun provideSaveWalletCardUseCase(
         walletCardRepository: WalletCardRepository
-    ) : SaveWalletCardUseCase {
+    ): SaveWalletCardUseCase {
         return SaveWalletCardUseCase(walletCardRepository)
     }
 
     @Provides
     fun provideUpdateWalletCardUseCase(
         walletCardRepository: WalletCardRepository
-    ) : UpdateWalletCardUseCase {
+    ): UpdateWalletCardUseCase {
         return UpdateWalletCardUseCase(walletCardRepository)
     }
 
     @Provides
     fun provideDeleteWalletCardUseCase(
         walletCardRepository: WalletCardRepository
-    ) : DeleteWalletCardUseCase {
+    ): DeleteWalletCardUseCase {
         return DeleteWalletCardUseCase(walletCardRepository)
     }
 
