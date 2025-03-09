@@ -2,6 +2,7 @@ package com.wcsm.wcsmfinanceiro.presentation.ui.view.plus.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,7 +10,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,10 +42,12 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.MonetaryInputField
+import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PoppinsFontFamily
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.SecondaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.SurfaceColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.TertiaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
+import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.plus.viewmodel.CurrencyConversionViewModel
 import com.wcsm.wcsmfinanceiro.util.showToastMessage
 import java.util.Locale
@@ -194,5 +207,148 @@ fun CurrencyConverterView(
 private fun CurrencyConverterViewPreview() {
     WCSMFinanceiroTheme(dynamicColor = false) {
         CurrencyConverterView {}
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CurrencyDropdown(
+    label: String,
+    isError: Boolean,
+    errorMessage: String,
+    modifier: Modifier = Modifier,
+    onValueSelected: (selectedCurrency: String) -> Unit,
+    onDropdownStateChange: (Boolean) -> Unit
+) {
+    var currency by remember { mutableStateOf("Selecione uma moeda") }
+
+    val currencyDropdownOptions = listOf(
+        "Selecione uma moeda",
+        "AED - Emirados Árabes Unidos",
+        "ARS - Argentina",
+        "AUD - Austrália",
+        "BRL - Brasil",
+        "CAD - Canadá",
+        "CNY - China",
+        "EGP - Egito",
+        "GBP - Reino Unido",
+        "JPY - Japão",
+        "NZD - Nova Zelândia",
+        "THB - Tailândia",
+        "UAH - Ucrânia",
+        "USD - Estados Unidos",
+        "YER - Iêmen"
+    )
+
+    var showCurrencyDropdown by remember { mutableStateOf(false) }
+
+    LaunchedEffect(currency) {
+        if(currency.isNotBlank()) {
+            onValueSelected(currency)
+        }
+    }
+
+    Box(
+        modifier = modifier
+    ) {
+        ExposedDropdownMenuBox(
+            expanded = showCurrencyDropdown,
+            onExpandedChange = { expanded ->
+                showCurrencyDropdown = expanded
+                onDropdownStateChange(expanded)
+            }
+        ) {
+            OutlinedTextField(
+                modifier = Modifier
+                    .menuAnchor()
+                    .width(280.dp),
+                value = currency,
+                onValueChange = {
+                    showCurrencyDropdown = !showCurrencyDropdown
+                },
+                label = {
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                },
+                singleLine = true,
+                isError = isError,
+                supportingText = {
+                    if(errorMessage.isNotBlank()) {
+                        Text(
+                            text = errorMessage,
+                            fontFamily = PoppinsFontFamily
+                        )
+                    }
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.AttachMoney,
+                        contentDescription = "Ícone de dinheiro",
+                        tint = White06Color
+                    )
+                },
+                trailingIcon = {
+                    Icon(
+                        imageVector =
+                        if (showCurrencyDropdown) Icons.Filled.KeyboardArrowUp
+                        else Icons.Filled.KeyboardArrowDown,
+                        contentDescription = "Ícone de seta para cima ou para baixo",
+                        tint = White06Color
+                    )
+                },
+                readOnly = true,
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.None)
+            )
+
+            ExposedDropdownMenu(
+                expanded = showCurrencyDropdown,
+                onDismissRequest = {
+                    showCurrencyDropdown = false
+                    onDropdownStateChange(false)
+                }
+            ) {
+                currencyDropdownOptions.forEach { selectedCurrency ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = selectedCurrency,
+                                fontFamily = PoppinsFontFamily
+                            )
+                        },
+                        onClick = {
+                            currency = selectedCurrency
+                            showCurrencyDropdown = false
+                            onDropdownStateChange(false)
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun CurrencyDropdownPreview() {
+    WCSMFinanceiroTheme(dynamicColor = false) {
+        Column {
+            CurrencyDropdown(
+                label = "Moeda (DE)",
+                isError = false,
+                errorMessage = "",
+                onValueSelected = {},
+                onDropdownStateChange = {}
+            )
+
+            CurrencyDropdown(
+                label = "Moeda (PARA)",
+                isError = false,
+                errorMessage = "",
+                onValueSelected = {},
+                onDropdownStateChange = {}
+            )
+        }
     }
 }

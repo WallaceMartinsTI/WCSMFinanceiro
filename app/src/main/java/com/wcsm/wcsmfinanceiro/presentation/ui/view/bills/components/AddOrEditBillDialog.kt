@@ -66,6 +66,7 @@ import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillState
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppDatePicker
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.ConfirmDeletionDialog
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.XIcon
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.CustomCheckbox
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.MonetaryInputField
@@ -753,62 +754,12 @@ fun AddOrEditBillDialog(
                 }
 
                 if(showConfirmBillDeletionDialog) {
-                    BasicAlertDialog(
-                        onDismissRequest = { showConfirmBillDeletionDialog = false },
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(15.dp))
-                            .border(1.dp, OnSurfaceColor, RoundedCornerShape(15.dp))
-                            .background(SurfaceColor)
-                            .padding(8.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = "EXCLUIR CONTA",
-                                color = PrimaryColor,
-                                fontWeight = FontWeight.Bold,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-
-                            Text(
-                                text = "Tem certeza que deseja excluir a conta: ${billDialogState.title}",
-                                fontFamily = PoppinsFontFamily,
-                                fontWeight = FontWeight.SemiBold,
-                                modifier = Modifier.padding(horizontal = 16.dp)
-                            )
-
-                            Column(
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Button(
-                                    onClick = {
-                                        onDeleteBill(billDialogState)
-                                    },
-                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = ErrorColor
-                                    )
-                                ) {
-                                    Text(
-                                        text = "EXCLUIR",
-                                        fontFamily = PoppinsFontFamily
-                                    )
-                                }
-
-                                Button(
-                                    onClick = { showConfirmBillDeletionDialog = false },
-                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                                ) {
-                                    Text(
-                                        text = "CANCELAR",
-                                        fontFamily = PoppinsFontFamily
-                                    )
-                                }
-                            }
-                        }
-                    }
+                    ConfirmDeletionDialog(
+                        dialogTitle = "EXCLUIR CONTA",
+                        dialogMessage = "Tem certeza que deseja excluir a conta: ${billDialogState.title} ?",
+                        onConfirmDeletion = { onDeleteBill(billDialogState) },
+                        onDismiss = { showConfirmBillDeletionDialog = false }
+                    )
                 }
             }
         }
