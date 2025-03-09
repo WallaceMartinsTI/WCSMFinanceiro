@@ -1,7 +1,6 @@
 package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,11 +26,9 @@ import androidx.compose.material.icons.filled.NoteAlt
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Tag
-import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -61,20 +58,19 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.data.local.model.BillType
 import com.wcsm.wcsmfinanceiro.data.local.model.PaymentType
+import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillOperationType
 import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillState
-import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppDatePicker
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.ConfirmDeletionDialog
-import com.wcsm.wcsmfinanceiro.presentation.ui.component.XIcon
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.CustomCheckbox
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.MonetaryInputField
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.RadioButtonChooser
+import com.wcsm.wcsmfinanceiro.presentation.ui.component.XIcon
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.ErrorColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnBackgroundColor
-import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnSurfaceColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PoppinsFontFamily
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PrimaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.SurfaceColor
@@ -82,16 +78,13 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.bills.BillsViewModel
 import com.wcsm.wcsmfinanceiro.util.brazilianDateToTimeInMillis
-import com.wcsm.wcsmfinanceiro.util.formatMonetaryValue
 import com.wcsm.wcsmfinanceiro.util.getBillTypeFromString
-import com.wcsm.wcsmfinanceiro.util.getDoubleForStringPrice
 import com.wcsm.wcsmfinanceiro.util.getFormattedTags
 import com.wcsm.wcsmfinanceiro.util.getPaymentTypeFromString
 import com.wcsm.wcsmfinanceiro.util.toBrazilianDateString
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddOrEditBillDialog(
     billStateFlow: StateFlow<BillState>,
@@ -122,7 +115,6 @@ fun AddOrEditBillDialog(
     var showDueDatePickerDialog by remember { mutableStateOf(false) }
 
     var tagsToAdd by remember { mutableStateOf("") }
-    var monetaryValue by remember { mutableStateOf("") }
 
     val isBillToEdit by remember { mutableStateOf(billDialogState.billId != 0L) }
     var isModalLoading by remember { mutableStateOf(isBillToEdit) }
@@ -137,9 +129,6 @@ fun AddOrEditBillDialog(
         if (isBillToEdit) {
             selectedDate = billDialogState.date.toBrazilianDateString()
             selectedDueDate = billDialogState.dueDate.toBrazilianDateString()
-
-            monetaryValue = billDialogState.value.toString()
-            monetaryValue = formatMonetaryValue(monetaryValue).replace(".", "")
 
             delay(1500)
             isModalLoading = false
@@ -158,16 +147,6 @@ fun AddOrEditBillDialog(
                 expired = billDialogState.dueDate != 0L && billDialogState.date > billDialogState.dueDate
             )
         )
-    }
-
-    LaunchedEffect(monetaryValue) {
-        if (monetaryValue.isNotBlank()) {
-            onValueChange(
-                billDialogState.copy(
-                    value = getDoubleForStringPrice(monetaryValue)
-                )
-            )
-        }
     }
 
     LaunchedEffect(uiState) {

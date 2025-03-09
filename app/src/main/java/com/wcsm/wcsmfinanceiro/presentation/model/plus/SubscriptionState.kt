@@ -2,7 +2,7 @@ package com.wcsm.wcsmfinanceiro.presentation.model.plus
 
 data class SubscriptionState(
     var subscriptionId: Long = 0,
-    var title: String,
+    var title: String = "",
     var titleErrorMessage: String = "",
     var startDate: Long = 0L,
     var startDateErrorMessage: String = "",
@@ -13,5 +13,6 @@ data class SubscriptionState(
     var durationInMonths: Int = 0,
     var durationInMonthsErrorMessage: String = "",
     var expired: Boolean = false,
-    var automaticRenewal: Boolean = false
+    var automaticRenewal: Boolean = false,
+    var responseErrorMessage: String = ""
 )

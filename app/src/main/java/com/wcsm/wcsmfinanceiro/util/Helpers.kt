@@ -37,7 +37,6 @@ fun formatMonetaryValue(monetaryValue: String) : String {
 }
 
 fun getDoubleForStringPrice(price: String) : Double {
-    println("++++ price: $price")
     var formatedPrice = if(price.length == 1) { // 3 -> 0,03
         "0,0$price"
     } else if(price.length == 2) { // 30 -> 0,30
@@ -45,7 +44,6 @@ fun getDoubleForStringPrice(price: String) : Double {
     } else {
         formatNumberWithComma(price)
     }
-    println("++++ formatedPrice: $formatedPrice")
     formatedPrice = formatedPrice.replace(",", ".")
 
     return formatedPrice.toDoubleOrNull() ?: 0.0

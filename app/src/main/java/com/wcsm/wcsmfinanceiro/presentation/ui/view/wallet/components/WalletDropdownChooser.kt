@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -82,8 +83,8 @@ fun WalletDropdownChooser(
                 singleLine = true,
                 leadingIcon = {
                     Icon(
-                        imageVector = Icons.Default.Category,
-                        contentDescription = "Ícone de categoria",
+                        imageVector = Icons.Default.Wallet,
+                        contentDescription = "Ícone de carteira",
                         tint = White06Color
                     )
                 },

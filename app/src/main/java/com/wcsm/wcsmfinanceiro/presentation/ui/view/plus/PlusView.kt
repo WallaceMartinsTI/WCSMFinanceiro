@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.CurrencyExchange
+import androidx.compose.material.icons.filled.Subscriptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,11 +36,17 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.plus.components.CurrencyConverterView
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.plus.components.InstallmentCalculatorView
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.plus.components.PlusItem
+import com.wcsm.wcsmfinanceiro.presentation.ui.view.plus.components.SubscriptionsView
 
 @Composable
 fun PlusView() {
+    val configuration = LocalConfiguration.current
+
+    val deviceScreenHeight = configuration.screenHeightDp.dp
+
     var showCurrencyConverterView by remember { mutableStateOf(false) }
     var showInstallmentCalculatorView by remember { mutableStateOf(false) }
+    var showSubscriptionsView by remember { mutableStateOf(false) }
 
     val plusOptions = listOf(
         PlusOptionItem(
@@ -48,7 +56,11 @@ fun PlusView() {
         PlusOptionItem(
             icon = Icons.Default.Calculate,
             label = "Calculadora de Parcelas"
-        ) { showInstallmentCalculatorView = true }
+        ) { showInstallmentCalculatorView = true },
+        PlusOptionItem(
+            icon = Icons.Default.Subscriptions,
+            label = "Assinaturas"
+        ) { showSubscriptionsView = true }
     )
 
     Box(
@@ -88,6 +100,12 @@ fun PlusView() {
 
         if(showInstallmentCalculatorView) {
             InstallmentCalculatorView { showInstallmentCalculatorView = false }
+        }
+
+        if(showSubscriptionsView) {
+            SubscriptionsView(
+                deviceScreenHeight = deviceScreenHeight
+            ) { showSubscriptionsView = false }
         }
     }
 }
