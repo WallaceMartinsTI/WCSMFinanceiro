@@ -87,8 +87,11 @@ class BillsViewModel @Inject constructor(
         updateUiState(uiState.value.copy(isLoading = false, error = errorMessage))
     }
 
-    private fun onSuccessResponse(onSuccess: () -> Unit) {
+    private fun onSuccessResponse(onSuccess: () -> Unit = {}) {
         onSuccess()
+
+        resetBillState()
+        getBills()
 
         updateUiState(uiState.value.copy(
             isLoading = false,
@@ -156,10 +159,7 @@ class BillsViewModel @Inject constructor(
                     when(result) {
                         is Response.Loading -> onLoadingResponse()
                         is Response.Error -> onErrorResponse(result.message)
-                        is Response.Success -> onSuccessResponse {
-                            _billStateFlow.value = BillState()
-                            getBills()
-                        }
+                        is Response.Success -> onSuccessResponse()
                     }
                 }
             }
@@ -191,10 +191,9 @@ class BillsViewModel @Inject constructor(
                     when(result) {
                         is Response.Loading -> onLoadingResponse()
                         is Response.Error -> onErrorResponse(result.message)
-                        is Response.Success -> onSuccessResponse {
-                            if(!isUpdatingOnlyTags) {
-                                _billStateFlow.value = BillState()
-                                getBills()
+                        is Response.Success -> {
+                            if (!isUpdatingOnlyTags) {
+                                onSuccessResponse()
                             }
                         }
                     }
@@ -213,10 +212,7 @@ class BillsViewModel @Inject constructor(
                     when(result) {
                         is Response.Loading -> onLoadingResponse()
                         is Response.Error -> onErrorResponse(result.message)
-                        is Response.Success -> onSuccessResponse {
-                            _billStateFlow.value = BillState()
-                            getBills()
-                        }
+                        is Response.Success -> onSuccessResponse()
                     }
                 }
             }

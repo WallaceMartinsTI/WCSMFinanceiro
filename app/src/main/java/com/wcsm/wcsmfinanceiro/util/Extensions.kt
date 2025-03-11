@@ -2,9 +2,11 @@ package com.wcsm.wcsmfinanceiro.util
 
 import android.icu.util.Calendar
 import com.wcsm.wcsmfinanceiro.data.local.entity.Bill
+import com.wcsm.wcsmfinanceiro.data.local.entity.Subscription
 import com.wcsm.wcsmfinanceiro.data.local.entity.Wallet
 import com.wcsm.wcsmfinanceiro.data.local.entity.WalletCard
 import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillState
+import com.wcsm.wcsmfinanceiro.presentation.model.plus.SubscriptionState
 import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletCardState
 import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletState
 import java.text.NumberFormat
@@ -112,5 +114,31 @@ fun WalletCardState.toWalletCard() : WalletCard {
         spent = this.spent,
         available = this.available,
         blocked = this.blocked
+    )
+}
+
+fun Subscription.toSubscriptionState(): SubscriptionState {
+    return SubscriptionState(
+        subscriptionId = this.subscriptionId,
+        title = this.title,
+        startDate = this.startDate,
+        dueDate = this.dueDate,
+        price = this.price,
+        durationInMonths = this.durationInMonths,
+        expired = this.expired,
+        automaticRenewal = this.automaticRenewal
+    )
+}
+
+fun SubscriptionState.toSubscription(): Subscription {
+    return Subscription(
+        subscriptionId = this.subscriptionId,
+        title = this.title,
+        startDate = this.startDate,
+        dueDate = this.dueDate,
+        price = this.price,
+        durationInMonths = this.durationInMonths,
+        expired = this.expired,
+        automaticRenewal = this.automaticRenewal
     )
 }

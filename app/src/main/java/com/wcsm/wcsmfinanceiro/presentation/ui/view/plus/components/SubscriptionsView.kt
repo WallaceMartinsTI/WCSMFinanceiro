@@ -93,9 +93,13 @@ fun SubscriptionsView(
 ) {
     val subscriptionViewModel: SubscriptionViewModel = hiltViewModel()
 
+    val subscriptions by subscriptionViewModel.subscriptions.collectAsStateWithLifecycle()
+
+    val subscriptionsList = remember(subscriptions) { subscriptions ?: emptyList() }
+
     var showAddOrEditSubscription by remember { mutableStateOf(false) }
 
-    val subscriptions = listOf<Subscription>(
+    /*val subscriptionsList = listOf(
         Subscription(
             subscriptionId = 1L,
             title = "Netflix",
@@ -126,7 +130,11 @@ fun SubscriptionsView(
             expired = false,
             automaticRenewal = true
         )
-    )
+    )*/
+
+    LaunchedEffect(Unit) {
+        subscriptionViewModel.getSubscriptions()
+    }
 
     Dialog(
         onDismissRequest = { onDismiss() }
@@ -149,17 +157,19 @@ fun SubscriptionsView(
 
                 Spacer(Modifier.height(16.dp))
 
-                if(subscriptions.isEmpty()) {
+                if(subscriptionsList.isEmpty()) {
                     Text(
                         text = "Sem assinaturas no momento",
                         style = MaterialTheme.typography.labelMedium
                     )
+
+                    Spacer(modifier = Modifier.height(40.dp))
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(subscriptions) { subscription ->
+                        items(subscriptionsList) { subscription ->
                             SubscriptionItem(subscription) { showAddOrEditSubscription = true }
                         }
 
@@ -194,13 +204,13 @@ fun SubscriptionsView(
                 },
                 deviceScreenHeight = deviceScreenHeight,
                 onAddSubscription = { subscriptionState ->
-
+                    subscriptionViewModel.saveSubscription(subscriptionState)
                 },
-                onUpdateSubscription = { subcriptionState ->
-
+                onUpdateSubscription = { subscriptionState ->
+                    subscriptionViewModel.updateSubscription(subscriptionState)
                 },
-                onDeleteSubscription = { subcriptionState ->
-
+                onDeleteSubscription = { subscriptionState ->
+                    subscriptionViewModel.deleteSubscription(subscriptionState)
                 },
                 onDismiss = { showAddOrEditSubscription = false }
             )
@@ -364,7 +374,15 @@ private fun AddOrEditSubscriptionDialog(
                 ) {
                     OutlinedTextField(
                         value = subscriptionState.title,
-                        onValueChange = {},
+                        onValueChange = { newValue ->
+                            if(newValue.length <= 50) {
+                                onValueChange(
+                                    subscriptionState.copy(
+                                        title = newValue
+                                    )
+                                )
+                            }
+                        },
                         modifier = Modifier
                             .width(280.dp)
                             .focusRequester(focusRequester[0]),
