@@ -135,13 +135,18 @@ class SubscriptionViewModel @Inject constructor(
         updateUiState(uiState.value.copy(isLoading = false, error = errorMessage))
     }
 
-    private fun onSuccessResponse(onSuccess: () -> Unit) {
+    private fun onSuccessResponse(type: CrudOperationType?, onSuccess: () -> Unit = {}) {
         onSuccess()
 
         updateUiState(uiState.value.copy(
             isLoading = false,
             success = true
         ))
+
+        if(type != null) {
+            resetSubscriptionState()
+            getSubscriptions()
+        }
     }
 
     fun getSubscriptions() {
@@ -150,7 +155,7 @@ class SubscriptionViewModel @Inject constructor(
                 when(result) {
                     is Response.Loading -> onLoadingResponse()
                     is Response.Error -> onErrorResponse(result.message)
-                    is Response.Success -> onSuccessResponse {
+                    is Response.Success -> onSuccessResponse(type = null) {
                         _subscriptions.value = result.data.reversed()
                     }
                 }
@@ -170,10 +175,7 @@ class SubscriptionViewModel @Inject constructor(
                     when(result) {
                         is Response.Loading -> onLoadingResponse()
                         is Response.Error -> onErrorResponse(result.message)
-                        is Response.Success -> onSuccessResponse {
-                            resetSubscriptionState()
-                            getSubscriptions()
-                        }
+                        is Response.Success -> onSuccessResponse(type = CrudOperationType.SAVE)
                     }
                 }
             }
@@ -192,10 +194,7 @@ class SubscriptionViewModel @Inject constructor(
                     when(result) {
                         is Response.Loading -> onLoadingResponse()
                         is Response.Error -> onErrorResponse(result.message)
-                        is Response.Success -> onSuccessResponse {
-                            resetSubscriptionState()
-                            getSubscriptions()
-                        }
+                        is Response.Success -> onSuccessResponse(type = CrudOperationType.UPDATE)
                     }
                 }
             }
@@ -214,10 +213,7 @@ class SubscriptionViewModel @Inject constructor(
                     when(result) {
                         is Response.Loading -> onLoadingResponse()
                         is Response.Error -> onErrorResponse(result.message)
-                        is Response.Success -> onSuccessResponse {
-                            resetSubscriptionState()
-                            getSubscriptions()
-                        }
+                        is Response.Success -> onSuccessResponse(type = CrudOperationType.DELETE)
                     }
                 }
             }

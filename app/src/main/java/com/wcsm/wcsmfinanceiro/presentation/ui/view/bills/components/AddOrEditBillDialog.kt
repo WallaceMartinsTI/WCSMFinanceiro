@@ -127,8 +127,8 @@ fun AddOrEditBillDialog(
         billHasTag = billDialogState.tags.isNotEmpty()
 
         if (isBillToEdit) {
-            selectedDate = billDialogState.date.toBrazilianDateString()
-            selectedDueDate = billDialogState.dueDate.toBrazilianDateString()
+            selectedDate = if(billDialogState.date == 0L) "" else (billDialogState.date.toBrazilianDateString())
+            selectedDueDate = if(billDialogState.dueDate == 0L) "" else (billDialogState.dueDate.toBrazilianDateString())
 
             delay(1500)
             isModalLoading = false
@@ -390,6 +390,11 @@ fun AddOrEditBillDialog(
                             if (selectedDate != "") {
                                 XIcon {
                                     selectedDate = ""
+                                    onValueChange(
+                                        billDialogState.copy(
+                                            date = 0L
+                                        )
+                                    )
                                     focusRequester[2].requestFocus()
                                 }
                             }
@@ -543,13 +548,7 @@ fun AddOrEditBillDialog(
                     ) {
                         Checkbox(
                             checked = billDialogState.expired,
-                            onCheckedChange = {
-                                onValueChange(
-                                    billDialogState.copy(
-                                        expired = !billDialogState.expired
-                                    )
-                                )
-                            },
+                            onCheckedChange = {},
                             enabled = false
                         )
 

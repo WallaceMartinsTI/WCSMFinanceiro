@@ -87,13 +87,18 @@ class BillsViewModel @Inject constructor(
         updateUiState(uiState.value.copy(isLoading = false, error = errorMessage))
     }
 
-    private fun onSuccessResponse(onSuccess: () -> Unit) {
+    private fun onSuccessResponse(type: CrudOperationType?, onSuccess: () -> Unit = {}) {
         onSuccess()
 
         updateUiState(uiState.value.copy(
             isLoading = false,
             success = true
         ))
+
+        if(type != null) {
+            resetBillState()
+            getBills()
+        }
     }
 
     fun applyDateRangeFilter(startDate: Long, endDate: Long) {
@@ -104,7 +109,7 @@ class BillsViewModel @Inject constructor(
                 when(result) {
                     is Response.Loading -> onLoadingResponse()
                     is Response.Error -> onErrorResponse(result.message)
-                    is Response.Success -> onSuccessResponse {
+                    is Response.Success -> onSuccessResponse(type = null) {
                         _bills.value = result.data.sortedBy { bill ->
                             bill.date
                         }
@@ -122,7 +127,7 @@ class BillsViewModel @Inject constructor(
                 when(result) {
                     is Response.Loading -> onLoadingResponse()
                     is Response.Error -> onErrorResponse(result.message)
-                    is Response.Success -> onSuccessResponse {
+                    is Response.Success -> onSuccessResponse(type = null) {
                         _bills.value = result.data
                     }
                 }
@@ -136,7 +141,7 @@ class BillsViewModel @Inject constructor(
                 when(result) {
                     is Response.Loading -> onLoadingResponse()
                     is Response.Error -> onErrorResponse(result.message)
-                    is Response.Success -> onSuccessResponse {
+                    is Response.Success -> onSuccessResponse(type = null) {
                         _bills.value = result.data.reversed()
                     }
                 }
@@ -156,10 +161,7 @@ class BillsViewModel @Inject constructor(
                     when(result) {
                         is Response.Loading -> onLoadingResponse()
                         is Response.Error -> onErrorResponse(result.message)
-                        is Response.Success -> onSuccessResponse {
-                            resetBillState()
-                            getBills()
-                        }
+                        is Response.Success -> onSuccessResponse(type = CrudOperationType.SAVE)
                     }
                 }
             }
@@ -191,11 +193,9 @@ class BillsViewModel @Inject constructor(
                     when(result) {
                         is Response.Loading -> onLoadingResponse()
                         is Response.Error -> onErrorResponse(result.message)
-                        is Response.Success -> onSuccessResponse {
-                            if (!isUpdatingOnlyTags) {
-                                resetBillState()
-                                getBills()
-                            }
+                        is Response.Success -> {
+                            val type = if(isUpdatingOnlyTags) null else CrudOperationType.UPDATE
+                            onSuccessResponse(type = type)
                         }
                     }
                 }
@@ -213,10 +213,7 @@ class BillsViewModel @Inject constructor(
                     when(result) {
                         is Response.Loading -> onLoadingResponse()
                         is Response.Error -> onErrorResponse(result.message)
-                        is Response.Success -> onSuccessResponse {
-                            resetBillState()
-                            getBills()
-                        }
+                        is Response.Success -> onSuccessResponse(type = CrudOperationType.SAVE)
                     }
                 }
             }

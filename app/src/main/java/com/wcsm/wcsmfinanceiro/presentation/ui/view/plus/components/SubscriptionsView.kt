@@ -36,6 +36,7 @@ import androidx.compose.material.icons.filled.Subscriptions
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -398,6 +399,14 @@ private fun AddOrEditSubscriptionDialog(
         }
     }
 
+    LaunchedEffect(subscriptionState.startDate, subscriptionState.dueDate) {
+        onValueChange(
+            subscriptionState.copy(
+                expired = subscriptionState.dueDate != 0L && subscriptionState.startDate > subscriptionState.dueDate
+            )
+        )
+    }
+
     LaunchedEffect(uiState) {
         uiState.operationType?.let {
             if(uiState.success) {
@@ -702,14 +711,22 @@ private fun AddOrEditSubscriptionDialog(
                         ),
                     )
 
-                    CustomCheckbox(
-                        checkboxText = "Expirada?",
-                        alreadyChecked = subscriptionState.expired,
-                    ) { isChecked ->
-                        onValueChange(
-                            subscriptionState.copy(
-                                expired = isChecked
-                            )
+                    Row(
+                        modifier = Modifier
+                            .width(280.dp)
+                            .padding(bottom = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = subscriptionState.expired,
+                            onCheckedChange = {},
+                            enabled = false
+                        )
+
+                        Text(
+                            text = "Assinatura expirada.",
+                            fontFamily = PoppinsFontFamily,
+                            color = if (subscriptionState.expired) PrimaryColor else White06Color
                         )
                     }
 
