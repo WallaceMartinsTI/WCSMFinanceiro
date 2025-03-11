@@ -59,7 +59,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.data.local.model.BillType
 import com.wcsm.wcsmfinanceiro.data.local.model.PaymentType
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
-import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillOperationType
+import com.wcsm.wcsmfinanceiro.presentation.model.CrudOperationType
 import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillState
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppDatePicker
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
@@ -88,7 +88,7 @@ import kotlinx.coroutines.flow.StateFlow
 @Composable
 fun AddOrEditBillDialog(
     billStateFlow: StateFlow<BillState>,
-    uiStateFlow: StateFlow<UiState<BillOperationType>>,
+    uiStateFlow: StateFlow<UiState<CrudOperationType>>,
     onValueChange: (updatedValue: BillState) -> Unit,
     deviceScreenHeight: Dp,
     onAddBill: (billState: BillState) -> Unit,

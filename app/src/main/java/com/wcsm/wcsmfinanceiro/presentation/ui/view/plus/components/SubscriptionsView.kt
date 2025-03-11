@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -54,6 +55,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -65,6 +68,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.data.local.entity.Subscription
+import com.wcsm.wcsmfinanceiro.presentation.model.CrudOperationType
+import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.model.plus.SubscriptionState
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppDatePicker
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
@@ -81,23 +86,33 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.plus.viewmodel.SubscriptionViewModel
 import com.wcsm.wcsmfinanceiro.util.brazilianDateToTimeInMillis
+import com.wcsm.wcsmfinanceiro.util.showToastMessage
 import com.wcsm.wcsmfinanceiro.util.toBrazilianDateString
 import com.wcsm.wcsmfinanceiro.util.toBrazilianReal
+import com.wcsm.wcsmfinanceiro.util.toSubscriptionState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun SubscriptionsView(
-    deviceScreenHeight: Dp,
     onDismiss: () -> Unit
 ) {
     val subscriptionViewModel: SubscriptionViewModel = hiltViewModel()
 
+    val context = LocalContext.current
+    val configuration = LocalConfiguration.current
+
+    val deviceScreenHeight = configuration.screenHeightDp.dp
+
     val subscriptions by subscriptionViewModel.subscriptions.collectAsStateWithLifecycle()
+    val uiState by subscriptionViewModel.uiState.collectAsStateWithLifecycle()
 
     val subscriptionsList = remember(subscriptions) { subscriptions ?: emptyList() }
 
+    var isLoading by remember { mutableStateOf(uiState.isLoading) }
+
     var showAddOrEditSubscription by remember { mutableStateOf(false) }
+
 
     /*val subscriptionsList = listOf(
         Subscription(
@@ -136,14 +151,47 @@ fun SubscriptionsView(
         subscriptionViewModel.getSubscriptions()
     }
 
+    LaunchedEffect(uiState) {
+        isLoading = uiState.isLoading
+
+        uiState.error?.let { responseErrorMessage ->
+            subscriptionViewModel.updateSubscriptionState(
+                subscriptionViewModel.subscriptionStateFlow.value.copy(
+                    responseErrorMessage = responseErrorMessage
+                )
+            )
+        }
+
+        if(uiState.success) {
+            uiState.operationType?.let { operationType ->
+                when(operationType) {
+                    CrudOperationType.SAVE -> {
+                        showToastMessage(context, "Assinatura salva!")
+                    }
+                    CrudOperationType.UPDATE -> {
+                        showToastMessage(context, "Assinatura atualizada!")
+
+                    }
+                    CrudOperationType.DELETE -> {
+                        showToastMessage(context, "Assinatura removida!")
+
+                    }
+                }
+            }
+
+            subscriptionViewModel.resetUiState()
+        }
+    }
+
     Dialog(
         onDismissRequest = { onDismiss() }
     ) {
+        val maxHeight = deviceScreenHeight * 0.5f
         Box(
           modifier = Modifier
               .clip(RoundedCornerShape(15.dp))
-              .background(SurfaceColor)
-              .padding(16.dp),
+              .heightIn(max = maxHeight)
+              .background(SurfaceColor),
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -157,24 +205,35 @@ fun SubscriptionsView(
 
                 Spacer(Modifier.height(16.dp))
 
-                if(subscriptionsList.isEmpty()) {
-                    Text(
-                        text = "Sem assinaturas no momento",
-                        style = MaterialTheme.typography.labelMedium
+                if(isLoading) {
+                    AppLoader(
+                        modifier = Modifier.size(80.dp)
                     )
-
-                    Spacer(modifier = Modifier.height(40.dp))
                 } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(subscriptionsList) { subscription ->
-                            SubscriptionItem(subscription) { showAddOrEditSubscription = true }
-                        }
+                    if(subscriptionsList.isEmpty()) {
+                        Text(
+                            text = "Sem assinaturas no momento",
+                            style = MaterialTheme.typography.labelMedium
+                        )
 
-                        item {
-                            Spacer(modifier = Modifier.height(40.dp))
+                        Spacer(modifier = Modifier.height(40.dp))
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(subscriptionsList) { subscription ->
+                                SubscriptionItem(subscription = subscription) {
+                                    subscriptionViewModel.updateSubscriptionState(
+                                        subscription.toSubscriptionState()
+                                    )
+                                    showAddOrEditSubscription = true
+                                }
+                            }
+
+                            item {
+                                Spacer(modifier = Modifier.height(40.dp))
+                            }
                         }
                     }
                 }
@@ -199,6 +258,7 @@ fun SubscriptionsView(
         if(showAddOrEditSubscription) {
             AddOrEditSubscriptionDialog(
                 subscriptionStateFlow = subscriptionViewModel.subscriptionStateFlow,
+                uiStateFlow = subscriptionViewModel.uiState,
                 onValueChange = { updatedValue ->
                     subscriptionViewModel.updateSubscriptionState(updatedValue)
                 },
@@ -212,7 +272,10 @@ fun SubscriptionsView(
                 onDeleteSubscription = { subscriptionState ->
                     subscriptionViewModel.deleteSubscription(subscriptionState)
                 },
-                onDismiss = { showAddOrEditSubscription = false }
+                onDismiss = {
+                    subscriptionViewModel.resetSubscriptionState()
+                    showAddOrEditSubscription = false
+                }
             )
         }
 
@@ -223,7 +286,7 @@ fun SubscriptionsView(
 @Composable
 private fun SubscriptionsViewPreview() {
     WCSMFinanceiroTheme {
-        SubscriptionsView(700.dp) {}
+        SubscriptionsView {}
     }
 }
 
@@ -302,6 +365,7 @@ private fun SubscriptionItemPreview() {
 @Composable
 private fun AddOrEditSubscriptionDialog(
     subscriptionStateFlow: StateFlow<SubscriptionState>,
+    uiStateFlow: StateFlow<UiState<CrudOperationType>>,
     onValueChange: (updatedValue: SubscriptionState) -> Unit,
     deviceScreenHeight: Dp,
     onAddSubscription: (subscriptionState: SubscriptionState) -> Unit,
@@ -310,6 +374,7 @@ private fun AddOrEditSubscriptionDialog(
     onDismiss: () -> Unit
 ) {
     val subscriptionState by subscriptionStateFlow.collectAsStateWithLifecycle()
+    val uiState by uiStateFlow.collectAsStateWithLifecycle()
 
     val focusRequester = remember { List(7) { FocusRequester() } }
 
@@ -330,6 +395,14 @@ private fun AddOrEditSubscriptionDialog(
 
             delay(1500)
             isModalLoading = false
+        }
+    }
+
+    LaunchedEffect(uiState) {
+        uiState.operationType?.let {
+            if(uiState.success) {
+                onDismiss()
+            }
         }
     }
 
@@ -395,7 +468,7 @@ private fun AddOrEditSubscriptionDialog(
                         placeholder = {
                             Text(
                                 text = "Digite o título da assinatura",
-                                fontFamily = PoppinsFontFamily
+                                style = MaterialTheme.typography.bodySmall
                             )
                         },
                         leadingIcon = {
@@ -418,11 +491,12 @@ private fun AddOrEditSubscriptionDialog(
                             }
                         },
                         singleLine = true,
+                        isError = subscriptionState.titleErrorMessage.isNotBlank(),
                         supportingText = {
                             if(subscriptionState.titleErrorMessage.isNotBlank()) {
                                 Text(
                                     text = subscriptionState.titleErrorMessage,
-                                    fontFamily = PoppinsFontFamily,
+                                    style = MaterialTheme.typography.bodySmall
                                 )
                             }
                         },
@@ -542,7 +616,7 @@ private fun AddOrEditSubscriptionDialog(
                                 showDueDatePickerDialog = false
                             }
                         ) { selectedDateResult ->
-                            selectedDate = selectedDateResult.toBrazilianDateString()
+                            selectedDueDate = selectedDateResult.toBrazilianDateString()
                             onValueChange(
                                 subscriptionState.copy(
                                     dueDate = selectedDate.brazilianDateToTimeInMillis() ?: 0L
@@ -613,6 +687,7 @@ private fun AddOrEditSubscriptionDialog(
                             }
                         },
                         singleLine = true,
+                        isError = subscriptionState.durationInMonthsErrorMessage.isNotBlank(),
                         supportingText = {
                             if(subscriptionState.durationInMonthsErrorMessage.isNotBlank()) {
                                 Text(
@@ -746,7 +821,7 @@ private fun AddOrEditSubscriptionDialog(
                 if(showConfirmSubscriptionDeletionDialog) {
                     ConfirmDeletionDialog(
                         dialogTitle = "EXCLUIR ASSINATURA",
-                        dialogMessage = "Tem certeza que deseja excluir a assinatura: ... ?",
+                        dialogMessage = "Tem certeza que deseja excluir a assinatura: ${subscriptionState.title} ?",
                         onConfirmDeletion = { onDeleteSubscription(subscriptionState) },
                         onDismiss = { showConfirmSubscriptionDeletionDialog = false }
                     )
@@ -764,6 +839,7 @@ private fun AddOrEditSubscriptionDialogPreview() {
 
         AddOrEditSubscriptionDialog(
             subscriptionStateFlow = subscriptionViewModel.subscriptionStateFlow,
+            uiStateFlow = subscriptionViewModel.uiState,
             onValueChange = {},
             deviceScreenHeight = 700.dp,
             onAddSubscription = {},

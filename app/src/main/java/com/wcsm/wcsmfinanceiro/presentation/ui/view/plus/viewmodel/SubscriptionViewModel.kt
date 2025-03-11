@@ -8,6 +8,8 @@ import com.wcsm.wcsmfinanceiro.domain.usecase.plus.subscriptions.DeleteSubscript
 import com.wcsm.wcsmfinanceiro.domain.usecase.plus.subscriptions.GetSubscriptionsUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.plus.subscriptions.SaveSubscriptionUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.plus.subscriptions.UpdateSubscriptionUseCase
+import com.wcsm.wcsmfinanceiro.presentation.model.CrudOperationType
+import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.model.plus.SubscriptionState
 import com.wcsm.wcsmfinanceiro.util.toSubscription
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,6 +26,72 @@ class SubscriptionViewModel @Inject constructor(
     private val updateSubscriptionUseCase: UpdateSubscriptionUseCase,
     private val deleteSubscriptionUseCase: DeleteSubscriptionUseCase
 ) : ViewModel() {
+    val subscriptionsList = listOf(
+        Subscription(
+            subscriptionId = 994L,
+            title = "Netflix",
+            startDate = 1L,
+            dueDate = 1L,
+            durationInMonths = 3,
+            price = 75.90,
+            expired = false,
+            automaticRenewal = true
+        ),
+        Subscription(
+            subscriptionId = 995L,
+            title = "Twitch",
+            startDate = 1L,
+            dueDate = 1L,
+            durationInMonths = 3,
+            price = 75.90,
+            expired = false,
+            automaticRenewal = true
+        ),
+        Subscription(
+            subscriptionId = 996L,
+            title = "Amazon Music",
+            startDate = 1L,
+            dueDate = 1L,
+            durationInMonths = 3,
+            price = 75.90,
+            expired = false,
+            automaticRenewal = true
+        ),
+        Subscription(
+            subscriptionId = 997L,
+            title = "Netflix",
+            startDate = 1L,
+            dueDate = 1L,
+            durationInMonths = 3,
+            price = 75.90,
+            expired = false,
+            automaticRenewal = true
+        ),
+        Subscription(
+            subscriptionId = 998L,
+            title = "Twitch",
+            startDate = 1L,
+            dueDate = 1L,
+            durationInMonths = 3,
+            price = 75.90,
+            expired = false,
+            automaticRenewal = true
+        ),
+        Subscription(
+            subscriptionId = 999L,
+            title = "Amazon Music",
+            startDate = 1L,
+            dueDate = 1L,
+            durationInMonths = 3,
+            price = 75.90,
+            expired = false,
+            automaticRenewal = true
+        )
+    )
+
+    private val _uiState = MutableStateFlow(UiState<CrudOperationType>())
+    val uiState = _uiState.asStateFlow()
+
     private val _subscriptionStateFlow = MutableStateFlow(SubscriptionState())
     val subscriptionStateFlow = _subscriptionStateFlow.asStateFlow()
 
@@ -34,18 +102,56 @@ class SubscriptionViewModel @Inject constructor(
         _subscriptionStateFlow.value = updatedState
     }
 
+    fun updateUiState(uiState: UiState<CrudOperationType>) {
+        _uiState.value = uiState
+    }
+
     fun resetSubscriptionState() {
         _subscriptionStateFlow.value = SubscriptionState()
+    }
+
+    fun resetUiState() {
+        _uiState.value = UiState()
+    }
+
+    fun resetSubscriptionStateErrorMessage() {
+        updateSubscriptionState(
+            subscriptionStateFlow.value.copy(
+                titleErrorMessage = "",
+                startDateErrorMessage = "",
+                dueDateErrorMessage = "",
+                priceErrorMessage = "",
+                durationInMonthsErrorMessage = "",
+                responseErrorMessage = ""
+            )
+        )
+    }
+
+    private fun onLoadingResponse() {
+        updateUiState(uiState.value.copy(isLoading = true))
+    }
+
+    private fun onErrorResponse(errorMessage: String) {
+        updateUiState(uiState.value.copy(isLoading = false, error = errorMessage))
+    }
+
+    private fun onSuccessResponse(onSuccess: () -> Unit) {
+        onSuccess()
+
+        updateUiState(uiState.value.copy(
+            isLoading = false,
+            success = true
+        ))
     }
 
     fun getSubscriptions() {
         viewModelScope.launch(Dispatchers.IO) {
             getSubscriptionsUseCase().collect { result ->
                 when(result) {
-                    is Response.Loading -> {}
-                    is Response.Error -> {}
-                    is Response.Success -> {
-                        _subscriptions.value = result.data
+                    is Response.Loading -> onLoadingResponse()
+                    is Response.Error -> onErrorResponse(result.message)
+                    is Response.Success -> onSuccessResponse {
+                        _subscriptions.value = result.data.reversed()
                     }
                 }
             }
@@ -53,15 +159,21 @@ class SubscriptionViewModel @Inject constructor(
     }
 
     fun saveSubscription(subscriptionState: SubscriptionState) {
+        resetSubscriptionStateErrorMessage()
+
         viewModelScope.launch(Dispatchers.IO) {
+            updateUiState(uiState.value.copy(operationType = CrudOperationType.SAVE))
 
             if(isSubscriptionStateValid()) {
                 val subscription = subscriptionState.toSubscription()
                 saveSubscriptionUseCase(subscription).collect { result ->
                     when(result) {
-                        is Response.Loading -> {}
-                        is Response.Error -> {}
-                        is Response.Success -> {}
+                        is Response.Loading -> onLoadingResponse()
+                        is Response.Error -> onErrorResponse(result.message)
+                        is Response.Success -> onSuccessResponse {
+                            resetSubscriptionState()
+                            getSubscriptions()
+                        }
                     }
                 }
             }
@@ -69,15 +181,21 @@ class SubscriptionViewModel @Inject constructor(
     }
 
     fun updateSubscription(subscriptionState: SubscriptionState) {
+        resetSubscriptionStateErrorMessage()
+
         viewModelScope.launch(Dispatchers.IO) {
+            updateUiState(uiState.value.copy(operationType = CrudOperationType.UPDATE))
 
             if(isSubscriptionStateValid()) {
                 val subscription = subscriptionState.toSubscription()
                 updateSubscriptionUseCase(subscription).collect { result ->
                     when(result) {
-                        is Response.Loading -> {}
-                        is Response.Error -> {}
-                        is Response.Success -> {}
+                        is Response.Loading -> onLoadingResponse()
+                        is Response.Error -> onErrorResponse(result.message)
+                        is Response.Success -> onSuccessResponse {
+                            resetSubscriptionState()
+                            getSubscriptions()
+                        }
                     }
                 }
             }
@@ -85,15 +203,21 @@ class SubscriptionViewModel @Inject constructor(
     }
 
     fun deleteSubscription(subscriptionState: SubscriptionState) {
+        resetSubscriptionStateErrorMessage()
+
         viewModelScope.launch(Dispatchers.IO) {
+            updateUiState(uiState.value.copy(operationType = CrudOperationType.DELETE))
 
             if(isSubscriptionStateValid()) {
                 val subscription = subscriptionState.toSubscription()
                 deleteSubscriptionUseCase(subscription).collect { result ->
                     when(result) {
-                        is Response.Loading -> {}
-                        is Response.Error -> {}
-                        is Response.Success -> {}
+                        is Response.Loading -> onLoadingResponse()
+                        is Response.Error -> onErrorResponse(result.message)
+                        is Response.Success -> onSuccessResponse {
+                            resetSubscriptionState()
+                            getSubscriptions()
+                        }
                     }
                 }
             }

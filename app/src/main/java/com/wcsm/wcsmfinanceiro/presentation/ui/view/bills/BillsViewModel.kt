@@ -10,7 +10,7 @@ import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsByTextUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.SaveBillUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.UpdateBillUseCase
-import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillOperationType
+import com.wcsm.wcsmfinanceiro.presentation.model.CrudOperationType
 import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillState
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.util.toBill
@@ -31,7 +31,7 @@ class BillsViewModel @Inject constructor(
     private val getBillsByTextUseCase: GetBillsByTextUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(UiState<BillOperationType>())
+    private val _uiState = MutableStateFlow(UiState<CrudOperationType>())
     val uiState = _uiState.asStateFlow()
 
     private val _billStateFlow = MutableStateFlow(BillState())
@@ -51,7 +51,7 @@ class BillsViewModel @Inject constructor(
         _billStateFlow.value = updatedState
     }
 
-    fun updateUiState(uiState: UiState<BillOperationType>) {
+    fun updateUiState(uiState: UiState<CrudOperationType>) {
         _uiState.value = uiState
     }
 
@@ -87,11 +87,8 @@ class BillsViewModel @Inject constructor(
         updateUiState(uiState.value.copy(isLoading = false, error = errorMessage))
     }
 
-    private fun onSuccessResponse(onSuccess: () -> Unit = {}) {
+    private fun onSuccessResponse(onSuccess: () -> Unit) {
         onSuccess()
-
-        resetBillState()
-        getBills()
 
         updateUiState(uiState.value.copy(
             isLoading = false,
@@ -151,7 +148,7 @@ class BillsViewModel @Inject constructor(
         resetBillStateErrorMessages()
 
         viewModelScope.launch(Dispatchers.IO) {
-            updateUiState(uiState.value.copy(operationType = BillOperationType.SAVE))
+            updateUiState(uiState.value.copy(operationType = CrudOperationType.SAVE))
 
             if(isBillStateValid()) {
                 val bill = billState.toBill()
@@ -159,7 +156,10 @@ class BillsViewModel @Inject constructor(
                     when(result) {
                         is Response.Loading -> onLoadingResponse()
                         is Response.Error -> onErrorResponse(result.message)
-                        is Response.Success -> onSuccessResponse()
+                        is Response.Success -> onSuccessResponse {
+                            resetBillState()
+                            getBills()
+                        }
                     }
                 }
             }
@@ -183,7 +183,7 @@ class BillsViewModel @Inject constructor(
         resetBillStateErrorMessages()
 
         viewModelScope.launch(Dispatchers.IO) {
-            updateUiState(uiState.value.copy(operationType = BillOperationType.UPDATE))
+            updateUiState(uiState.value.copy(operationType = CrudOperationType.UPDATE))
 
             if(isBillStateValid()) {
                 val bill = billState.toBill()
@@ -191,9 +191,10 @@ class BillsViewModel @Inject constructor(
                     when(result) {
                         is Response.Loading -> onLoadingResponse()
                         is Response.Error -> onErrorResponse(result.message)
-                        is Response.Success -> {
+                        is Response.Success -> onSuccessResponse {
                             if (!isUpdatingOnlyTags) {
-                                onSuccessResponse()
+                                resetBillState()
+                                getBills()
                             }
                         }
                     }
@@ -204,7 +205,7 @@ class BillsViewModel @Inject constructor(
 
     fun deleteBill(billState: BillState) {
         viewModelScope.launch(Dispatchers.IO) {
-            updateUiState(uiState.value.copy(operationType = BillOperationType.DELETE))
+            updateUiState(uiState.value.copy(operationType = CrudOperationType.DELETE))
 
             if(isBillStateValid()) {
                 val bill = billState.toBill()
@@ -212,7 +213,10 @@ class BillsViewModel @Inject constructor(
                     when(result) {
                         is Response.Loading -> onLoadingResponse()
                         is Response.Error -> onErrorResponse(result.message)
-                        is Response.Success -> onSuccessResponse()
+                        is Response.Success -> onSuccessResponse {
+                            resetBillState()
+                            getBills()
+                        }
                     }
                 }
             }

@@ -13,7 +13,7 @@ import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.SaveBillUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.UpdateBillUseCase
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
-import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillOperationType
+import com.wcsm.wcsmfinanceiro.presentation.model.CrudOperationType
 import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillState
 import com.wcsm.wcsmfinanceiro.util.toBill
 import kotlinx.coroutines.flow.flow
@@ -107,7 +107,7 @@ class BillsViewModelTest {
         )
 
         // GIVEN: A new uiState to be updated
-        val uiState = UiState<BillOperationType>()
+        val uiState = UiState<CrudOperationType>()
 
         billsViewModel.uiState.test {
             // At first uiState should start with an empty UiState
@@ -191,7 +191,7 @@ class BillsViewModelTest {
         )
 
         // GIVEN: A reset ui state
-        val uiState = UiState<BillOperationType>()
+        val uiState = UiState<CrudOperationType>()
 
         billsViewModel.uiState.test {
             // At first uiState state should start with an empty UiState
@@ -502,12 +502,12 @@ class BillsViewModelTest {
         billsViewModel.updateBillState(billToBeSaved)
 
         billsViewModel.uiState.test {
-            assertThat(awaitItem()).isEqualTo(UiState<BillOperationType>())
+            assertThat(awaitItem()).isEqualTo(UiState<CrudOperationType>())
 
             // WHEN: Save the bill
             billsViewModel.saveBill(billToBeSaved)
 
-            assertThat(awaitItem().operationType).isEqualTo(BillOperationType.SAVE)
+            assertThat(awaitItem().operationType).isEqualTo(CrudOperationType.SAVE)
 
             // THEN: Should emit success
             assertThat(awaitItem().success).isTrue()
@@ -592,12 +592,12 @@ class BillsViewModelTest {
         billsViewModel.updateBillState(billToBeUpdated)
 
         billsViewModel.uiState.test {
-            assertThat(awaitItem()).isEqualTo(UiState<BillOperationType>())
+            assertThat(awaitItem()).isEqualTo(UiState<CrudOperationType>())
 
             // WHEN: Update the bill
             billsViewModel.updateBill(billToBeUpdated)
 
-            assertThat(awaitItem().operationType).isEqualTo(BillOperationType.UPDATE)
+            assertThat(awaitItem().operationType).isEqualTo(CrudOperationType.UPDATE)
 
             // THEN: Should emit success
             assertThat(awaitItem().success).isTrue()
@@ -641,12 +641,12 @@ class BillsViewModelTest {
         billsViewModel.updateBillState(billToBeDeleted)
 
         billsViewModel.uiState.test {
-            assertThat(awaitItem()).isEqualTo(UiState<BillOperationType>())
+            assertThat(awaitItem()).isEqualTo(UiState<CrudOperationType>())
 
             // WHEN: Delete the bill
             billsViewModel.deleteBill(billToBeDeleted)
 
-            assertThat(awaitItem().operationType).isEqualTo(BillOperationType.DELETE)
+            assertThat(awaitItem().operationType).isEqualTo(CrudOperationType.DELETE)
 
             // THEN: Should emit success
             assertThat(awaitItem().success).isTrue()

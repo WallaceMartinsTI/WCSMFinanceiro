@@ -42,8 +42,6 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.view.plus.components.Subscription
 fun PlusView() {
     val configuration = LocalConfiguration.current
 
-    val deviceScreenHeight = configuration.screenHeightDp.dp
-
     var showCurrencyConverterView by remember { mutableStateOf(false) }
     var showInstallmentCalculatorView by remember { mutableStateOf(false) }
     var showSubscriptionsView by remember { mutableStateOf(false) }
@@ -103,9 +101,7 @@ fun PlusView() {
         }
 
         if(showSubscriptionsView) {
-            SubscriptionsView(
-                deviceScreenHeight = deviceScreenHeight
-            ) { showSubscriptionsView = false }
+            SubscriptionsView { showSubscriptionsView = false }
         }
     }
 }
