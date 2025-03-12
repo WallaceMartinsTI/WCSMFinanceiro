@@ -416,12 +416,17 @@ class BillsDaoTest {
         billsDao.saveBill(bill1)
         billsDao.saveBill(bill2)
 
-        // WHEN: Deleting both bills
-        billsDao.deleteBill(bill1)
-        billsDao.deleteBill(bill2)
 
-        // THEN: The database should be empty
         billsDao.selectAllBills().test {
+            // The bills list size in db should match with 2 (2 bills added)
+            val billsInDb = awaitItem()
+            assertThat(billsInDb.size).isEqualTo(2)
+
+            // WHEN: Deleting both bills
+            billsDao.deleteBill(bill1)
+            billsDao.deleteBill(bill2)
+
+            // THEN: The database should be empty
             assertThat(awaitItem()).isEmpty()
 
             // Important: Cancels the flow to prevent coroutine leaks
@@ -481,7 +486,7 @@ class BillsDaoTest {
     }
 
     @Test
-    fun deleteBill_deleteSameBillTwice_shouldReturnZeroOnSecondDelete() = runTest {
+    fun deleteBill_deleteSameBillTwice_shouldReturnZeroOnSecondDelete() {
         // GIVEN: A bill is created and saved in the database
         val bill = Bill(
             billId = 1,
@@ -632,12 +637,15 @@ class BillsDaoTest {
             tags = listOf("lazer", "casa", "construção")
         )
 
-        // Saving the bills in the database
+        // Saving and deleting the bills in the database
         billsDao.saveBill(bill)
-        billsDao.deleteBill(bill)
 
-        // WHEN: Selecting all bills
         billsDao.selectAllBills().test {
+            assertThat(awaitItem()).contains(bill)
+
+            // WHEN: Selecting all bills
+            billsDao.deleteBill(bill)
+
             // THEN: The deleted bill should not be in the list
             assertThat(awaitItem()).doesNotContain(bill)
 
