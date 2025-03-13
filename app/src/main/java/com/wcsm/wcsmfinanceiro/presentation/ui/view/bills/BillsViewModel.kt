@@ -213,7 +213,7 @@ class BillsViewModel @Inject constructor(
                     when(result) {
                         is Response.Loading -> onLoadingResponse()
                         is Response.Error -> onErrorResponse(result.message)
-                        is Response.Success -> onSuccessResponse(type = CrudOperationType.SAVE)
+                        is Response.Success -> onSuccessResponse(type = CrudOperationType.DELETE)
                     }
                 }
             }

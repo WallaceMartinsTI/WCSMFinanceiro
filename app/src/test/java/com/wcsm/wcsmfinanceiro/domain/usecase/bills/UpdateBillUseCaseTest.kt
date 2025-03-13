@@ -17,6 +17,7 @@ import org.mockito.MockitoAnnotations
 
 
 class UpdateBillUseCaseTest {
+
     @Mock
     private lateinit var billsRepository: BillsRepository
 
