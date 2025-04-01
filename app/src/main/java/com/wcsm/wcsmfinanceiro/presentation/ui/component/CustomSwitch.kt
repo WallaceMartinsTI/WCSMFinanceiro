@@ -30,38 +30,40 @@ fun CustomSwitch(
     switchText: String,
     alreadyChecked: Boolean,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     onCheckedChange: (isChecked: Boolean) -> Unit
 ) {
-    var isChecked by remember { mutableStateOf(alreadyChecked) }
-
     Row(
         modifier = modifier
             .padding(vertical = 8.dp)
             .clip(RoundedCornerShape(15.dp))
             .border(1.dp, White06Color, RoundedCornerShape(15.dp))
             .selectable(
-                selected = isChecked,
+                selected = alreadyChecked,
                 onClick = {
-                    isChecked = !isChecked
-                    onCheckedChange(isChecked)
+                    if(enabled) {
+                        onCheckedChange(!alreadyChecked)
+                    }
                 },
                 role = Role.Checkbox
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Switch(
-            checked = isChecked,
+            checked = alreadyChecked,
             onCheckedChange = {
-                isChecked = !isChecked
-                onCheckedChange(isChecked)
+                if(enabled) {
+                    onCheckedChange(!alreadyChecked)
+                }
             },
-            modifier = Modifier.padding(start = 8.dp)
+            modifier = Modifier.padding(start = 8.dp),
+            enabled = enabled
         )
 
         Text(
             text = switchText,
             fontFamily = PoppinsFontFamily,
-            color = if (isChecked) PrimaryColor else White06Color,
+            color = if (alreadyChecked) PrimaryColor else White06Color,
             fontSize = 14.sp,
             modifier = Modifier.padding(horizontal = 8.dp)
         )

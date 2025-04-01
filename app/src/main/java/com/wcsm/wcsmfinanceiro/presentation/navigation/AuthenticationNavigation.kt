@@ -1,15 +1,12 @@
 package com.wcsm.wcsmfinanceiro.presentation.navigation
 
-import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.wcsm.wcsmfinanceiro.presentation.model.Screen
-import com.wcsm.wcsmfinanceiro.presentation.ui.view.login.LoginView
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.WelcomeView
+import com.wcsm.wcsmfinanceiro.presentation.ui.view.login.LoginView
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.register.RegisterView
 
 @Composable

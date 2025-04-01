@@ -1,12 +1,11 @@
 package com.wcsm.wcsmfinanceiro.data.local.sharedPrefs
 
-import android.app.Activity
 import android.content.Context
 
-class SharedPreferencesHandler(private val activity: Activity?) {
+class SharedPreferencesHandler(private val context: Context) {
+    private val sharedPref = context.getSharedPreferences("wcsm_financeiro_prefs", Context.MODE_PRIVATE)
 
     fun savePreference(preferenceId: String, preference: Boolean) {
-        val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
         with(sharedPref.edit()) {
             putBoolean(preferenceId, preference)
             apply()
@@ -14,7 +13,6 @@ class SharedPreferencesHandler(private val activity: Activity?) {
     }
 
     fun getBooleanPreference(preferenceId: String, defaultValue: Boolean) : Boolean {
-        val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return defaultValue
         return sharedPref.getBoolean(preferenceId, defaultValue)
     }
 }

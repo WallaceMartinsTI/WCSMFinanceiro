@@ -58,10 +58,10 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.util.toBrazilianDateString
 
 @Composable
-fun HomeView(
-    homeViewModel: HomeViewModel = viewModel()
-) {
-    val activity = LocalContext.current as? Activity
+fun HomeView() {
+    val homeViewModel: HomeViewModel = viewModel()
+
+    val context = LocalContext.current
 
     val userName = "Wallace"
 
@@ -87,7 +87,9 @@ fun HomeView(
         modifier = Modifier.fillMaxSize()
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().background(BackgroundColor),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(BackgroundColor),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
@@ -144,7 +146,9 @@ fun HomeView(
             )
 
             Column(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
             ) {
                 UserValuesContainer(
                     iconResourceId = R.drawable.money_up,
@@ -168,7 +172,10 @@ fun HomeView(
             Spacer(Modifier.height(16.dp))
 
             Box(
-                modifier = Modifier.fillMaxSize().padding(16.dp).border(1.dp, SecondaryColor),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .border(1.dp, SecondaryColor),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -181,8 +188,9 @@ fun HomeView(
         }
 
         if(showExitAppDialog) {
+            // val activity = LocalContext.current as? Activity
             ExitAppDialog(
-                onExitApp = { activity?.finish() },
+                onExitApp = { (context as? Activity)?.finish() },
                 onLogout = {}, // FAZER LOGOUT
                 onDismiss = { showExitAppDialog = false }
             )
