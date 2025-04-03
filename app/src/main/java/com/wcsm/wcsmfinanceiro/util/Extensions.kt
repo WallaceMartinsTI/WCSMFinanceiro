@@ -5,6 +5,7 @@ import com.wcsm.wcsmfinanceiro.data.local.entity.Bill
 import com.wcsm.wcsmfinanceiro.data.local.entity.Subscription
 import com.wcsm.wcsmfinanceiro.data.local.entity.Wallet
 import com.wcsm.wcsmfinanceiro.data.local.entity.WalletCard
+import com.wcsm.wcsmfinanceiro.data.local.entity.relation.WalletWithCards
 import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillState
 import com.wcsm.wcsmfinanceiro.presentation.model.plus.SubscriptionState
 import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletCardState
@@ -60,8 +61,16 @@ fun Bill.toBillState() : BillState {
 }
 
 fun BillState.toBill() : Bill {
+    val walletCardId = if(this.walletWithCards.walletCards.isEmpty()) {
+        System.currentTimeMillis()
+    } else {
+        this.walletWithCards.walletCards[0].walletCardId
+    }
+
     return Bill(
         billId = this.billId,
+        walletId = this.walletWithCards.wallet.walletId,
+        walletCardId = walletCardId,
         billType = this.billType,
         origin = this.origin,
         title = this.title,

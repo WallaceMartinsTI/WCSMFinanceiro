@@ -42,6 +42,8 @@ class BillsRepositoryImplTest {
         // GIVEN: A bill to be saved
         val bill = Bill(
             billId = 5,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -77,6 +79,8 @@ class BillsRepositoryImplTest {
         // GIVEN: A bill to be saved
         val bill = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -111,6 +115,8 @@ class BillsRepositoryImplTest {
         // GIVEN: A bill to be saved
         val bill = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -145,6 +151,8 @@ class BillsRepositoryImplTest {
         // GIVEN: A bill to be updated
         val bill = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -181,6 +189,8 @@ class BillsRepositoryImplTest {
         // GIVEN: A bill to be updated
         val bill = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -215,6 +225,8 @@ class BillsRepositoryImplTest {
         // GIVEN: A bill to be deleted
         val bill = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -249,6 +261,8 @@ class BillsRepositoryImplTest {
         // GIVEN: A bill to be deleted
         val bill = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -283,6 +297,8 @@ class BillsRepositoryImplTest {
         val expectedBills = listOf(
             Bill(
                 billId = 1,
+                walletId = 1,
+                walletCardId = 1,
                 billType = BillType.INCOME,
                 origin = "Origem Teste",
                 title = "Conta Teste",
@@ -298,6 +314,8 @@ class BillsRepositoryImplTest {
             ),
             Bill(
                 billId = 2,
+                walletId = 1,
+                walletCardId = 1,
                 billType = BillType.EXPENSE,
                 origin = "Origem Teste2",
                 title = "Conta Teste2",
@@ -357,6 +375,8 @@ class BillsRepositoryImplTest {
         val expectedBills = listOf(
             Bill(
                 billId = 2,
+                walletId = 1,
+                walletCardId = 1,
                 billType = BillType.EXPENSE,
                 origin = "Origem Teste2",
                 title = "Conta Teste2",
@@ -416,6 +436,8 @@ class BillsRepositoryImplTest {
         val expectedBills = listOf(
             Bill(
                 billId = 2,
+                walletId = 1,
+                walletCardId = 1,
                 billType = BillType.EXPENSE,
                 origin = "Origem Teste2",
                 title = "Conta Teste2",

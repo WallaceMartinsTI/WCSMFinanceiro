@@ -31,6 +31,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wcsm.wcsmfinanceiro.data.local.entity.Wallet
+import com.wcsm.wcsmfinanceiro.data.local.entity.relation.WalletWithCards
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PoppinsFontFamily
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
@@ -39,11 +40,11 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WalletDropdownChooser(
-    wallets: List<Wallet>,
+    walletWithCards: List<WalletWithCards>,
     isError: Boolean,
     errorMessage: String,
     modifier: Modifier = Modifier,
-    onValueSelected: (selectedWallet: Wallet) -> Unit
+    onValueSelected: (selectedWallet: WalletWithCards) -> Unit
 ) {
     var wallet by remember { mutableStateOf("Selecione uma carteira") }
 
@@ -51,11 +52,11 @@ fun WalletDropdownChooser(
 
     LaunchedEffect(wallet) {
         if (wallet.isNotBlank() && wallet != "Selecione uma carteira") {
-            val selectedWallet = wallets.filter {
-                it.title == wallet
+            val selectedWalletWithCards = walletWithCards.filter {
+                it.wallet.title == wallet
             }[0]
 
-            onValueSelected(selectedWallet)
+            onValueSelected(selectedWalletWithCards)
         }
     }
 
@@ -114,16 +115,16 @@ fun WalletDropdownChooser(
                 expanded = showWalletsDropdown,
                 onDismissRequest = { showWalletsDropdown = false }
             ) {
-                wallets.forEach { selectedWallet ->
+                walletWithCards.forEach { selectedWalletWithCards ->
                     DropdownMenuItem(
                         text = {
                             Text(
-                                text = selectedWallet.title,
+                                text = selectedWalletWithCards.wallet.title,
                                 fontFamily = PoppinsFontFamily
                             )
                         },
                         onClick = {
-                            wallet = selectedWallet.title
+                            wallet = selectedWalletWithCards.wallet.title
                             showWalletsDropdown = false
                         }
                     )
@@ -138,27 +139,39 @@ fun WalletDropdownChooser(
 @Composable
 private fun WalletDropdownChooserPreview() {
     WCSMFinanceiroTheme(dynamicColor = false) {
-        val wallets = listOf(
-            Wallet(
-                walletId = 1999999,
-                title = "Nubank",
-                balance = 1725.74
+        val walletsWithCards = listOf(
+            WalletWithCards(
+                Wallet(
+                    walletId = 1999999,
+                    title = "Nubank",
+                    balance = 1725.74
+                ),
+                emptyList()
             ),
-            Wallet(
-                walletId = 2999999,
-                title = "Inter",
-                balance = 1725.74
+            WalletWithCards(
+                Wallet(
+                    walletId = 2999999,
+                    title = "Inter",
+                    balance = 1725.74
+                ),
+                emptyList()
             ),
-            Wallet(
-                walletId = 3999999,
-                title = "Caixa",
-                balance = 1725.74
+            WalletWithCards(
+                Wallet(
+                    walletId = 3999999,
+                    title = "Caixa",
+                    balance = 1725.74
+                ),
+                emptyList()
             ),
-            Wallet(
-                walletId = 3999999,
-                title = "NomeMuitoGrandeLim20",
-                balance = 1725.74
-            ),
+            WalletWithCards(
+                Wallet(
+                    walletId = 3999999,
+                    title = "NomeMuitoGrandeLim20",
+                    balance = 1725.74
+                ),
+                emptyList()
+            )
         )
 
         Column(
@@ -168,7 +181,7 @@ private fun WalletDropdownChooserPreview() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            WalletDropdownChooser(wallets, false, "") {}
+            WalletDropdownChooser(walletsWithCards, false, "") {}
         }
     }
 }

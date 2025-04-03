@@ -50,6 +50,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wcsm.wcsmfinanceiro.data.local.entity.Wallet
+import com.wcsm.wcsmfinanceiro.data.local.entity.relation.WalletWithCards
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletCardState
 import com.wcsm.wcsmfinanceiro.presentation.model.wallet.WalletOperationType
@@ -73,7 +74,7 @@ import kotlinx.coroutines.flow.StateFlow
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddOrEditWalletCardDialog(
-    walletsList: List<Wallet>,
+    walletWithCards: List<WalletWithCards>,
     walletCardStateFlow: StateFlow<WalletCardState>,
     uiStateFlow: StateFlow<UiState<WalletOperationType>>,
     onValueChange: (updatedValue: WalletCardState) -> Unit,
@@ -158,13 +159,13 @@ fun AddOrEditWalletCardDialog(
 
             if(!isWalletCardToEdit) {
                 WalletDropdownChooser(
-                    wallets = walletsList,
+                    walletWithCards = walletWithCards,
                     isError = walletCardDialogState.walletIdErrorMessage.isNotBlank(),
                     errorMessage = walletCardDialogState.walletIdErrorMessage
                 ) {  selectedWallet ->
                     onValueChange(
                         walletCardDialogState.copy(
-                            walletId = selectedWallet.walletId
+                            walletId = selectedWallet.wallet.walletId
                         )
                     )
                 }
@@ -470,7 +471,7 @@ private fun AddOrEditWalletCardDialogPreview() {
             modifier = Modifier.fillMaxSize().background(BackgroundColor)
         ) {
             AddOrEditWalletCardDialog(
-                walletsList = emptyList(),
+                walletWithCards = emptyList(),
                 walletCardStateFlow = walletViewModel.walletCardStateFlow,
                 uiStateFlow = walletViewModel.uiState,
                 onValueChange = {},

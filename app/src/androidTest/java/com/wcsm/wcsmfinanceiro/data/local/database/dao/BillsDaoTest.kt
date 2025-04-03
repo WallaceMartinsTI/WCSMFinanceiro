@@ -45,6 +45,8 @@ class BillsDaoTest {
         // GIVEN: A bill is created
         val bill = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -71,6 +73,8 @@ class BillsDaoTest {
         // GIVEN: A bill is created
         val bill = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -97,6 +101,8 @@ class BillsDaoTest {
         // GIVEN: Creating a bill with valid data
         val bill1 = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -113,6 +119,8 @@ class BillsDaoTest {
 
         val bill2 = Bill(
             billId = 1,  // Using the same ID to test unique key violation
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.EXPENSE,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -147,6 +155,8 @@ class BillsDaoTest {
         // GIVEN: A bill is created and saved in the database
         val bill = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -186,6 +196,8 @@ class BillsDaoTest {
         // GIVEN: A non-existent bill (ID 999 doesn't exist)
         val bill = Bill(
             billId = 999,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -212,6 +224,8 @@ class BillsDaoTest {
         // GIVEN: A bill is created and saved in the database
         val bill = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -253,6 +267,8 @@ class BillsDaoTest {
         // GIVEN: A bill is created and saved in the database
         val bill = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -289,6 +305,8 @@ class BillsDaoTest {
         // GIVEN: A bill is created and saved in the database
         val bill = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -318,6 +336,8 @@ class BillsDaoTest {
         // GIVEN: A bill is created and saved in the database
         val bill = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -356,6 +376,8 @@ class BillsDaoTest {
         // GIVEN: A bill that was never saved in the database
         val nonExistentBill = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -382,6 +404,8 @@ class BillsDaoTest {
         // GIVEN: Multiple bills saved in the database
         val bill1 = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -398,6 +422,8 @@ class BillsDaoTest {
 
         val bill2 = Bill(
             billId = 2,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste 2",
             title = "Conta Teste 2",
@@ -439,6 +465,8 @@ class BillsDaoTest {
         // GIVEN: Multiple bills saved in the database
         val bill1 = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -455,6 +483,8 @@ class BillsDaoTest {
 
         val bill2 = Bill(
             billId = 2,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste 2",
             title = "Conta Teste 2",
@@ -490,6 +520,8 @@ class BillsDaoTest {
         // GIVEN: A bill is created and saved in the database
         val bill = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -523,6 +555,8 @@ class BillsDaoTest {
         // GIVEN: Multiple bills saved in the database
         val bill1 = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -539,6 +573,8 @@ class BillsDaoTest {
 
         val bill2 = Bill(
             billId = 2,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste 2",
             title = "Conta Teste 2",
@@ -590,6 +626,8 @@ class BillsDaoTest {
         // GIVEN: A single bill saved in the database
         val bill = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -623,6 +661,8 @@ class BillsDaoTest {
         // GIVEN: A bill is saved and then deleted
         val bill = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -659,6 +699,8 @@ class BillsDaoTest {
         // GIVEN: Multiple bills inserted in a specific order
         val bill1 = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -675,6 +717,8 @@ class BillsDaoTest {
 
         val bill2 = Bill(
             billId = 2,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste 2",
             title = "Conta Teste 2",
@@ -709,6 +753,8 @@ class BillsDaoTest {
         // GIVEN: Multiple bills with different dates
         val bill1 = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -725,6 +771,8 @@ class BillsDaoTest {
 
         val bill2 = Bill(
             billId = 2,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste 2",
             title = "Conta Teste 2",
@@ -741,6 +789,8 @@ class BillsDaoTest {
 
         val bill3 = Bill(
             billId = 3,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste 3",
             title = "Conta Teste 3",
@@ -778,6 +828,8 @@ class BillsDaoTest {
         // GIVEN: A bill outside the search range
         val bill = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -813,6 +865,8 @@ class BillsDaoTest {
         // GIVEN: Multiple bills with different dates
         val bill1 = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta Teste",
@@ -829,6 +883,8 @@ class BillsDaoTest {
 
         val bill2 = Bill(
             billId = 2,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste 2",
             title = "Conta Teste 2",
@@ -865,6 +921,8 @@ class BillsDaoTest {
         // GIVEN: Multiple bills with different fields containing the searched text
         val bill1 = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta 1",
@@ -881,6 +939,8 @@ class BillsDaoTest {
 
         val bill2 = Bill(
             billId = 2,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Padaria",
             title = "Café da Manhã",
@@ -914,6 +974,8 @@ class BillsDaoTest {
         // GIVEN: A bill that does not match the search query
         val bill1 = Bill(
             billId = 1,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Origem Teste",
             title = "Conta 1",
@@ -930,6 +992,8 @@ class BillsDaoTest {
 
         val bill2 = Bill(
             billId = 2,
+            walletId = 1,
+            walletCardId = 1,
             billType = BillType.INCOME,
             origin = "Padaria",
             title = "Café da Manhã",

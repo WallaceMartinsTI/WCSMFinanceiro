@@ -55,11 +55,14 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.bills.components.AddOrEditBillDialog
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.bills.components.BillCard
+import com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet.WalletViewModel
 import com.wcsm.wcsmfinanceiro.util.showToastMessage
 import com.wcsm.wcsmfinanceiro.util.toBillState
 
 @Composable
-fun BillsView() {
+fun BillsView(
+    walletViewModel: WalletViewModel
+) {
     val billsViewModel: BillsViewModel = hiltViewModel()
 
     val context = LocalContext.current
@@ -80,6 +83,7 @@ fun BillsView() {
 
     LaunchedEffect(Unit) {
         billsViewModel.getBills()
+        walletViewModel.getWalletWithCards()
     }
 
     LaunchedEffect(textFilter) {
@@ -263,6 +267,7 @@ fun BillsView() {
 
         if (showAddOrEditBillDialog) {
             AddOrEditBillDialog(
+                walletViewModel = walletViewModel,
                 billStateFlow = billsViewModel.billStateFlow,
                 uiStateFlow = billsViewModel.uiState,
                 onValueChange = { updatedValue ->
@@ -294,6 +299,6 @@ fun BillsView() {
 @Composable
 private fun BillsViewPreview() {
     WCSMFinanceiroTheme(dynamicColor = false) {
-        BillsView()
+        BillsView(hiltViewModel())
     }
 }

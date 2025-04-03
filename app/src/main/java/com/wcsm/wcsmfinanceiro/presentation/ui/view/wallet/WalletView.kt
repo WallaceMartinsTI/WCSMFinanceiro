@@ -54,9 +54,8 @@ import com.wcsm.wcsmfinanceiro.util.toWalletState
 
 @Composable
 fun WalletView(
+    walletViewModel: WalletViewModel
 ) {
-    val walletViewModel: WalletViewModel = hiltViewModel()
-
     val context = LocalContext.current
 
     val walletsWithCards by walletViewModel.walletsWithCards.collectAsStateWithLifecycle()
@@ -110,7 +109,7 @@ fun WalletView(
 
         if(uiState.success) {
             uiState.operationType?.let { operationType ->
-                val message = getIdealSuccesMessage(operationType)
+                val message = getIdealSuccessMessage(operationType)
                 when(operationType) {
                     is WalletOperationType.Save -> {
                         showToastMessage(context, message)
@@ -245,7 +244,7 @@ fun WalletView(
 
             if(showAddOrEditWalletCardDialog) {
                 AddOrEditWalletCardDialog(
-                    walletsList = walletsList,
+                    walletWithCards = walletsWithCards ?: emptyList(),
                     walletCardStateFlow = walletViewModel.walletCardStateFlow,
                     uiStateFlow = walletViewModel.uiState,
                     onValueChange = { updatedValue ->
@@ -271,11 +270,11 @@ fun WalletView(
 @Composable
 private fun WalletViewPreview() {
     WCSMFinanceiroTheme(dynamicColor = false) {
-        WalletView()
+        WalletView(hiltViewModel())
     }
 }
 
-private fun getIdealSuccesMessage(
+private fun getIdealSuccessMessage(
     operationType: WalletOperationType,
 ) : String {
     val message = if(operationType.walletType == WalletType.WALLET) "Carteira" else "Cartão"

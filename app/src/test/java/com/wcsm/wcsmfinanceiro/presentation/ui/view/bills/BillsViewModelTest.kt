@@ -214,42 +214,6 @@ class BillsViewModelTest {
     }
 
     @Test
-    fun resetBillStateErrorMessages_resetBillStateErrorMessages_shouldResetAllErrorMessagesFromBillState() = runTest {
-        val billsViewModel = BillsViewModel(
-            getBillsUseCase, saveBillUseCase, updateBillUseCase,
-            deleteBillUseCase, getBillsByDateUseCase, getBillsByTextUseCase
-        )
-
-        // GIVEN: A bill state with error values
-        val billStateWithErrors = BillState(
-            titleErrorMessage = "Erro no Título",
-            dateErrorMessage = "Erro da Data",
-            valueErrorMessage = "Erro no Valor",
-            categoryErrorMessage = "Erro na Categoria"
-        )
-
-        billsViewModel.updateBillState(billStateWithErrors)
-
-        billsViewModel.billStateFlow.test {
-            assertThat(awaitItem()).isEqualTo(billStateWithErrors)
-
-            // WHEN: Reset error messages
-            billsViewModel.resetBillStateErrorMessages()
-
-            // THEN: BillState should have empty error message
-            val billStateAfterReset = awaitItem()
-
-            assertThat(billStateAfterReset.titleErrorMessage).isEmpty()
-            assertThat(billStateAfterReset.dateErrorMessage).isEmpty()
-            assertThat(billStateAfterReset.valueErrorMessage).isEmpty()
-            assertThat(billStateAfterReset.categoryErrorMessage).isEmpty()
-
-            // Important: Cancels the flow to prevent coroutine leaks in the test
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
-
-    @Test
     fun applyDateRangeFilter_applyDateRangeFilter_shouldApplyDateRangeFilterCorrectly() = runTest {
         val filteredBillsByDate = listOf(
             Bill(

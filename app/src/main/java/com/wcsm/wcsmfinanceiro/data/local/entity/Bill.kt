@@ -13,6 +13,10 @@ data class Bill(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "bill_id")
     val billId: Long,
+    @ColumnInfo(name = "wallet_id")
+    val walletId: Long,
+    @ColumnInfo(name = "wallet_card_id")
+    val walletCardId: Long,
     @ColumnInfo(name = "bill_type")
     val billType: BillType,
     val origin: String,

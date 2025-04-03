@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.wcsm.wcsmfinanceiro.data.local.entity.Wallet
 import com.wcsm.wcsmfinanceiro.data.local.model.BillType
 import com.wcsm.wcsmfinanceiro.data.local.model.PaymentType
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
@@ -77,6 +78,8 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.theme.SurfaceColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.bills.BillsViewModel
+import com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet.WalletViewModel
+import com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet.components.WalletDropdownChooser
 import com.wcsm.wcsmfinanceiro.util.brazilianDateToTimeInMillis
 import com.wcsm.wcsmfinanceiro.util.getBillTypeFromString
 import com.wcsm.wcsmfinanceiro.util.getFormattedTags
@@ -87,6 +90,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun AddOrEditBillDialog(
+    walletViewModel: WalletViewModel,
     billStateFlow: StateFlow<BillState>,
     uiStateFlow: StateFlow<UiState<CrudOperationType>>,
     onValueChange: (updatedValue: BillState) -> Unit,
@@ -123,6 +127,12 @@ fun AddOrEditBillDialog(
 
     var billHasTag: Boolean? by remember { mutableStateOf(null) }
 
+    var showExpenseFormData by remember { mutableStateOf(false) }
+
+    // Wallet Communication
+    val walletsWithCards by walletViewModel.walletsWithCards.collectAsStateWithLifecycle()
+    var walletsList: List<Wallet> by remember { mutableStateOf(emptyList()) }
+
     LaunchedEffect(Unit) {
         billHasTag = billDialogState.tags.isNotEmpty()
 
@@ -133,9 +143,17 @@ fun AddOrEditBillDialog(
             delay(1500)
             isModalLoading = false
         }
+
+        walletsList = walletsWithCards?.map {
+            it.wallet
+        } ?: emptyList()
     }
 
-    LaunchedEffect(billDialogState) {
+    LaunchedEffect(billDialogState.billType) {
+        showExpenseFormData = billDialogState.billType == BillType.EXPENSE
+    }
+
+    LaunchedEffect(billDialogState.tags) {
         if(billDialogState.tags.isEmpty()) {
             billHasTag = false
         }
@@ -222,6 +240,18 @@ fun AddOrEditBillDialog(
                         onValueChange(
                             billDialogState.copy(
                                 billType = getBillTypeFromString(selectedValue)
+                            )
+                        )
+                    }
+
+                    WalletDropdownChooser(
+                        walletWithCards = walletsWithCards ?: emptyList(),
+                        isError = billDialogState.walletWithCardsErrorMessage.isNotBlank(),
+                        errorMessage = billDialogState.walletWithCardsErrorMessage
+                    ) { selectedWallet ->
+                        onValueChange(
+                            billDialogState.copy(
+                                walletWithCards = selectedWallet
                             )
                         )
                     }
@@ -484,95 +514,97 @@ fun AddOrEditBillDialog(
                         ),
                     )
 
-                    OutlinedTextField(
-                        value = selectedDueDate,
-                        onValueChange = {},
-                        modifier = Modifier
-                            .width(280.dp)
-                            .focusRequester(focusRequester[5])
-                            .onFocusEvent {
-                                if (it.isFocused) {
-                                    showDueDatePickerDialog = true
-                                    focusRequester[5].freeFocus()
+                    if(showExpenseFormData) {
+                        OutlinedTextField(
+                            value = selectedDueDate,
+                            onValueChange = {},
+                            modifier = Modifier
+                                .width(280.dp)
+                                .focusRequester(focusRequester[5])
+                                .onFocusEvent {
+                                    if (it.isFocused) {
+                                        showDueDatePickerDialog = true
+                                        focusRequester[5].freeFocus()
+                                    }
+                                },
+                            label = {
+                                Text(
+                                    text = "Data de Vencimento",
+                                    style = MaterialTheme.typography.labelMedium
+                                )
+                            },
+                            supportingText = {},
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.CalendarToday,
+                                    contentDescription = "Ícone de Calendário",
+                                    tint = White06Color
+                                )
+                            },
+                            trailingIcon = {
+                                if (selectedDueDate != "") {
+                                    XIcon {
+                                        selectedDueDate = ""
+                                        onValueChange(
+                                            billDialogState.copy(
+                                                dueDate = 0L
+                                            )
+                                        )
+                                        focusRequester[5].requestFocus()
+                                    }
                                 }
                             },
-                        label = {
-                            Text(
-                                text = "Data de Vencimento",
-                                style = MaterialTheme.typography.labelMedium
-                            )
-                        },
-                        supportingText = {},
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.CalendarToday,
-                                contentDescription = "Ícone de Calendário",
-                                tint = White06Color
-                            )
-                        },
-                        trailingIcon = {
-                            if (selectedDueDate != "") {
-                                XIcon {
-                                    selectedDueDate = ""
-                                    onValueChange(
-                                        billDialogState.copy(
-                                            dueDate = 0L
-                                        )
-                                    )
-                                    focusRequester[5].requestFocus()
+                            readOnly = true
+                        )
+                        if (showDueDatePickerDialog) {
+                            AppDatePicker(
+                                onDismiss = {
+                                    showDueDatePickerDialog = false
                                 }
+                            ) { selectedDueDateResult ->
+                                selectedDueDate = selectedDueDateResult.toBrazilianDateString()
+                                onValueChange(
+                                    billDialogState.copy(
+                                        dueDate = selectedDueDate.brazilianDateToTimeInMillis() ?: 0L
+                                    )
+                                )
                             }
-                        },
-                        readOnly = true
-                    )
-                    if (showDueDatePickerDialog) {
-                        AppDatePicker(
-                            onDismiss = {
-                                showDueDatePickerDialog = false
-                            }
-                        ) { selectedDueDateResult ->
-                            selectedDueDate = selectedDueDateResult.toBrazilianDateString()
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .width(280.dp)
+                                .padding(bottom = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Checkbox(
+                                checked = billDialogState.expired,
+                                onCheckedChange = {},
+                                enabled = false
+                            )
+
+                            Text(
+                                text = "Conta Vencida.",
+                                fontFamily = PoppinsFontFamily,
+                                color = if (billDialogState.expired) PrimaryColor else White06Color
+                            )
+                        }
+
+                        RadioButtonChooser(
+                            inputedOption = if (isBillToEdit) billDialogState.paymentType.displayName else null,
+                            optionsList = paymentTypeRadioChooserOptions,
+                            modifier = Modifier.width(280.dp)
+                        ) { selectedValue ->
                             onValueChange(
                                 billDialogState.copy(
-                                    dueDate = selectedDueDate.brazilianDateToTimeInMillis() ?: 0L
+                                    paymentType = getPaymentTypeFromString(selectedValue)
                                 )
                             )
                         }
                     }
 
-                    Row(
-                        modifier = Modifier
-                            .width(280.dp)
-                            .padding(bottom = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Checkbox(
-                            checked = billDialogState.expired,
-                            onCheckedChange = {},
-                            enabled = false
-                        )
-
-                        Text(
-                            text = "Conta Vencida.",
-                            fontFamily = PoppinsFontFamily,
-                            color = if (billDialogState.expired) PrimaryColor else White06Color
-                        )
-                    }
-
-                    RadioButtonChooser(
-                        inputedOption = if (isBillToEdit) billDialogState.paymentType.displayName else null,
-                        optionsList = paymentTypeRadioChooserOptions,
-                        modifier = Modifier.width(280.dp)
-                    ) { selectedValue ->
-                        onValueChange(
-                            billDialogState.copy(
-                                paymentType = getPaymentTypeFromString(selectedValue)
-                            )
-                        )
-                    }
-
                     CustomCheckbox(
-                        checkboxText = "Paga?",
+                        checkboxText = if(showExpenseFormData) "Recebida?" else "Paga?",
                         alreadyChecked = billDialogState.paid
                     ) { isChecked ->
                         onValueChange(
@@ -760,6 +792,7 @@ private fun AddOrEditBillDialogPreview() {
             verticalArrangement = Arrangement.Center
         ) {
             AddOrEditBillDialog(
+                walletViewModel = hiltViewModel(),
                 billStateFlow = billsViewModel.billStateFlow,
                 uiStateFlow = billsViewModel.uiState,
                 onValueChange = {},

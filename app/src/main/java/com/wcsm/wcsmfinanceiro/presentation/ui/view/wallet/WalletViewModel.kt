@@ -226,8 +226,6 @@ class WalletViewModel @Inject constructor(
     }
 
     fun saveWallet(walletState: WalletState) {
-        resetWalletStateErrorMessages()
-
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = uiState.value.copy(
                 operationType = WalletOperationType.Save(WalletType.WALLET)
@@ -250,8 +248,6 @@ class WalletViewModel @Inject constructor(
     }
 
     fun updateWallet(walletState: WalletState) {
-        resetWalletStateErrorMessages()
-
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = uiState.value.copy(
                 operationType = WalletOperationType.Update(WalletType.WALLET)
@@ -274,8 +270,6 @@ class WalletViewModel @Inject constructor(
     }
 
     fun deleteWallet(walletState: WalletState) {
-        resetWalletStateErrorMessages()
-
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = uiState.value.copy(
                 operationType = WalletOperationType.Delete(WalletType.WALLET)
@@ -295,15 +289,6 @@ class WalletViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    private fun resetWalletStateErrorMessages() {
-        updateWalletState(
-            walletStateFlow.value.copy(
-                titleErrorMessage = "",
-                balanceErrorMessage = ""
-            )
-        )
     }
 
     private fun isWalletStateValid(): Boolean {

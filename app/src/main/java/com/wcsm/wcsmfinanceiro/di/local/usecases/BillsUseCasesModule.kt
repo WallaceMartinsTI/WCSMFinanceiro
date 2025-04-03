@@ -1,6 +1,7 @@
 package com.wcsm.wcsmfinanceiro.di.local.usecases
 
 import com.wcsm.wcsmfinanceiro.domain.repository.BillsRepository
+import com.wcsm.wcsmfinanceiro.domain.repository.WalletRepository
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.DeleteBillUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsByDateUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsByTextUseCase
@@ -25,9 +26,10 @@ object BillsUseCasesModule {
 
     @Provides
     fun provideSaveBillUseCase(
-        billsRepository: BillsRepository
+        billsRepository: BillsRepository,
+        walletRepository: WalletRepository
     ): SaveBillUseCase {
-        return SaveBillUseCase(billsRepository)
+        return SaveBillUseCase(billsRepository, walletRepository)
     }
 
     @Provides

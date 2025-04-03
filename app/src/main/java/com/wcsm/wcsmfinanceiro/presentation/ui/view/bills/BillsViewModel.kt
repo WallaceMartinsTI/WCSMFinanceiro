@@ -3,6 +3,8 @@ package com.wcsm.wcsmfinanceiro.presentation.ui.view.bills
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wcsm.wcsmfinanceiro.data.local.entity.Bill
+import com.wcsm.wcsmfinanceiro.data.local.entity.Wallet
+import com.wcsm.wcsmfinanceiro.data.local.entity.relation.WalletWithCards
 import com.wcsm.wcsmfinanceiro.domain.model.Response
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.DeleteBillUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsByDateUseCase
@@ -10,6 +12,7 @@ import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsByTextUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.GetBillsUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.SaveBillUseCase
 import com.wcsm.wcsmfinanceiro.domain.usecase.bills.UpdateBillUseCase
+import com.wcsm.wcsmfinanceiro.domain.usecase.wallet.UpdateWalletUseCase
 import com.wcsm.wcsmfinanceiro.presentation.model.CrudOperationType
 import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillState
 import com.wcsm.wcsmfinanceiro.presentation.model.UiState
@@ -66,17 +69,6 @@ class BillsViewModel @Inject constructor(
 
     fun resetUiState() {
         _uiState.value = UiState()
-    }
-
-    fun resetBillStateErrorMessages() {
-        updateBillState(
-            billStateFlow.value.copy(
-                titleErrorMessage = "",
-                dateErrorMessage = "",
-                valueErrorMessage = "",
-                categoryErrorMessage = ""
-            )
-        )
     }
 
     private fun onLoadingResponse() {
@@ -150,8 +142,6 @@ class BillsViewModel @Inject constructor(
     }
 
     fun saveBill(billState: BillState) {
-        resetBillStateErrorMessages()
-
         viewModelScope.launch(Dispatchers.IO) {
             updateUiState(uiState.value.copy(operationType = CrudOperationType.SAVE))
 
@@ -182,8 +172,6 @@ class BillsViewModel @Inject constructor(
     }
 
     fun updateBill(billState: BillState, isUpdatingOnlyTags: Boolean = false) {
-        resetBillStateErrorMessages()
-
         viewModelScope.launch(Dispatchers.IO) {
             updateUiState(uiState.value.copy(operationType = CrudOperationType.UPDATE))
 
@@ -201,6 +189,23 @@ class BillsViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun updateWallet(billState: BillState) {
+        // WALLET: WalletId=2, Title="Carteira 2", Balance=1000
+
+        //resetBillStateErrorMessages()
+        /*viewModelScope.launch(Dispatchers.IO) {
+            if(isBillStateValid()) {
+                updateWalletUseCase(billState.wallet).collect { result ->
+                    when(result) {
+                        is Response.Loading -> onLoadingResponse()
+                        is Response.Error -> onErrorResponse(result.message)
+                        is Response.Success -> onSuccessResponse(null)
+                    }
+                }
+            }
+        }*/
     }
 
     fun deleteBill(billState: BillState) {
@@ -221,6 +226,7 @@ class BillsViewModel @Inject constructor(
     }
 
     private fun isBillStateValid() : Boolean {
+        val isWalletValid = validateWallet(billStateFlow.value.walletWithCards)
         val isTitleValid = validateTitle(billStateFlow.value.title)
         val isDateValid = validateDate(billStateFlow.value.date)
         val isValueValid = validateValue(billStateFlow.value.value)
@@ -228,6 +234,7 @@ class BillsViewModel @Inject constructor(
 
         updateBillState(
             billStateFlow.value.copy(
+                walletWithCardsErrorMessage = isWalletValid.second,
                 titleErrorMessage = isTitleValid.second,
                 dateErrorMessage = isDateValid.second,
                 valueErrorMessage = isValueValid.second,
@@ -235,7 +242,17 @@ class BillsViewModel @Inject constructor(
             )
         )
 
-        return isTitleValid.first && isDateValid.first && isValueValid.first && isCategoryValid.first
+        return isWalletValid.first && isTitleValid.first && isDateValid.first && isValueValid.first && isCategoryValid.first
+    }
+
+    private fun validateWallet(walletWithCards: WalletWithCards): Pair<Boolean, String> {
+        val walletId = walletWithCards.wallet.walletId
+
+        if(walletId == 0L) {
+            return Pair(false, "Você deve selecionar uma carteira.")
+        }
+
+        return Pair(true, "")
     }
 
     private fun validateTitle(title: String) : Pair<Boolean, String> {

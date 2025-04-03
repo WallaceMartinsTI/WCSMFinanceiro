@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -25,12 +26,15 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.view.home.HomeView
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.plus.PlusView
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.settings.SettingsView
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet.WalletView
+import com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet.WalletViewModel
 
 @Composable
 fun MainNavigation() {
     val mainNavController = rememberNavController()
 
     val currentDestination = mainNavController.currentBackStackEntryAsState().value?.destination
+
+    val walletViewModel: WalletViewModel = hiltViewModel()
 
     Scaffold(
         bottomBar = {
@@ -74,11 +78,11 @@ fun MainNavigation() {
             }
 
             composable<Screen.BillsScreen> {
-                BillsView()
+                BillsView(walletViewModel = walletViewModel)
             }
 
             composable<Screen.WalletScreen> {
-                WalletView()
+                WalletView(walletViewModel = walletViewModel)
             }
 
             composable<Screen.PlusScreen> {
