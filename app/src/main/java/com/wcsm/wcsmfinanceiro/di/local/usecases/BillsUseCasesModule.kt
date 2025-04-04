@@ -34,16 +34,18 @@ object BillsUseCasesModule {
 
     @Provides
     fun provideUpdateBillUseCase(
-        billsRepository: BillsRepository
+        billsRepository: BillsRepository,
+        walletRepository: WalletRepository
     ): UpdateBillUseCase {
-        return UpdateBillUseCase(billsRepository)
+        return UpdateBillUseCase(billsRepository, walletRepository)
     }
 
     @Provides
     fun provideDeleteBillUseCase(
-        billsRepository: BillsRepository
+        billsRepository: BillsRepository,
+        walletRepository: WalletRepository
     ): DeleteBillUseCase {
-        return DeleteBillUseCase(billsRepository)
+        return DeleteBillUseCase(billsRepository, walletRepository)
     }
 
     @Provides

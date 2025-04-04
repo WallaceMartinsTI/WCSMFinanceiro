@@ -10,4 +10,5 @@ interface WalletRepository {
     suspend fun updateWallet(wallet: Wallet) : Flow<Response<Int>>
     suspend fun deleteWallet(wallet: Wallet) : Flow<Response<Int>>
     suspend fun getWalletWithCards() : Flow<Response<List<WalletWithCards>>>
+    suspend fun getWalletWithCardById(walletId: Long) : WalletWithCards
 }

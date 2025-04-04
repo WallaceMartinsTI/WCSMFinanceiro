@@ -32,6 +32,58 @@ class SaveBillUseCase @Inject constructor(
             }
         }
 
-        return billsRepository.saveBill(bill)
+        val walletWithCards = walletRepository.getWalletWithCardById(bill.walletId)
+
+        val isWalletUpdateValid = canWalletBalanceBeUpdated(
+            isIncomeBill = bill.billType == BillType.INCOME,
+            actualBalance = walletWithCards.wallet.balance,
+            amount = bill.value
+        )
+
+        if(isWalletUpdateValid.first) {
+            val updatedWallet = walletWithCards.wallet.copy(
+                balance = billValueHandledToWalletBalance(
+                    isIncomeBill = bill.billType == BillType.INCOME,
+                    walletWithCards = walletWithCards,
+                    amount = bill.value
+                )
+            )
+
+            walletRepository.updateWallet(wallet = updatedWallet).collect {}
+
+            return billsRepository.saveBill(bill)
+        } else {
+            return flow {
+                emit(Response.Error(isWalletUpdateValid.second))
+            }
+        }
+    }
+
+    private fun billValueHandledToWalletBalance(
+        isIncomeBill: Boolean,
+        walletWithCards: WalletWithCards,
+        amount: Double
+    ): Double {
+        return if(isIncomeBill) {
+            walletWithCards.wallet.balance + amount
+        } else {
+            walletWithCards.wallet.balance - amount
+        }
+    }
+
+    private fun canWalletBalanceBeUpdated(
+        isIncomeBill: Boolean,
+        actualBalance: Double,
+        amount: Double
+    ): Pair<Boolean, String> {
+        if(isIncomeBill && actualBalance + amount > 9999999.99) {
+            return Pair(false, "Não foi possível salvar esta conta, saldo ultrapassa limite.")
+        }
+
+        if(!isIncomeBill && actualBalance - amount < 0) {
+            Pair(false, "Não foi possível salvar esta conta, saldo insuficiente.")
+        }
+
+        return Pair(true, "")
     }
 }

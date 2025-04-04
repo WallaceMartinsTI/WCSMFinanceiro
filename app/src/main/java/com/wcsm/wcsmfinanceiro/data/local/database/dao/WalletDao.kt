@@ -24,4 +24,8 @@ interface WalletDao {
     @Transaction
     @Query("SELECT * FROM wallets")
     fun selectAllWalletWithCards(): Flow<List<WalletWithCards>>
+
+    @Transaction
+    @Query("SELECT * FROM wallets WHERE wallet_id = :walletId")
+    fun selectWalletWithCards(walletId: Long): WalletWithCards
 }

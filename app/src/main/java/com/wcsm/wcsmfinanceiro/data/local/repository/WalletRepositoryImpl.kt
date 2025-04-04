@@ -81,4 +81,8 @@ class WalletRepositoryImpl @Inject constructor(
             emit(Response.Error("Erro desconhecido ao buscar carteiras, informe o administrador."))
         }
     }
+
+    override suspend fun getWalletWithCardById(walletId: Long): WalletWithCards {
+        return walletDao.selectWalletWithCards(walletId)
+    }
 }

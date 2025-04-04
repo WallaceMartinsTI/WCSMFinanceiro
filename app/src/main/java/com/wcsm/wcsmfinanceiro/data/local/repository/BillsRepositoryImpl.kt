@@ -14,14 +14,12 @@ class BillsRepositoryImpl @Inject constructor(
     private val billsDao: BillsDao
 ) : BillsRepository {
     override suspend fun saveBill(bill: Bill): Flow<Response<Long>> = flow {
-        println("+++++ CHAMOU SAVE BILL REPOSITORY")
         try {
             emit(Response.Loading)
 
             val response = billsDao.saveBill(bill)
             if(response > 0) {
                 emit(Response.Success(response))
-                println("+++++ SALVOU NO BANCO")
             } else {
                 emit(Response.Error("Erro ao salvar conta."))
             }
