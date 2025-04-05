@@ -1,74 +1,71 @@
 package com.wcsm.wcsmfinanceiro.domain.usecase.bills
 
 import com.wcsm.wcsmfinanceiro.data.local.entity.Bill
-import com.wcsm.wcsmfinanceiro.data.local.entity.Wallet
-import com.wcsm.wcsmfinanceiro.data.local.entity.relation.WalletWithCards
 import com.wcsm.wcsmfinanceiro.data.local.model.BillType
 import com.wcsm.wcsmfinanceiro.domain.model.Response
 import com.wcsm.wcsmfinanceiro.domain.repository.BillsRepository
 import com.wcsm.wcsmfinanceiro.domain.repository.WalletRepository
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.lastOrNull
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.job
+import java.util.UUID
 import javax.inject.Inject
 
 class SaveBillUseCase @Inject constructor(
     private val billsRepository: BillsRepository,
     private val walletRepository: WalletRepository
 ) {
-    suspend operator fun invoke(bill: Bill) : Flow<Response<Long>> {
-        if(bill.value > 9999999.99) {
+    suspend operator fun invoke(newBill: Bill) : Flow<Response<Long>> {
+        if(newBill.value > 9999999.99) {
             return flow {
                 emit(Response.Error("Valor muito alto (max. R$9.999.999,99)."))
             }
         }
 
-        val walletWithCards = walletRepository.getWalletWithCardById(bill.walletId)
+        val bill = newBill.copy(billId = generateUniqueId())
 
-        val isWalletUpdateValid = canWalletBalanceBeUpdated(
-            isIncomeBill = bill.billType == BillType.INCOME,
-            actualBalance = walletWithCards.wallet.balance,
-            amount = bill.value
-        )
+        if(newBill.paid) {
+            val walletWithCards = walletRepository.getWalletWithCardById(newBill.walletId)
 
-        if(isWalletUpdateValid.first) {
+            val isWalletUpdateValid = canWalletBalanceBeUpdated(
+                isIncomeBill = newBill.billType == BillType.INCOME,
+                actualBalance = walletWithCards.wallet.balance,
+                amount = newBill.value
+            )
+
+            if(!isWalletUpdateValid.first) {
+                return flow {
+                    emit(Response.Error(isWalletUpdateValid.second))
+                }
+            }
+
+            val formatedBillValue = if(bill.billType == BillType.INCOME) {
+                bill.value
+            } else {
+                -bill.value
+            }
+
+            val newBillValue = Pair(bill.billId, formatedBillValue)
+            val walletBills = walletWithCards.wallet.walletBills
+            val indexToUpdate = walletBills.indexOfFirst { it.first == newBillValue.first }
+            val updatedWalletBills = walletBills.toMutableList().apply {
+                if(indexToUpdate != -1) {
+                    this[indexToUpdate] = newBillValue
+                } else {
+                    add(newBillValue)
+                }
+            }
             val updatedWallet = walletWithCards.wallet.copy(
-                balance = billValueHandledToWalletBalance(
-                    isIncomeBill = bill.billType == BillType.INCOME,
-                    walletWithCards = walletWithCards,
-                    amount = bill.value
-                )
+                walletBills = updatedWalletBills
             )
 
             walletRepository.updateWallet(wallet = updatedWallet).collect {}
-
-            return billsRepository.saveBill(bill)
-        } else {
-            return flow {
-                emit(Response.Error(isWalletUpdateValid.second))
-            }
         }
+
+        return billsRepository.saveBill(bill)
     }
 
-    private fun billValueHandledToWalletBalance(
-        isIncomeBill: Boolean,
-        walletWithCards: WalletWithCards,
-        amount: Double
-    ): Double {
-        return if(isIncomeBill) {
-            walletWithCards.wallet.balance + amount
-        } else {
-            walletWithCards.wallet.balance - amount
-        }
+    private fun generateUniqueId(): String {
+        return UUID.randomUUID().toString()
     }
 
     private fun canWalletBalanceBeUpdated(

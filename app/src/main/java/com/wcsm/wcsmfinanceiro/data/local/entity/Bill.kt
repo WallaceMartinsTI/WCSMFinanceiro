@@ -10,9 +10,9 @@ import com.wcsm.wcsmfinanceiro.data.local.model.PaymentType
     tableName = "bills"
 )
 data class Bill(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     @ColumnInfo(name = "bill_id")
-    val billId: Long,
+    val billId: String,
     @ColumnInfo(name = "wallet_id")
     val walletId: Long,
     @ColumnInfo(name = "wallet_card_id")

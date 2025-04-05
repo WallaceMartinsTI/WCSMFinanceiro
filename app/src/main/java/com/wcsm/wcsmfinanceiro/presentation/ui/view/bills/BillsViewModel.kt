@@ -191,23 +191,6 @@ class BillsViewModel @Inject constructor(
         }
     }
 
-    fun updateWallet(billState: BillState) {
-        // WALLET: WalletId=2, Title="Carteira 2", Balance=1000
-
-        //resetBillStateErrorMessages()
-        /*viewModelScope.launch(Dispatchers.IO) {
-            if(isBillStateValid()) {
-                updateWalletUseCase(billState.wallet).collect { result ->
-                    when(result) {
-                        is Response.Loading -> onLoadingResponse()
-                        is Response.Error -> onErrorResponse(result.message)
-                        is Response.Success -> onSuccessResponse(null)
-                    }
-                }
-            }
-        }*/
-    }
-
     fun deleteBill(billState: BillState) {
         viewModelScope.launch(Dispatchers.IO) {
             updateUiState(uiState.value.copy(operationType = CrudOperationType.DELETE))

@@ -37,6 +37,7 @@ fun WalletContainer(
     modifier: Modifier = Modifier,
     onWalletClick: () -> Unit
 ) {
+    val walletFullBalance = walletsWithCards.wallet.balance + walletsWithCards.wallet.walletBills.sumOf { it.second }
     ElevatedCard(
         onClick = { onWalletClick() }
     ) {
@@ -63,7 +64,8 @@ fun WalletContainer(
                 )
 
                 Text(
-                    text = walletsWithCards.wallet.balance.toBrazilianReal(),
+                    //text = walletsWithCards.wallet.balance.toBrazilianReal(),
+                    text = walletFullBalance.toBrazilianReal(),
                     fontFamily = PoppinsFontFamily,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
@@ -104,7 +106,8 @@ private fun WalletContainerPreview() {
             wallet = Wallet(
                 walletId = 1,
                 title = "Nubank",
-                balance = 1725.74
+                balance = 1725.74,
+                emptyList()
             ),
             walletCards = listOf(
                 WalletCard(
@@ -140,7 +143,8 @@ private fun WalletContainerNoCardsPreview() {
             wallet = Wallet(
                 walletId = 1,
                 title = "Limite20caracteresjj",
-                balance = 9999999.99
+                balance = 9999999.99,
+                emptyList()
             ),
             walletCards = emptyList()
         )

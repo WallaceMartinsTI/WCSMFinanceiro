@@ -44,19 +44,27 @@ fun WalletDropdownChooser(
     isError: Boolean,
     errorMessage: String,
     modifier: Modifier = Modifier,
+    selectedWallet: String? = null,
     onValueSelected: (selectedWallet: WalletWithCards) -> Unit
 ) {
     var wallet by remember { mutableStateOf("Selecione uma carteira") }
 
     var showWalletsDropdown by remember { mutableStateOf(false) }
 
+    LaunchedEffect(selectedWallet) {
+        if(selectedWallet != null) {
+            wallet = selectedWallet
+        }
+    }
+
     LaunchedEffect(wallet) {
         if (wallet.isNotBlank() && wallet != "Selecione uma carteira") {
-            val selectedWalletWithCards = walletWithCards.filter {
+            val selectedWalletWithCards = walletWithCards.find {
                 it.wallet.title == wallet
-            }[0]
-
-            onValueSelected(selectedWalletWithCards)
+            }
+            selectedWalletWithCards?.let {
+                onValueSelected(selectedWalletWithCards)
+            }
         }
     }
 
@@ -144,7 +152,8 @@ private fun WalletDropdownChooserPreview() {
                 Wallet(
                     walletId = 1999999,
                     title = "Nubank",
-                    balance = 1725.74
+                    balance = 1725.74,
+                    emptyList()
                 ),
                 emptyList()
             ),
@@ -152,7 +161,8 @@ private fun WalletDropdownChooserPreview() {
                 Wallet(
                     walletId = 2999999,
                     title = "Inter",
-                    balance = 1725.74
+                    balance = 1725.74,
+                    emptyList()
                 ),
                 emptyList()
             ),
@@ -160,7 +170,8 @@ private fun WalletDropdownChooserPreview() {
                 Wallet(
                     walletId = 3999999,
                     title = "Caixa",
-                    balance = 1725.74
+                    balance = 1725.74,
+                    emptyList()
                 ),
                 emptyList()
             ),
@@ -168,7 +179,8 @@ private fun WalletDropdownChooserPreview() {
                 Wallet(
                     walletId = 3999999,
                     title = "NomeMuitoGrandeLim20",
-                    balance = 1725.74
+                    balance = 1725.74,
+                    emptyList()
                 ),
                 emptyList()
             )

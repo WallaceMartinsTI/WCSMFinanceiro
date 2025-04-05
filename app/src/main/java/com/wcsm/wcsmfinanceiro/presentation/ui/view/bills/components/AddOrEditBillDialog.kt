@@ -47,20 +47,16 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.wcsm.wcsmfinanceiro.data.local.entity.Wallet
 import com.wcsm.wcsmfinanceiro.data.local.model.BillType
 import com.wcsm.wcsmfinanceiro.data.local.model.PaymentType
-import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.model.CrudOperationType
+import com.wcsm.wcsmfinanceiro.presentation.model.UiState
 import com.wcsm.wcsmfinanceiro.presentation.model.bills.BillState
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppDatePicker
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.AppLoader
@@ -69,15 +65,12 @@ import com.wcsm.wcsmfinanceiro.presentation.ui.component.CustomCheckbox
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.MonetaryInputField
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.RadioButtonChooser
 import com.wcsm.wcsmfinanceiro.presentation.ui.component.XIcon
-import com.wcsm.wcsmfinanceiro.presentation.ui.theme.BackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.ErrorColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.OnBackgroundColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PoppinsFontFamily
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.PrimaryColor
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.SurfaceColor
-import com.wcsm.wcsmfinanceiro.presentation.ui.theme.WCSMFinanceiroTheme
 import com.wcsm.wcsmfinanceiro.presentation.ui.theme.White06Color
-import com.wcsm.wcsmfinanceiro.presentation.ui.view.bills.BillsViewModel
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet.WalletViewModel
 import com.wcsm.wcsmfinanceiro.presentation.ui.view.wallet.components.WalletDropdownChooser
 import com.wcsm.wcsmfinanceiro.util.brazilianDateToTimeInMillis
@@ -120,7 +113,7 @@ fun AddOrEditBillDialog(
 
     var tagsToAdd by remember { mutableStateOf("") }
 
-    val isBillToEdit by remember { mutableStateOf(billDialogState.billId != 0L) }
+    val isBillToEdit by remember { mutableStateOf(billDialogState.billId != "") }
     var isModalLoading by remember { mutableStateOf(isBillToEdit) }
 
     var showConfirmBillDeletionDialog by remember { mutableStateOf(false) }
@@ -129,9 +122,10 @@ fun AddOrEditBillDialog(
 
     var showExpenseFormData by remember { mutableStateOf(false) }
 
+    var selectedWallet: String? by remember { mutableStateOf(null) }
+
     // Wallet Communication
     val walletsWithCards by walletViewModel.walletsWithCards.collectAsStateWithLifecycle()
-    var walletsList: List<Wallet> by remember { mutableStateOf(emptyList()) }
 
     LaunchedEffect(Unit) {
         billHasTag = billDialogState.tags.isNotEmpty()
@@ -140,13 +134,16 @@ fun AddOrEditBillDialog(
             selectedDate = if(billDialogState.date == 0L) "" else (billDialogState.date.toBrazilianDateString())
             selectedDueDate = if(billDialogState.dueDate == 0L) "" else (billDialogState.dueDate.toBrazilianDateString())
 
+            val walletWithBill = walletsWithCards?.find { walletWithCard ->
+                walletWithCard.wallet.walletBills.any { it.first == billDialogState.billId }
+            }
+            if(walletWithBill != null) {
+                selectedWallet = walletWithBill.wallet.title
+            }
+
             delay(1500)
             isModalLoading = false
         }
-
-        walletsList = walletsWithCards?.map {
-            it.wallet
-        } ?: emptyList()
     }
 
     LaunchedEffect(billDialogState.billType) {
@@ -244,17 +241,20 @@ fun AddOrEditBillDialog(
                         )
                     }
 
-                    WalletDropdownChooser(
-                        walletWithCards = walletsWithCards ?: emptyList(),
-                        isError = billDialogState.walletWithCardsErrorMessage.isNotBlank(),
-                        errorMessage = billDialogState.walletWithCardsErrorMessage
-                    ) { selectedWallet ->
-                        onValueChange(
-                            billDialogState.copy(
-                                walletWithCards = selectedWallet
+                    //if(!isModalLoading) {
+                        WalletDropdownChooser(
+                            walletWithCards = walletsWithCards ?: emptyList(),
+                            selectedWallet = selectedWallet,
+                            isError = billDialogState.walletWithCardsErrorMessage.isNotBlank(),
+                            errorMessage = billDialogState.walletWithCardsErrorMessage
+                        ) { selectedWallet ->
+                            onValueChange(
+                                billDialogState.copy(
+                                    walletWithCards = selectedWallet
+                                )
                             )
-                        )
-                    }
+                        }
+                    //}
 
                     BillCategoriesDropdown(
                         inputtedOption = if (isBillToEdit) billDialogState.category else null,
@@ -604,7 +604,7 @@ fun AddOrEditBillDialog(
                     }
 
                     CustomCheckbox(
-                        checkboxText = if(showExpenseFormData) "Recebida?" else "Paga?",
+                        checkboxText = if(showExpenseFormData) "Paga?" else "Recebida?",
                         alreadyChecked = billDialogState.paid
                     ) { isChecked ->
                         onValueChange(
@@ -776,6 +776,7 @@ fun AddOrEditBillDialog(
     }
 }
 
+/*
 @Preview
 @Composable
 private fun AddOrEditBillDialogPreview() {
@@ -805,4 +806,4 @@ private fun AddOrEditBillDialogPreview() {
             )
         }
     }
-}
+}*/

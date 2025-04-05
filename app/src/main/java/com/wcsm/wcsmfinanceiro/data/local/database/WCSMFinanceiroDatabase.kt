@@ -14,13 +14,14 @@ import com.wcsm.wcsmfinanceiro.data.local.entity.Subscription
 import com.wcsm.wcsmfinanceiro.data.local.entity.Wallet
 import com.wcsm.wcsmfinanceiro.data.local.entity.WalletCard
 import com.wcsm.wcsmfinanceiro.data.local.entity.converter.BillConverter
+import com.wcsm.wcsmfinanceiro.data.local.entity.converter.WalletConverter
 import com.wcsm.wcsmfinanceiro.util.Constants
 
 @Database(
     entities = [Bill::class, Wallet::class, WalletCard::class, Subscription::class],
     version = 1
 )
-@TypeConverters(BillConverter::class)
+@TypeConverters(BillConverter::class, WalletConverter::class)
 abstract class WCSMFinanceiroDatabase : RoomDatabase() {
 
     abstract val billsDao: BillsDao
@@ -36,6 +37,7 @@ abstract class WCSMFinanceiroDatabase : RoomDatabase() {
                 name = Constants.DATABASE_NAME
             )
                 .addTypeConverter(BillConverter())
+                .addTypeConverter(WalletConverter())
                 .build()
         }
     }

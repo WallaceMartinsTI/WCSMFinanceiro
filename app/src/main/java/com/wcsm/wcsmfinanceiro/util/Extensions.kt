@@ -98,7 +98,8 @@ fun WalletState.toWallet() : Wallet {
     return Wallet(
         walletId = this.walletId,
         title = this.title,
-        balance = this.balance
+        balance = this.balance,
+        emptyList()
     )
 }
 

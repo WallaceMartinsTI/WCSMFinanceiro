@@ -23,7 +23,7 @@ class BillConverter {
     }
 
     @TypeConverter
-    fun paymntTypeToString(paymentType: PaymentType) : String {
+    fun paymentTypeToString(paymentType: PaymentType) : String {
         return paymentType.displayName
     }
 

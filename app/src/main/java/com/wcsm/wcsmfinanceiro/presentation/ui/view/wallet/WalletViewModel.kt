@@ -42,7 +42,8 @@ class WalletViewModel @Inject constructor(
             wallet = Wallet(
                 walletId = 1999999,
                 title = "Nubank",
-                balance = 1725.74
+                balance = 1725.74,
+                emptyList()
             ),
             walletCards = listOf(
                 WalletCard(
@@ -69,7 +70,8 @@ class WalletViewModel @Inject constructor(
             wallet = Wallet(
                 walletId = 2999999,
                 title = "Inter",
-                balance = 1725.74
+                balance = 1725.74,
+                emptyList()
             ),
             walletCards = listOf(
                 WalletCard(
@@ -87,7 +89,8 @@ class WalletViewModel @Inject constructor(
             wallet = Wallet(
                 walletId = 3999999,
                 title = "Caixa",
-                balance = 1725.74
+                balance = 1725.74,
+                emptyList()
             ),
             walletCards = listOf(
                 WalletCard(
@@ -124,7 +127,8 @@ class WalletViewModel @Inject constructor(
             wallet = Wallet(
                 walletId = 4999999,
                 title = "Sicoob",
-                balance = 1725.74
+                balance = 1725.74,
+                emptyList()
             ),
             walletCards = listOf(
                 WalletCard(
@@ -142,7 +146,8 @@ class WalletViewModel @Inject constructor(
             wallet = Wallet(
                 walletId = 5999999,
                 title = "Itaú",
-                balance = 1725.74
+                balance = 1725.74,
+                emptyList()
             ),
             walletCards = listOf(
                 WalletCard(

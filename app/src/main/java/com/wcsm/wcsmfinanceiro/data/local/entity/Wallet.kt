@@ -13,4 +13,6 @@ data class Wallet(
     val walletId: Long,
     val title: String,
     val balance: Double,
+    @ColumnInfo(name = "wallet_bills")
+    val walletBills: List<Pair<String, Double>>
 )
